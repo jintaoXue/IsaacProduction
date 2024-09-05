@@ -1,0 +1,8 @@
+obj_all:
+    machine:
+        usd_path: '/home/xue/work/Dataset/3D_model/all.usd'
+        width_min: 0.030
+        width_max: 0.03464102
+        height: 0.016
+        flat_length: 0.01732051
+    thread_pitch: 0.0025

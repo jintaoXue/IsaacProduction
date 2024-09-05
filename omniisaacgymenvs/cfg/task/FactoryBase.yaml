@@ -1,0 +1,14 @@
+# See schema in factory_schema_config_base.py for descriptions of parameters.
+
+defaults:
+  - _self_
+  - /factory_schema_config_base
+
+sim:
+  add_damping: True
+  disable_contact_processing: False
+    
+env:
+  env_spacing: 1.5
+
+

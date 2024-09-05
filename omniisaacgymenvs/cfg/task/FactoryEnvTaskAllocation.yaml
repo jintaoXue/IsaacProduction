@@ -1,0 +1,25 @@
+# See schema in factory_schema_config_env.py for descriptions of common parameters.
+
+defaults:
+  - _self_
+  - /factory_schema_config_env
+
+sim:
+  disable_franka_collisions: False
+  disable_nut_collisions: False
+  disable_bolt_collisions: False
+  disable_contact_processing: False
+
+env:
+  env_name: 'FactoryEnvTaskAlloc'
+  desired_subassemblies: ['obj_all']
+  route_character_file_path: "~/work/Dataset/3D_model/routes_character.pkl"
+  route_agv_file_path: "~/work/Dataset/3D_model/routes_agv.pkl"
+  # desired_subassemblies: ['obj_0_0', 'obj_0_1', 'obj_0_2']
+  # desired_subassemblies: ['obj_1_1', 'obj_1_2']
+  nut_lateral_offset: 0.0  # Y-axis offset of nut before initial reset to prevent initial interpenetration with bolt
+  nut_bolt_density: 7850.0
+  nut_bolt_friction: 0.5
+
+  # Subassembly options:
+  # {nut_bolt_m4, nut_bolt_m8, nut_bolt_m12, nut_bolt_m16, nut_bolt_m20}
