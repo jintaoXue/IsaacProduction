@@ -41,7 +41,7 @@ from omniisaacgymenvs.utils.rlgames.rlgames_utils import RLGPUAlgoObserver, RLGP
 from omniisaacgymenvs.utils.task_util import initialize_task
 from rl_games.common import env_configurations, vecenv
 from rl_games.torch_runner import Runner
-
+import setproctitle
 
 class RLGTrainer:
     def __init__(self, cfg, cfg_dict):
@@ -81,7 +81,7 @@ class RLGTrainer:
 def parse_hydra_configs(cfg: DictConfig):
 
     time_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
+    setproctitle.setproctitle(cfg.process_name)
     headless = cfg.headless
 
     # local rank (GPU id) in a current multi-gpu mode
@@ -142,7 +142,7 @@ def parse_hydra_configs(cfg: DictConfig):
     cfg_dict["seed"] = cfg.seed
 
     task = initialize_task(cfg_dict, env)
-
+    
     if cfg.wandb_activate and global_rank == 0:
         # Make sure to install WandB if you actually use this.
         import wandb
