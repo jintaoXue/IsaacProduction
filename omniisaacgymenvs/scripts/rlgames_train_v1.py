@@ -43,6 +43,8 @@ from rl_games.common import env_configurations, vecenv
 from rl_games.torch_runner import Runner
 import setproctitle
 
+# from omniisaacgymenvs.algo import rainbow
+
 class RLGTrainer:
     def __init__(self, cfg, cfg_dict):
         self.cfg = cfg
@@ -64,6 +66,7 @@ class RLGTrainer:
 
         # create runner and set the settings
         runner = Runner(RLGPUAlgoObserver())
+        # runner.algo_factory.register_builder('rainbow', lambda **kwargs: rainbow.RainbowAgent(**kwargs))
         runner.load(self.rlg_config_dict)
         runner.reset()
 
@@ -81,7 +84,7 @@ class RLGTrainer:
 def parse_hydra_configs(cfg: DictConfig):
 
     time_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    setproctitle.setproctitle(cfg.process_name)
+    setproctitle.setproctitle(cfg.task_name)
     headless = cfg.headless
 
     # local rank (GPU id) in a current multi-gpu mode

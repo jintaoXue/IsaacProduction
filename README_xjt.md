@@ -89,3 +89,6 @@ upper tube 的picking index有bug
 idea: two-stage RL network
 
 场景的泛化性要考虑： 改变worker 和 machine的数量
+
+# 9.15 
+action_space obs_space默认值 等都在rl_task_v1.py这里修改
