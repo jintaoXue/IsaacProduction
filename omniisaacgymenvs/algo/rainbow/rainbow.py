@@ -19,7 +19,9 @@ from omegaconf import DictConfig
 class RainbowAgent():
     def __init__(self, base_name, params):
 
-        self.config = config = params['config']
+        self.config : DictConfig = params['config']
+        self.set_default_values()
+        config = self.config
         print(config)
 
         # TODO: Get obs shape and self.network
@@ -38,9 +40,7 @@ class RainbowAgent():
         self.norm_clip = config['norm_clip']
         self.replay_frequency = config['replay_frequency']
         self.target_update = config['target_update']
-        ####TODO
-        self.config : DictConfig
-        # self.config.__setitem__(key=, value=)
+
         #######
         self.online_net = DQN(config, self.action_space).to(device=self._device)
         self.online_net.train()
@@ -93,8 +93,33 @@ class RainbowAgent():
     # def load_networks(self, params):
     #     builder = model_builder.ModelBuilder()
     #     config['network'] = builder.load(params)
+    def set_default_values(self,):
+
+        self.config.setdefault(key='atoms', default=)
+        self.config.setdefault(key='architecture', default=)
+        self.config.setdefault(key='history_length', default=)
+        self.config.setdefault(key='hidden_size', default=)
+        self.config.setdefault(key='noisy_std', default=)
+        self.config.setdefault(key='hidden_size', default=)
+        self.config.setdefault(key='hidden_size', default=)
+
+        self.config.setdefault(key='V_min', default=)
+        self.config.setdefault(key='V_max', default=)
 
     def base_init(self, base_name, config):
+        ####TODO
+        self.Vmin = config.setdefault['V_min']
+        self.Vmax = config.setdefault['V_max']
+        self.support = torch.linspace(config['V_min'], config['V_max'], self.atoms).to(device=self._device)  # Support (range) of z
+        self.delta_z = (config['V_max'] - config['V_min']) / (self.atoms - 1)
+        self.batch_size = config.setdefault['batch_size']
+        self.n = config.setdefault['multi_step']
+        self.discount = config.setdefault['discount']
+        self.norm_clip = config.setdefault['norm_clip']
+        self.replay_frequency = config.setdefault['replay_frequency']
+        self.target_update = config.setdefault['target_update']
+
+
         self.env_config = config.get('env_config', {})
         self.num_actors = config.get('num_actors', 1)
         self.env_name = config['env_name']
