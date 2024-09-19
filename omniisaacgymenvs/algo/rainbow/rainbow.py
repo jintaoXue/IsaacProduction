@@ -6,168 +6,136 @@ import torch
 from torch import optim
 from torch.nn.utils import clip_grad_norm_
 from torch import nn
-from model import DQN
 
 from rl_games.common import vecenv
 from rl_games.algos_torch import torch_ext
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 from omniisaacgymenvs.algo.rainbow.memory import ReplayMemory
+from omniisaacgymenvs.algo.rainbow.model import DQN
 from tqdm import trange
 import time
 from omegaconf import DictConfig
+
 class RainbowAgent():
     def __init__(self, base_name, params):
 
         self.config : DictConfig = params['config']
-        self.set_default_values()
+        self.base_init(base_name)
         config = self.config
         print(config)
-
-        # TODO: Get obs shape and self.network
-        # self.load_networks(params)
-        self.base_init(base_name, config)
-
-        self.action_space = self.env_info['action_space']
+        #######pramameters for model update and act
         self.atoms = config['atoms']
-        self.Vmin = config['V_min']
-        self.Vmax = config['V_max']
-        self.support = torch.linspace(config['V_min'], config['V_max'], self.atoms).to(device=self._device)  # Support (range) of z
-        self.delta_z = (config['V_max'] - config['V_min']) / (self.atoms - 1)
-        self.batch_size = config['batch_size']
+        self.Vmin = config.get('V_min', -10)
+        self.Vmax = config.get('V_max', 10)
+        self.support = torch.linspace(self.Vmin, self.Vmax, self.atoms).to(device=self._device)  # Support (range) of z
+        self.delta_z = (self.Vmax - self.Vmin) / (self.atoms - 1)
         self.n = config['multi_step']
         self.discount = config['discount']
-        self.norm_clip = config['norm_clip']
-        self.replay_frequency = config['replay_frequency']
-        self.target_update = config['target_update']
-
-        #######
-        self.online_net = DQN(config, self.action_space).to(device=self._device)
+        self.norm_clip = config.get('norm_clip', 10)
+        ###########for agent training
+        self.update_frequency = config.get('update_frequency', 4)
+        self.target_update = config.get('target_update', int(8e3))
+        self.max_steps = config.get("max_steps", int(50e6))
+        self.max_epochs = config.get("max_epochs", int(1e6))
+        self.batch_size = config.get('batch_size', 64)
+        self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
+        self.num_steps_per_episode = config.get("num_steps_per_episode", 1)
+        self.max_env_steps = config.get("max_env_steps", 1500) # temporary, in future we will use other approach
+        print(self.batch_size, self.num_actors, self.num_agents)
+        print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
+        #########buffer
+        self.priority_weight_increase = (1 - config['priority_weight']) / (self.max_steps - self.num_warmup_steps)
+        self.replay_buffer = ReplayMemory(config, config["replay_buffer_size"])
+        ####### net
+        self.online_net = DQN(config, 2).to(device=self._device)
+        # self.online_net = DQN(config, self.action_space).to(device=self._device)
         self.online_net.train()
-        self.target_net = DQN(config, self.action_space).to(device=self._device)
+        # self.target_net = DQN(config, self.action_space).to(device=self._device)
+        self.target_net = DQN(config, 2).to(device=self._device)
         self.update_target_net()
         self.target_net.train()
         for param in self.target_net.parameters():
             param.requires_grad = False
-
-        self.optimiser = optim.Adam(self.online_net.parameters(), lr=config.learning_rate, eps=config.adam_eps)
-
-        #############################################################TODO##########################################
-        self.num_warmup_steps = self.config['num_warmup_steps']
-        self.replay_buffer_size = config["replay_buffer_size"]
-        self.num_steps_per_episode = config.get("num_steps_per_episode", 1)
-        self.normalize_input = config.get("normalize_input", False)
-
-        # TODO: double-check! To use bootstrap instead?
-        self.max_env_steps = config.get("max_env_steps", 1000) # temporary, in future we will use other approach
-
-        print(self.batch_size, self.num_actors, self.num_agents)
-
-        self.num_frames_per_epoch = self.num_actors * self.num_steps_per_episode
-        action_space = self.env_info['action_space']
-        self.actions_num = action_space.shape[0]
-
-        self.action_range = [
-            float(self.env_info['action_space'].low.min()),
-            float(self.env_info['action_space'].high.max())
-        ]
-
-        obs_shape = torch_ext.shape_whc_to_cwh(self.obs_shape)
-        # net_config = {
-        #     'obs_dim': self.env_info["observation_space"].shape[0],
-        #     'action_dim': self.env_info["action_space"].shape[0],
-        #     'actions_num' : self.actions_num,
-        #     'input_shape' : obs_shape,
-        #     'normalize_input': self.normalize_input,
-        # }
-        # self.model = self.network.build(net_config)
-        # self.model.to(self._device)
-
-        print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
-
-
-        self.replay_buffer = ReplayMemory(config, self.replay_buffer_size)
-
-        self.algo_observer = config['features']['observer']
+        #####
+        self.optimiser = optim.Adam(self.online_net.parameters(), lr=config['learning_rate'], eps=config['adam_eps'])
 
     # def load_networks(self, params):
     #     builder = model_builder.ModelBuilder()
     #     config['network'] = builder.load(params)
-    def set_default_values(self,):
+    def setdefault(self, dict: dict, key, default):
+        if key in dict:
+            return
+        else:
+            dict.__setitem__(key, default)
 
-        self.config.setdefault(key='atoms', default=)
-        self.config.setdefault(key='architecture', default=)
-        self.config.setdefault(key='history_length', default=)
-        self.config.setdefault(key='hidden_size', default=)
-        self.config.setdefault(key='noisy_std', default=)
-        self.config.setdefault(key='hidden_size', default=)
-        self.config.setdefault(key='hidden_size', default=)
+    def base_init(self, base_name):
 
-        self.config.setdefault(key='V_min', default=)
-        self.config.setdefault(key='V_max', default=)
-
-    def base_init(self, base_name, config):
+        self.setdefault(self.config, key='device', default='cuda:0')
+        ########for replay buffer args initialize
+        self.setdefault(self.config, key='atoms', default=51) 
+        self.setdefault(self.config, key='replay_buffer_size', default=int(1e6))
+        self.setdefault(self.config, key='history_length', default=4)
+        self.setdefault(self.config, key='discount', default=0.99)
+        self.setdefault(self.config, key='multi_step', default=3)
+        self.setdefault(self.config, key='priority_exponent', default=0.5)
+        self.setdefault(self.config, key='priority_weight', default=0.4)
+        ########for neural network args initialize
+        self.setdefault(self.config, key='architecture', default='canonical')
+        self.setdefault(self.config, key='hidden_size', default=512)
+        self.setdefault(self.config, key='noisy_std', default=0.1)
+        ######for optimizer initialize
+        self.setdefault(self.config, key='learning_rate', default=0.0000625)
+        self.setdefault(self.config, key='adam_eps', default=1.5e-4)
+        config = self.config
         ####TODO
-        self.Vmin = config.setdefault['V_min']
-        self.Vmax = config.setdefault['V_max']
-        self.support = torch.linspace(config['V_min'], config['V_max'], self.atoms).to(device=self._device)  # Support (range) of z
-        self.delta_z = (config['V_max'] - config['V_min']) / (self.atoms - 1)
-        self.batch_size = config.setdefault['batch_size']
-        self.n = config.setdefault['multi_step']
-        self.discount = config.setdefault['discount']
-        self.norm_clip = config.setdefault['norm_clip']
-        self.replay_frequency = config.setdefault['replay_frequency']
-        self.target_update = config.setdefault['target_update']
-
-
         self.env_config = config.get('env_config', {})
         self.num_actors = config.get('num_actors', 1)
         self.env_name = config['env_name']
         print("Env name:", self.env_name)
-
         self.env_info = config.get('env_info')
         if self.env_info is None:
             self.vec_env = vecenv.create_vec_env(self.env_name, self.num_actors, **self.env_config)
             self.env_info = self.vec_env.get_env_info()
 
-        self._device = config.get('device', 'cuda:0')
-
+        self.action_space = self.env_info['action_space']
+        self.actions_num = self.action_space.shape[0]
+        self.action_range = [
+            float(self.env_info['action_space'].low.min()),
+            float(self.env_info['action_space'].high.max())
+        ]
+        self.observation_space = self.env_info['observation_space']
+        self.obs_shape = self.observation_space.shape
+        self.obs = None
+        self._device = config['device']
         #temporary for Isaac gym compatibility
         print('Env info:')
         print(self.env_info)
 
         self.rewards_shaper = config['reward_shaper']
-        self.observation_space = self.env_info['observation_space']
-        self.weight_decay = config.get('weight_decay', 0.0)
+        
+        # self.weight_decay = config.get('weight_decay', 0.0)
         #self.use_action_masks = config.get('use_action_masks', False)
-        self.is_train = config.get('is_train', True)
-
-        self.c_loss = nn.MSELoss()
+        # self.is_train = config.get('is_train', True)
+        # self.c_loss = nn.MSELoss()
         # self.c2_loss = nn.SmoothL1Loss()
 
         self.save_best_after = config.get('save_best_after', 500)
-        self.print_stats = config.get('print_stats', True)
-        self.rnn_states = None
-        self.name = base_name
-
-        self.max_epochs = config.get('max_epochs', -1)
-        self.max_frames = config.get('max_frames', -1)
+        # self.print_stats = config.get('print_stats', True)
+        # self.rnn_states = None
+        # self.name = base_name
 
         self.save_freq = config.get('save_frequency', 0)
 
-        self.network = config['network']
-        self.rewards_shaper = config['reward_shaper']
+        # self.network = config['network']
         self.num_agents = self.env_info.get('agents', 1)
-        self.obs_shape = self.observation_space.shape
 
         self.games_to_track = config.get('games_to_track', 100)
         self.game_rewards = torch_ext.AverageMeter(1, self.games_to_track).to(self._device)
         self.game_lengths = torch_ext.AverageMeter(1, self.games_to_track).to(self._device)
-        self.obs = None
-
+    
         # self.min_alpha = torch.tensor(np.log(1)).float().to(self._device)
-        self.horizon_length = self.config['horizon_length']
-        self.frame = 0
+        self.step_num = 0
         self.epoch_num = 0
         self.update_time = 0
         self.last_mean_rewards = -1000000000
@@ -233,8 +201,6 @@ class RainbowAgent():
     def set_eval(self):
         self.online_net.eval()
 
-    
-
     def init_tensors(self):
         if self.observation_space.dtype == np.uint8:
             torch_dtype = torch.uint8
@@ -246,10 +212,6 @@ class RainbowAgent():
         self.current_lengths = torch.zeros(batch_size, dtype=torch.long, device=self._device)
 
         self.dones = torch.zeros((batch_size,), dtype=torch.uint8, device=self._device)
-
-    @property
-    def alpha(self):
-        return self.log_alpha.exp()
 
     @property
     def device(self):
@@ -272,7 +234,6 @@ class RainbowAgent():
         state = self.get_weights()
 
         state['epoch'] = self.epoch_num
-        state['frame'] = self.frame
         state['optimizer'] = self.optimiser.state_dict()       
 
         return state
@@ -282,7 +243,6 @@ class RainbowAgent():
 
         if set_epoch:
             self.epoch_num = weights['epoch']
-            self.frame = weights['frame']
 
         self.optimiser.load_state_dict(weights['optimizer'])
         self.last_mean_rewards = weights.get('last_mean_rewards', -1000000000)
@@ -292,7 +252,7 @@ class RainbowAgent():
             self.vec_env.set_env_state(env_state)
 
     def restore(self, fn, set_epoch=True):
-        print("SAC restore")
+        print("rainbow restore")
         checkpoint = torch_ext.load_checkpoint(fn)
         self.set_full_state_weights(checkpoint, set_epoch=set_epoch)
 
@@ -342,13 +302,6 @@ class RainbowAgent():
 
         self.replay_buffer.update_priorities(idxs, loss.detach().cpu().numpy())  # Update priorities of sampled transitions
         return loss
-
-    def preproc_obs(self, obs):
-        if isinstance(obs, dict):
-            obs = obs['obs']
-        obs = self.model.norm_obs(obs)
-
-        return obs
 
     def cast_obs(self, obs):
         if isinstance(obs, torch.Tensor):
@@ -413,7 +366,6 @@ class RainbowAgent():
         self.game_rewards.clear()
         self.game_lengths.clear()
         self.mean_rewards = self.last_mean_rewards = -1000000000
-        self.algo_observer.after_clear_stats()
 
     def play_steps(self, random_exploration = False):
         total_time_start = time.time()
@@ -426,9 +378,9 @@ class RainbowAgent():
 
         next_obs_processed = obs.clone()
 
-        for s in range(self.num_steps_per_episode):
+        for s in range(int(self.num_steps_per_episode/self.num_actors)):
             self.set_eval()
-            if self.frame % self.replay_frequency == 0:
+            if self.step_num % self.update_frequency == 0:
                 self.reset_noise()
             if random_exploration:
                 action = torch.rand((self.num_actors, *self.env_info["action_space"].shape), device=self._device) * 2.0 - 1.0
@@ -445,7 +397,7 @@ class RainbowAgent():
             step_end = time.time()
             #TODO only support num_agents == 1
             assert self.num_agents == 1, ('only support num_agents == 1')
-            self.frame += self.num_actors * 1
+            self.step_num += self.num_actors * 1
             self.current_rewards += rewards
             self.current_lengths += 1
 
@@ -458,8 +410,6 @@ class RainbowAgent():
             self.game_lengths.update(self.current_lengths[done_indices])
 
             not_dones = 1.0 - dones.float()
-
-            self.algo_observer.process_infos(infos, done_indices)
 
             no_timeouts = self.current_lengths != self.max_env_steps
             dones = dones * no_timeouts
@@ -479,17 +429,19 @@ class RainbowAgent():
             if isinstance(obs, dict):
                 obs = self.obs['obs']
 
-            if not random_exploration and self.frame % self.replay_frequency == 0:
-                self.set_train()
-                update_time_start = time.time()
-                loss = self.update(self.epoch_num)
-                update_time_end = time.time()
-                update_time = update_time_end - update_time_start
+            if not random_exploration:
+                self.replay_buffer.priority_weight = min(self.replay_buffer.priority_weight + self.priority_weight_increase, 1)
+                if self.step_num % self.update_frequency == 0:
+                    self.set_train()
+                    update_time_start = time.time()
+                    loss = self.update(self.epoch_num)
+                    update_time_end = time.time()
+                    update_time = update_time_end - update_time_start
             else:
                 update_time = 0
 
             # Update target network
-            if self.frame % self.target_update == 0:
+            if self.step_num % self.target_update == 0:
                 self.update_target_net()
 
             total_update_time += update_time
@@ -506,7 +458,6 @@ class RainbowAgent():
 
     def train(self):
         self.init_tensors()
-        self.algo_observer.after_init(self)
         total_time = 0
         # rep_count = 0
         self.obs = self.env_reset()
@@ -515,37 +466,31 @@ class RainbowAgent():
             step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch()
 
             total_time += epoch_total_time
+            self.step_num += self.num_steps_per_episode
 
-            curr_frames = self.num_frames_per_epoch
-            self.frame += curr_frames
+            fps_step = self.num_steps_per_episode / step_time
+            fps_step_inference = self.num_steps_per_episode / play_time
+            fps_total = self.num_steps_per_episode / epoch_total_time
 
-            fps_step = curr_frames / step_time
-            fps_step_inference = curr_frames / play_time
-            fps_total = curr_frames / epoch_total_time
-
-            # print_statistics(self.print_stats, curr_frames, step_time, play_time, epoch_total_time, 
-            #     self.epoch_num, self.max_epochs, self.frame, self.max_frames)
-
-            self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.frame)
-            self.writer.add_scalar('performance/step_inference_fps', fps_step_inference, self.frame)
-            self.writer.add_scalar('performance/step_fps', fps_step, self.frame)
-            self.writer.add_scalar('performance/rl_update_time', update_time, self.frame)
-            self.writer.add_scalar('performance/step_inference_time', play_time, self.frame)
-            self.writer.add_scalar('performance/step_time', step_time, self.frame)
+            self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.step_num)
+            self.writer.add_scalar('performance/step_inference_fps', fps_step_inference, self.step_num)
+            self.writer.add_scalar('performance/step_fps', fps_step, self.step_num)
+            self.writer.add_scalar('performance/rl_update_time', update_time, self.step_num)
+            self.writer.add_scalar('performance/step_inference_time', play_time, self.step_num)
+            self.writer.add_scalar('performance/step_time', step_time, self.step_num)
 
             if self.epoch_num >= self.num_warmup_steps:
-                self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.frame)
+                self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.step_num)
 
-            self.writer.add_scalar('info/epochs', self.epoch_num, self.frame)
-            self.algo_observer.after_print_stats(self.frame, self.epoch_num, total_time)
+            self.writer.add_scalar('info/epochs', self.epoch_num, self.step_num)
 
             if self.game_rewards.current_size > 0:
                 mean_rewards = self.game_rewards.get_mean()
                 mean_lengths = self.game_lengths.get_mean()
 
-                self.writer.add_scalar('rewards/step', mean_rewards, self.frame)
+                self.writer.add_scalar('rewards/step', mean_rewards, self.step_num)
                 self.writer.add_scalar('rewards/time', mean_rewards, total_time)
-                self.writer.add_scalar('episode_lengths/step', mean_lengths, self.frame)
+                self.writer.add_scalar('episode_lengths/step', mean_lengths, self.step_num)
                 self.writer.add_scalar('episode_lengths/time', mean_lengths, total_time)
                 checkpoint_name = self.config['name'] + '_ep_' + str(self.epoch_num) + '_rew_' + str(mean_rewards)
 
@@ -575,14 +520,14 @@ class RainbowAgent():
                     print('MAX EPOCHS NUM!')
                     should_exit = True
 
-                if self.frame >= self.max_frames and self.max_frames != -1:
+                if self.step_num >= self.max_steps and self.max_steps != -1:
                     if self.game_rewards.current_size == 0:
-                        print('WARNING: Max frames reached before any env terminated at least once')
+                        print('WARNING: Max steps reached before any env terminated at least once')
                         mean_rewards = -np.inf
 
-                    self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_frame_' + str(self.frame) \
+                    self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_step_' + str(self.step_num) \
                         + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
-                    print('MAX FRAMES NUM!')
+                    print('MAX STEPS NUM!')
                     should_exit = True
 
                 update_time = 0
