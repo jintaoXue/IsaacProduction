@@ -3,9 +3,9 @@ from __future__ import division
 import numpy as np
 import torch
 
-
-Transition_dtype = np.dtype([('timestep', np.int32), ('state', np.uint8, (84, 84)), ('action', np.int32), ('reward', np.float32), ('nonterminal', np.bool_)])
-blank_trans = (0, np.zeros((84, 84), dtype=np.uint8), 0, 0.0, False)
+####TODO state shape
+Transition_dtype = np.dtype([('timestep', np.int32), ('state', np.uint8, (20)), ('action', np.int32, (12)), ('reward', np.float32), ('nonterminal', np.bool_)])
+blank_trans = (0, np.zeros((20), dtype=np.uint8), np.zeros((12), dtype=np.int32), 0.0, False)
 
 
 # Segment tree data structure where parent node values are sum/max of children node values
@@ -103,7 +103,7 @@ class ReplayMemory():
 
   # Adds state and action at time t, reward and terminal at time t + 1
   def append(self, state, action, reward, terminal):
-    state = state[-1].mul(255).to(dtype=torch.uint8, device=torch.device('cpu'))  # Only store last frame and discretise to save memory
+    # state = state[-1].mul(255).to(dtype=torch.uint8, device=torch.device('cpu'))  # Only store last frame and discretise to save memory
     self.transitions.append((self.t, state, action, reward, not terminal), self.transitions.max)  # Store new transition with maximum priority
     self.t = 0 if terminal else self.t + 1  # Start new episodes with t = 0
 

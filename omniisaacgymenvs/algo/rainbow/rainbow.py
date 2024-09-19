@@ -373,6 +373,7 @@ class RainbowAgent():
         total_time = 0
         step_time = 0.0
         obs = self.obs
+        loss = None
         if isinstance(obs, dict):
             obs = self.obs['obs']
 
@@ -420,14 +421,16 @@ class RainbowAgent():
             if isinstance(next_obs, dict):    
                 next_obs_processed = next_obs['obs']
 
-            self.obs = next_obs.clone()
-
+            
             rewards = self.rewards_shaper(rewards)
-            ####TODO change to vector envs
-            self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
-
-            if isinstance(obs, dict):
-                obs = self.obs['obs']
+            ####TODO refine replay buffer
+            # self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
+            obs_cpu = obs.squeeze().cpu()
+            action_cpu = action.squeeze().cpu()
+            rewards_cpu = rewards.squeeze().cpu()
+            dones_cpu = dones.squeeze().cpu()
+            self.replay_buffer.append(obs_cpu, action_cpu, rewards_cpu, dones_cpu)
+            self.obs = next_obs_processed.clone()
 
             if not random_exploration:
                 self.replay_buffer.priority_weight = min(self.replay_buffer.priority_weight + self.priority_weight_increase, 1)
@@ -479,7 +482,7 @@ class RainbowAgent():
             self.writer.add_scalar('performance/step_inference_time', play_time, self.step_num)
             self.writer.add_scalar('performance/step_time', step_time, self.step_num)
 
-            if self.epoch_num >= self.num_warmup_steps:
+            if self.epoch_num >= self.num_warmup_steps and loss is not None:
                 self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.step_num)
 
             self.writer.add_scalar('info/epochs', self.epoch_num, self.step_num)

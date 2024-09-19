@@ -95,3 +95,6 @@ action_space obs_space默认值 等都在rl_task_v1.py这里修改
 
 # 9.16
 env reset 不需要再algorithm里面进行 只需要在env、task里面做reset
+
+# 9.19
+replay buffer 需要进行修改

@@ -1624,4 +1624,37 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 dis = _dis
         assert dis > 3, 'error when get closest pose'
         return key
+
+    async def post_physics_step_async(
+        self,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Step buffers. Refresh tensors. Compute observations and reward. Reset environments."""
+
+        self.progress_buf[:] += 1
+        move_horizontal = False
+        move_vertical = False
+        if self.world.is_playing():
+            # In this policy, episode length is constant
+            is_last_step = self.progress_buf[0] == self.max_episode_length - 1
+            #initial pose: self.obj_0_3.get_world_poses() (tensor([[-8.3212,  2.2496,  2.7378]], device=self.cuda_device), tensor([[ 0.9977, -0.0665,  0.0074,  0.0064]], device=self.cuda_device))
+            # if not self.materials.done():
+            if True:
+                self.post_material_step()
+                self.post_task_manager_step()
+                self.post_conveyor_belt_step()
+                self.post_cutting_machine_step()
+                self.post_grippers_step()
+                self.post_weld_station_step()
+                self.post_welder_step()
+
+                # self.post_characters_step()
+            # self.refresh_base_tensors()
+            # self.refresh_env_tensors()
+            # self._refresh_task_tensors()
+            # self.get_observations()
+            self.get_states()
+            # self.calculate_metrics()
+            self.get_extras()
+
+        return self.obs_buf, self.rew_buf, self.reset_buf, self.extras
     

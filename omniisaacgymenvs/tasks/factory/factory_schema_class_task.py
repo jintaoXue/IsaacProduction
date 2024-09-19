@@ -46,15 +46,15 @@ class FactoryABCTask(ABC):
         """Initialize instance variables from YAML files."""
         pass
 
-    @abstractmethod
-    def _acquire_task_tensors(self):
-        """Acquire tensors."""
-        pass
+    # @abstractmethod
+    # def _acquire_task_tensors(self):
+    #     """Acquire tensors."""
+    #     pass
 
-    @abstractmethod
-    def _refresh_task_tensors(self):
-        """Refresh tensors."""
-        pass
+    # @abstractmethod
+    # def _refresh_task_tensors(self):
+    #     """Refresh tensors."""
+    #     pass
 
     @abstractmethod
     def pre_physics_step(self):
@@ -86,20 +86,15 @@ class FactoryABCTask(ABC):
         """Assign environments for reset if successful or failed."""
         pass
 
-    @abstractmethod
-    def reset_idx(self):
-        """Reset specified environments."""
-        pass
+    # @abstractmethod
+    # def reset_idx(self):
+    #     """Reset specified environments."""
+    #     pass
 
-    @abstractmethod
-    def _reset_franka(self):
-        """Reset DOF states and DOF targets of Franka."""
-        pass
-
-    @abstractmethod
-    def _reset_object(self):
-        """Reset root state of object."""
-        pass
+    # @abstractmethod
+    # def _reset_object(self):
+    #     """Reset root state of object."""
+    #     pass
 
     @abstractmethod
     def _reset_buffers(self):
