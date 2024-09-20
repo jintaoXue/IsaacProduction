@@ -40,8 +40,9 @@ class RainbowAgent():
         self.max_epochs = config.get("max_epochs", int(1e6))
         self.batch_size = config.get('batch_size', 64)
         self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
-        self.num_steps_per_episode = config.get("num_steps_per_episode", 1)
+        self.num_steps_per_episode = config.get("num_steps_per_episode", 500)
         self.max_env_steps = config.get("max_env_steps", 1500) # temporary, in future we will use other approach
+        self.rule_based_exploration = config.get('rule_based_exploration', True)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
         #########buffer

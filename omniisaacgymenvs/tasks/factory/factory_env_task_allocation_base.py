@@ -553,7 +553,7 @@ class TaskManager(object):
         self.characters = Characters(character_list=character_list)
         self.agvs = Agvs(agv_list = agv_list)
         self.boxs = TransBoxs(box_list=box_list)
-        self.task_dic =  {0: 'hoop_preparing', 1:'bending_tube_preparing', 2:'hoop_loading_inner', 3:'bending_tube_loading_inner', 4:'hoop_loading_outer', 
+        self.task_dic =  {-1:'none', 0: 'hoop_preparing', 1:'bending_tube_preparing', 2:'hoop_loading_inner', 3:'bending_tube_loading_inner', 4:'hoop_loading_outer', 
                           5:'bending_tube_loading_outer', 6:'cutting_cube', 7:'collect_product', 8:'placing_product'}
         self.task_in_set = set()
         self.task_in_dic = {}

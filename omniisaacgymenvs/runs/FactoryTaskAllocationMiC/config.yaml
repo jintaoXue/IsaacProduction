@@ -93,7 +93,7 @@ task:
     controlFrequencyInv: 2
     numEnvs: ${resolve_default:1,${...num_envs}}
     numObservations: 20
-    numActions: 12
+    numActions: 10
     close_and_lift: true
     num_gripper_move_sim_steps: 40
     num_gripper_close_sim_steps: 40
@@ -372,3 +372,4 @@ train:
       clip_value: true
       seq_length: 4
       bounds_loss_coef: 0.0001
+      rule_based_exploration: true

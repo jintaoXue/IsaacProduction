@@ -47,6 +47,16 @@ MAX_FLOAT = 3.40282347e38
 # import numpy as np
 
 class FactoryTaskAllocMiC(FactoryTaskAlloc):
+
+    def pre_physics_step(self, actions):
+        self.post_material_step()
+        self.post_task_manager_step(actions)
+        self.post_conveyor_belt_step()
+        self.post_cutting_machine_step()
+        self.post_grippers_step()
+        self.post_weld_station_step()
+        self.post_welder_step()
+
     def post_physics_step(
         self,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -60,19 +70,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             is_last_step = self.progress_buf[0] == self.max_episode_length - 1
             #initial pose: self.obj_0_3.get_world_poses() (tensor([[-8.3212,  2.2496,  2.7378]], device=self.cuda_device), tensor([[ 0.9977, -0.0665,  0.0074,  0.0064]], device=self.cuda_device))
             # if not self.materials.done():
-            if True:
-                self.post_material_step()
-                self.post_task_manager_step()
-                self.post_conveyor_belt_step()
-                self.post_cutting_machine_step()
-                self.post_grippers_step()
-                self.post_weld_station_step()
-                self.post_welder_step()
-
-                # self.post_characters_step()
-            # self.refresh_base_tensors()
-            # self.refresh_env_tensors()
-            # self._refresh_task_tensors()
             # self.get_observations()
             self.get_states()
             # self.calculate_metrics()
@@ -118,39 +115,68 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 # self.materials.cube_list[idx].set_world_poses(position, orientaion)
                 self.materials.cube_list[idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))
 
-    def post_task_manager_step(self):
-        #assign task material loading, cutting machine, place product
-        if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys():
-            try:
-                self.materials.hoop_states.index(0)
-                if self.task_manager.assign_task(task = 'hoop_preparing'):
-                    self.state_depot_hoop = 1
-            except:
-                pass
-        if self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys():
-            try:
-                self.materials.bending_tube_states.index(0)
-                if self.task_manager.assign_task(task = 'bending_tube_preparing'):
-                    self.state_depot_bending_tube = 1
-            except:
-                pass
-        if self.station_state_inner_left == 1 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys(): #loading
-            self.task_manager.assign_task(task='hoop_loading_inner')
-        if self.station_state_inner_right == 1 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys(): 
-            self.task_manager.assign_task(task='bending_tube_loading_inner')
-        if self.station_state_outer_left == 1 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys(): #loading
-            self.task_manager.assign_task(task='hoop_loading_outer')
-        if self.station_state_outer_right == 1 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys(): 
-            self.task_manager.assign_task(task='bending_tube_loading_outer')
-        if self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
-            self.task_manager.assign_task(task='cutting_cube') 
-        if self.state_depot_bending_tube == 2 and self.state_depot_hoop == 2 and 'collect_product' not in self.task_manager.task_in_dic.keys():
-            self.task_manager.assign_task(task='collect_product')
-        if 'collect_product' in self.task_manager.task_in_dic.keys() and 'placing_product' not in self.task_manager.task_in_dic.keys() and \
-            (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
-            self.task_manager.task_clearing(task='collect_product')
-            self.task_manager.assign_task(task='placing_product')
-            self.task_manager.boxs.product_collecting_idx = -1
+    def post_task_manager_step(self, actions):
+        #TODO only support single action, not actions
+        task_id = -1 #default as none
+        if actions is not None:
+            #the action is contorlled by rl-based agent rather than the inner rule-based agent
+            ###one hot vector to num classes
+            task_id = torch.argmax(actions[0], dim=1) - 1
+            task = self.task_manager.task_dic[task_id]
+            if task == 'hoop_preparing':
+                try:
+                    self.materials.hoop_states.index(0)
+                    if self.task_manager.assign_task(task = 'hoop_preparing'):
+                        self.state_depot_hoop = 1
+                except:
+                    pass
+            elif task == 'bending_tube_preparing':
+                try:
+                    self.materials.bending_tube_states.index(0)
+                    if self.task_manager.assign_task(task = 'bending_tube_preparing'):
+                        self.state_depot_bending_tube = 1
+                except:
+                    pass
+            elif task == 'placing_product':
+                self.task_manager.task_clearing(task='collect_product')
+                self.task_manager.assign_task(task='placing_product')
+                self.task_manager.boxs.product_collecting_idx = -1
+            else:
+                self.task_manager.assign_task(task)
+        else:
+            #use rule-based agent
+            if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys():
+                try:
+                    self.materials.hoop_states.index(0)
+                    if self.task_manager.assign_task(task = 'hoop_preparing'):
+                        self.state_depot_hoop = 1
+                except:
+                    pass
+            if self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys():
+                try:
+                    self.materials.bending_tube_states.index(0)
+                    if self.task_manager.assign_task(task = 'bending_tube_preparing'):
+                        self.state_depot_bending_tube = 1
+                except:
+                    pass
+            if self.station_state_inner_left == 1 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys(): #loading
+                self.task_manager.assign_task(task='hoop_loading_inner')
+            if self.station_state_inner_right == 1 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys(): 
+                self.task_manager.assign_task(task='bending_tube_loading_inner')
+            if self.station_state_outer_left == 1 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys(): #loading
+                self.task_manager.assign_task(task='hoop_loading_outer')
+            if self.station_state_outer_right == 1 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys(): 
+                self.task_manager.assign_task(task='bending_tube_loading_outer')
+            if self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
+                self.task_manager.assign_task(task='cutting_cube') 
+            if self.state_depot_bending_tube == 2 and self.state_depot_hoop == 2 and 'collect_product' not in self.task_manager.task_in_dic.keys():
+                self.task_manager.assign_task(task='collect_product')
+            if 'collect_product' in self.task_manager.task_in_dic.keys() and 'placing_product' not in self.task_manager.task_in_dic.keys() and \
+                (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
+                self.task_manager.task_clearing(task='collect_product')
+                self.task_manager.assign_task(task='placing_product')
+                self.task_manager.boxs.product_collecting_idx = -1
+
         self.task_manager.step()
         
         for charac_idx in range(0, self.task_manager.characters.num):
@@ -1625,36 +1651,4 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         assert dis > 3, 'error when get closest pose'
         return key
 
-    async def post_physics_step_async(
-        self,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Step buffers. Refresh tensors. Compute observations and reward. Reset environments."""
-
-        self.progress_buf[:] += 1
-        move_horizontal = False
-        move_vertical = False
-        if self.world.is_playing():
-            # In this policy, episode length is constant
-            is_last_step = self.progress_buf[0] == self.max_episode_length - 1
-            #initial pose: self.obj_0_3.get_world_poses() (tensor([[-8.3212,  2.2496,  2.7378]], device=self.cuda_device), tensor([[ 0.9977, -0.0665,  0.0074,  0.0064]], device=self.cuda_device))
-            # if not self.materials.done():
-            if True:
-                self.post_material_step()
-                self.post_task_manager_step()
-                self.post_conveyor_belt_step()
-                self.post_cutting_machine_step()
-                self.post_grippers_step()
-                self.post_weld_station_step()
-                self.post_welder_step()
-
-                # self.post_characters_step()
-            # self.refresh_base_tensors()
-            # self.refresh_env_tensors()
-            # self._refresh_task_tensors()
-            # self.get_observations()
-            self.get_states()
-            # self.calculate_metrics()
-            self.get_extras()
-
-        return self.obs_buf, self.rew_buf, self.reset_buf, self.extras
     

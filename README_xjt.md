@@ -99,3 +99,5 @@ env reset 不需要再algorithm里面进行 只需要在env、task里面做reset
 # 9.19
 replay buffer 需要进行修改
 rainbow.py 517行 需要改动
+
+如何缩短epoch的时间
