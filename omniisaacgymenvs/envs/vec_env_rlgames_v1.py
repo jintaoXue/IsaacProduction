@@ -373,7 +373,9 @@ class VecEnvRLGames(VecEnvBase):
 
         if actions is not None:
             actions = torch.clamp(actions, -self._task.clip_actions, self._task.clip_actions).to(self._task.device)
-        self._task.pre_physics_step(actions)
+            self._task.pre_physics_step(actions)
+        else: 
+            actions = self._task.pre_physics_step(actions)
 
         if (self.sim_frame_count + self._task.control_frequency_inv) % self._task.rendering_interval == 0:
             for _ in range(self._task.control_frequency_inv - 1):
@@ -398,7 +400,7 @@ class VecEnvRLGames(VecEnvBase):
 
         obs_dict = {"obs": self._obs, "states": self._states}
 
-        return obs_dict, self._rew, self._resets, self._extras
+        return obs_dict, self._rew, self._resets, self._extras, actions
 
     def reset(self, seed=None, options=None):
         """Resets the task and applies default zero actions to recompute observations and states."""
@@ -407,6 +409,6 @@ class VecEnvRLGames(VecEnvBase):
 
         self._task.reset()
         actions = torch.zeros((self.num_envs, self._task.num_actions), device=self._task.rl_device)
-        obs_dict, _, _, _ = self.step(actions)
+        obs_dict, _, _, _, _ = self.step(actions)
 
         return obs_dict

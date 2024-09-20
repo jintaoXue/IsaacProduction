@@ -348,12 +348,12 @@ class RainbowAgent():
 
     def env_step(self, actions):
         actions = self.preprocess_actions(actions)
-        obs, rewards, dones, infos = self.vec_env.step(actions) # (obs_space) -> (n, obs_space)
+        obs, rewards, dones, infos, actions = self.vec_env.step(actions) # (obs_space) -> (n, obs_space)
 
         if self.is_tensor_obses:
-            return self.obs_to_tensors(obs), rewards.to(self._device), dones.to(self._device), infos
+            return self.obs_to_tensors(obs), rewards.to(self._device), dones.to(self._device), infos, actions
         else:
-            return torch.from_numpy(obs).to(self._device), torch.from_numpy(rewards).to(self._device), torch.from_numpy(dones).to(self._device), infos
+            return torch.from_numpy(obs).to(self._device), torch.from_numpy(rewards).to(self._device), torch.from_numpy(dones).to(self._device), infos, actions
 
     def env_reset(self):
         with torch.no_grad():
@@ -396,7 +396,7 @@ class RainbowAgent():
             step_start = time.time()
 
             with torch.no_grad():
-                next_obs, rewards, dones, infos = self.env_step(action)
+                next_obs, rewards, dones, infos, action = self.env_step(action)
             # if self.reward_clip > 0:
             #     reward = max(min(reward, self.reward_clip), -self.reward_clip)  # Clip rewards
             step_end = time.time()

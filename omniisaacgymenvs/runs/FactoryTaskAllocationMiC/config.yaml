@@ -372,4 +372,4 @@ train:
       clip_value: true
       seq_length: 4
       bounds_loss_coef: 0.0001
-      rule_based_exploration: true
+      env_rule_based_exploration: true
