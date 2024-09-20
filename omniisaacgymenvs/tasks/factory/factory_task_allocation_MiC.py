@@ -50,7 +50,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
     def pre_physics_step(self, actions):
         self.post_material_step()
-        self.post_task_manager_step(actions)
+        actions = self.post_task_manager_step(actions)
         self.post_conveyor_belt_step()
         self.post_cutting_machine_step()
         self.post_grippers_step()
@@ -121,9 +121,11 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if actions is not None:
             #the action is contorlled by rl-based agent rather than the inner rule-based agent
             ###one hot vector to num classes
-            task_id = torch.argmax(actions[0], dim=1) - 1
-            task = self.task_manager.task_dic[task_id]
-            if task == 'hoop_preparing':
+            task_id = torch.argmax(actions[0], dim=0) - 1
+            task = self.task_manager.task_dic[task_id.item()]
+            if task == 'none':
+                pass
+            elif task == 'hoop_preparing':
                 try:
                     self.materials.hoop_states.index(0)
                     if self.task_manager.assign_task(task = 'hoop_preparing'):
@@ -150,6 +152,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     self.materials.hoop_states.index(0)
                     if self.task_manager.assign_task(task = 'hoop_preparing'):
                         self.state_depot_hoop = 1
+                        task_id = 0
                 except:
                     pass
             if self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys():
@@ -157,25 +160,34 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     self.materials.bending_tube_states.index(0)
                     if self.task_manager.assign_task(task = 'bending_tube_preparing'):
                         self.state_depot_bending_tube = 1
+                        task_id = 1
                 except:
                     pass
             if self.station_state_inner_left == 1 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys(): #loading
                 self.task_manager.assign_task(task='hoop_loading_inner')
+                task_id = 2
             if self.station_state_inner_right == 1 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys(): 
                 self.task_manager.assign_task(task='bending_tube_loading_inner')
+                task_id = 3
             if self.station_state_outer_left == 1 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys(): #loading
                 self.task_manager.assign_task(task='hoop_loading_outer')
+                task_id = 4
             if self.station_state_outer_right == 1 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys(): 
                 self.task_manager.assign_task(task='bending_tube_loading_outer')
+                task_id = 5
             if self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
                 self.task_manager.assign_task(task='cutting_cube') 
+                task_id = 6
             if self.state_depot_bending_tube == 2 and self.state_depot_hoop == 2 and 'collect_product' not in self.task_manager.task_in_dic.keys():
                 self.task_manager.assign_task(task='collect_product')
+                task_id = 7
             if 'collect_product' in self.task_manager.task_in_dic.keys() and 'placing_product' not in self.task_manager.task_in_dic.keys() and \
                 (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
+                task_id = 8
                 self.task_manager.task_clearing(task='collect_product')
                 self.task_manager.assign_task(task='placing_product')
                 self.task_manager.boxs.product_collecting_idx = -1
+            actions = 
 
         self.task_manager.step()
         
@@ -185,6 +197,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             self.post_agv_step(agv_idx)
         for box_idx in range(0, self.task_manager.boxs.num):
             self.post_trans_box_step(box_idx)
+
+        return actions
     
     def post_character_step(self, idx):
         charac : RigidPrimView = self.task_manager.characters.list[idx]

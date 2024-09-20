@@ -38,4 +38,4 @@ params:
     clip_value: True
     seq_length: 4
     bounds_loss_coef: 0.0001
-    rule_based_exploration: True
+    env_rule_based_exploration: True

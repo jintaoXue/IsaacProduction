@@ -42,7 +42,7 @@ class RainbowAgent():
         self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
         self.num_steps_per_episode = config.get("num_steps_per_episode", 500)
         self.max_env_steps = config.get("max_env_steps", 1500) # temporary, in future we will use other approach
-        self.rule_based_exploration = config.get('rule_based_exploration', True)
+        self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
         #########buffer
@@ -385,7 +385,10 @@ class RainbowAgent():
             if self.step_num % self.update_frequency == 0:
                 self.reset_noise()
             if random_exploration:
-                action = torch.rand((self.num_actors, *self.env_info["action_space"].shape), device=self._device) * 2.0 - 1.0
+                if self.env_rule_based_exploration:
+                    action = None
+                else:
+                    action = torch.rand((self.num_actors, *self.env_info["action_space"].shape), device=self._device) * 2.0 - 1.0
             else:
                 with torch.no_grad():
                     action = self.act(obs.float(), self.env_info["action_space"].shape, sample=True)
