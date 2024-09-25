@@ -557,6 +557,8 @@ class TaskManager(object):
                           5:'bending_tube_loading_outer', 6:'cutting_cube', 7:'collect_product', 8:'placing_product'}
         self.task_in_set = set()
         self.task_in_dic = {}
+        self.task_in_vector = torch.zeros(len(self.task_dic)-1)
+        self.task_dic_inverse = {value: key for key, value in self.task_dic.items()}
         return
     
     def assign_task(self, task):
@@ -572,6 +574,7 @@ class TaskManager(object):
 
         self.task_in_set.add(task)
         self.task_in_dic[task] = {'charac_idx': charac_idx, 'agv_idx': agv_idx, 'box_idx': box_idx, 'lacking_resource': lacking_resource}
+        self.task_in_vector[self.task_dic_inverse[task]] = 1
 
         return True
 
@@ -583,7 +586,7 @@ class TaskManager(object):
         self.boxs.reset(box_idx)
         self.task_in_set.remove(task)
         del self.task_in_dic[task]
-
+        self.task_in_vector[self.task_dic_inverse[task]] = 0
         return
 
     def step(self):

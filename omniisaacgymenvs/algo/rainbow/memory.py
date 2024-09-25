@@ -4,8 +4,8 @@ import numpy as np
 import torch
 
 ####TODO state shape
-Transition_dtype = np.dtype([('timestep', np.int32), ('state', np.uint8, (20)), ('action', np.int32, (10)), ('reward', np.float32), ('nonterminal', np.bool_)])
-blank_trans = (0, np.zeros((20), dtype=np.uint8), np.zeros((10), dtype=np.int32), 0.0, False)
+Transition_dtype = np.dtype([('timestep', np.int32), ('state', dict), ('action', np.int32, (10)), ('reward', np.float32), ('nonterminal', np.bool_)])
+blank_trans = (0, {}, np.zeros((10), dtype=np.int32), 0.0, False)
 
 
 # Segment tree data structure where parent node values are sum/max of children node values

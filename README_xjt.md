@@ -101,3 +101,9 @@ replay buffer 需要进行修改
 rainbow.py 517行 需要改动
 
 如何缩短epoch的时间
+
+# 9.24
+设计observation space
+# 9.25
+task reset
+max_episode_length: 10240 need to be change

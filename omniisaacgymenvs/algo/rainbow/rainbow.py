@@ -39,7 +39,7 @@ class RainbowAgent():
         self.max_steps = config.get("max_steps", int(50e6))
         self.max_epochs = config.get("max_epochs", int(1e6))
         self.batch_size = config.get('batch_size', 64)
-        self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(64))
         self.num_steps_per_episode = config.get("num_steps_per_episode", 500)
         self.max_env_steps = config.get("max_env_steps", 1500) # temporary, in future we will use other approach
         self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
@@ -307,13 +307,9 @@ class RainbowAgent():
     def cast_obs(self, obs):
         if isinstance(obs, torch.Tensor):
             self.is_tensor_obses = True
+            obs = obs.to(self._device)
         elif isinstance(obs, np.ndarray):
-            assert(self.observation_space.dtype != np.int8)
-            if self.observation_space.dtype == np.uint8:
-                obs = torch.ByteTensor(obs).to(self._device)
-            else:
-                obs = torch.FloatTensor(obs).to(self._device)
-
+            obs = torch.from_numpy(obs).to(self._device)
         return obs
 
     # TODO: move to common utils
@@ -325,8 +321,8 @@ class RainbowAgent():
                 upd_obs[key] = self._obs_to_tensors_internal(value)
         else:
             upd_obs = self.cast_obs(obs)
-        if not obs_is_dict or 'obs' not in obs:    
-            upd_obs = {'obs' : upd_obs}
+        # if not obs_is_dict or 'obs' not in obs:    
+        #     upd_obs = {'obs' : upd_obs}
 
         return upd_obs
 
@@ -347,13 +343,11 @@ class RainbowAgent():
         return actions
 
     def env_step(self, actions):
-        actions = self.preprocess_actions(actions)
+        # actions = self.preprocess_actions(actions)
         obs, rewards, dones, infos, actions = self.vec_env.step(actions) # (obs_space) -> (n, obs_space)
 
-        if self.is_tensor_obses:
-            return self.obs_to_tensors(obs), rewards.to(self._device), dones.to(self._device), infos, actions
-        else:
-            return torch.from_numpy(obs).to(self._device), torch.from_numpy(rewards).to(self._device), torch.from_numpy(dones).to(self._device), infos, actions
+        return self.obs_to_tensors(obs), rewards.to(self._device), dones.to(self._device), infos, actions
+
 
     def env_reset(self):
         with torch.no_grad():
@@ -373,12 +367,10 @@ class RainbowAgent():
         total_update_time = 0
         total_time = 0
         step_time = 0.0
-        obs = self.obs
+        obs : dict = self.obs
         loss = None
-        if isinstance(obs, dict):
-            obs = self.obs['obs']
 
-        next_obs_processed = obs.clone()
+        next_obs_processed = obs.copy()
 
         for s in range(int(self.num_steps_per_episode/self.num_actors)):
             self.set_eval()
@@ -422,19 +414,20 @@ class RainbowAgent():
             self.current_rewards = self.current_rewards * not_dones
             self.current_lengths = self.current_lengths * not_dones
 
-            if isinstance(next_obs, dict):    
-                next_obs_processed = next_obs['obs']
+            # if isinstance(next_obs, dict):    
+            #     next_obs_processed = next_obs['obs']
 
-            
             rewards = self.rewards_shaper(rewards)
             ####TODO refine replay buffer
             # self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
-            obs_cpu = obs.squeeze().cpu()
+            obs_cpu = {}
+            for key, value in obs.items():
+                obs_cpu[key] = value.squeeze().cpu()
             action_cpu = action.squeeze().cpu()
             rewards_cpu = rewards.squeeze().cpu()
             dones_cpu = dones.squeeze().cpu()
             self.replay_buffer.append(obs_cpu, action_cpu, rewards_cpu, dones_cpu)
-            self.obs = next_obs_processed.clone()
+            self.obs = next_obs.copy()
 
             if not random_exploration:
                 self.replay_buffer.priority_weight = min(self.replay_buffer.priority_weight + self.priority_weight_increase, 1)

@@ -4,6 +4,7 @@ import math
 import torch
 from torch import nn
 from torch.nn import functional as F
+from dataclasses import dataclass
 
 
 # Factorised NoisyLinear layer with bias
@@ -83,3 +84,5 @@ class DQN(nn.Module):
     for name, module in self.named_children():
       if 'fc' in name:
         module.reset_noise()
+
+# class FeatureExtractor()

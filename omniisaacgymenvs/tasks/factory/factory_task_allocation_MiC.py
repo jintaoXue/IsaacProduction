@@ -70,15 +70,18 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if self.world.is_playing():
             # In this policy, episode length is constant
             is_last_step = self.progress_buf[0] == self.max_episode_length - 1
-            #initial pose: self.obj_0_3.get_world_poses() (tensor([[-8.3212,  2.2496,  2.7378]], device=self.cuda_device), tensor([[ 0.9977, -0.0665,  0.0074,  0.0064]], device=self.cuda_device))
-            # if not self.materials.done():
-            # self.get_observations()
+            ###TODO only support single env training
+            obs = self.get_observations()
             self.get_states()
-            # self.calculate_metrics()
+            self.calculate_metrics()
             self.get_extras()
+            self.check_reset()
 
-        return self.obs_buf, self.rew_buf, self.reset_buf, self.extras
-    
+        return obs, self.rew_buf, self.reset_buf, self.extras
+    def check_reset(self):
+        if self.reset_buf[0] == 1:
+            self._reset_buffers()
+        return
     def post_material_step(self):
         #part of materials state decision is in consideration
         capacity = self.task_manager.boxs.CAPACITY
@@ -1651,4 +1654,28 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         assert dis > 3, 'error when get closest pose'
         return key
 
+    def get_observations(self) -> dict:
+        """Compute observations."""
+        obs_dict = {}
+        ####1.tasks state
+        obs_dict['tasks_state'] = self.task_manager.task_in_vector
+        ####2.hoop
+        obs_dict['state_depot_hoop'] = torch.tensor(self.state_depot_hoop)
+        obs_dict['have_raw_hoops'] = torch.tensor(self.materials.hoop_states.count(0) > 0)
+        ####3.bending_tube
+        obs_dict['state_depot_bending_tube'] = torch.tensor(self.state_depot_bending_tube)
+        obs_dict['have_raw_bending_tube'] = torch.tensor(self.materials.bending_tube_states.count(0) > 0)
+        ####4.station state
+        obs_dict['station_state_inner_left'] = torch.tensor(self.station_state_inner_left)
+        obs_dict['station_state_inner_right'] = torch.tensor(self.station_state_inner_right)
+        obs_dict['station_state_outer_left'] = torch.tensor(self.station_state_outer_left)
+        obs_dict['station_state_outer_right'] = torch.tensor(self.station_state_outer_right)
+        ####5.cutting_machine
+        obs_dict['cutting_machine_state'] = torch.tensor(self.cutting_machine_state)
+        ####6.products
+        obs_dict['is_full_products'] = torch.tensor(self.task_manager.boxs.is_full_products())
+        obs_dict['produce_product_req'] = torch.tensor(self.materials.produce_product_req())
+        ####7.time_step
+        obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
+        return obs_dict
     

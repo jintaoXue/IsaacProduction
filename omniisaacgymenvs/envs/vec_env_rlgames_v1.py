@@ -335,9 +335,9 @@ class VecEnvBase(gym.Env):
 # VecEnv Wrapper for RL training
 class VecEnvRLGames(VecEnvBase):
     def _process_data(self):
-        self._obs = torch.clamp(self._obs, -self._task.clip_obs, self._task.clip_obs).to(self._task.rl_device)
+        # self._obs = torch.clamp(self._obs, -self._task.clip_obs, self._task.clip_obs).to(self._task.rl_device)
         self._rew = self._rew.to(self._task.rl_device)
-        self._states = torch.clamp(self._states, -self._task.clip_obs, self._task.clip_obs).to(self._task.rl_device)
+        # self._states = torch.clamp(self._states, -self._task.clip_obs, self._task.clip_obs).to(self._task.rl_device)
         self._resets = self._resets.to(self._task.rl_device)
         self._extras = self._extras
 
@@ -395,12 +395,12 @@ class VecEnvRLGames(VecEnvBase):
                 observations=self._obs.to(device=self._task.rl_device), reset_buf=self._task.reset_buf
             )
 
-        self._states = self._task.get_states()
+        # self._states = self._task.get_states()
         self._process_data()
 
-        obs_dict = {"obs": self._obs, "states": self._states}
+        # obs_dict = {"obs": self._obs, "states": self._states}
 
-        return obs_dict, self._rew, self._resets, self._extras, actions
+        return self._obs, self._rew, self._resets, self._extras, actions
 
     def reset(self, seed=None, options=None):
         """Resets the task and applies default zero actions to recompute observations and states."""
