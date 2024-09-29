@@ -16,7 +16,7 @@ from omniisaacgymenvs.algo.rainbow.model import DQN
 from tqdm import trange
 import time
 from omegaconf import DictConfig
-
+from omniisaacgymenvs.utils.data import data
 class RainbowAgent():
     def __init__(self, base_name, params):
 
@@ -38,7 +38,7 @@ class RainbowAgent():
         self.target_update = config.get('target_update', int(8e3))
         self.max_steps = config.get("max_steps", int(50e6))
         self.max_epochs = config.get("max_epochs", int(1e6))
-        self.batch_size = config.get('batch_size', 64)
+        self.batch_size = config.get('batch_size', 8)
         self.num_warmup_steps = config.get('num_warmup_steps', int(64))
         self.num_steps_per_episode = config.get("num_steps_per_episode", 500)
         self.max_env_steps = config.get("max_env_steps", 1500) # temporary, in future we will use other approach
@@ -49,11 +49,9 @@ class RainbowAgent():
         self.priority_weight_increase = (1 - config['priority_weight']) / (self.max_steps - self.num_warmup_steps)
         self.replay_buffer = ReplayMemory(config, config["replay_buffer_size"])
         ####### net
-        self.online_net = DQN(config, 2).to(device=self._device)
-        # self.online_net = DQN(config, self.action_space).to(device=self._device)
+        self.online_net = DQN(config, self.actions_num).to(device=self._device)
         self.online_net.train()
-        # self.target_net = DQN(config, self.action_space).to(device=self._device)
-        self.target_net = DQN(config, 2).to(device=self._device)
+        self.target_net = DQN(config, self.actions_num).to(device=self._device)
         self.update_target_net()
         self.target_net.train()
         for param in self.target_net.parameters():
@@ -76,9 +74,9 @@ class RainbowAgent():
         ########for replay buffer args initialize
         self.setdefault(self.config, key='atoms', default=51) 
         self.setdefault(self.config, key='replay_buffer_size', default=int(1e6))
-        self.setdefault(self.config, key='history_length', default=4)
+        self.setdefault(self.config, key='history_length', default=1)
         self.setdefault(self.config, key='discount', default=0.99)
-        self.setdefault(self.config, key='multi_step', default=3)
+        self.setdefault(self.config, key='multi_step', default=1)
         self.setdefault(self.config, key='priority_exponent', default=0.5)
         self.setdefault(self.config, key='priority_weight', default=0.4)
         ########for neural network args initialize
@@ -182,7 +180,8 @@ class RainbowAgent():
     # Acts based on single state (no batch)
     def act(self, state):
         with torch.no_grad():
-            return (self.online_net(state.unsqueeze(0)) * self.support).sum(2).argmax(1).item()
+            return (self.online_net(data.func(state, 'unsqueeze', 0)) * self.support).sum(2).argmax(1)
+            # return (self.online_net(data.func(state, 'unsqueeze', 0)) * self.support).sum(2)
 
     # Acts with an ε-greedy policy (used for evaluation only)
     def act_e_greedy(self, state, epsilon=0.001):  # High ε can reduce evaluation scores drastically
@@ -265,7 +264,8 @@ class RainbowAgent():
     def update(self, step):
         # Sample transitions
         idxs, states, actions, returns, next_states, nonterminals, weights = self.replay_buffer.sample(self.batch_size)
-
+        states = data.stack_from_array(states.squeeze(), device=self._device)
+        next_states = data.stack_from_array(next_states.squeeze(), device=self._device)
         # Calculate current state probabilities (online network noise already sampled)
         log_ps = self.online_net(states, log=True)  # Log probabilities log p(s_t, ·; θonline)
         log_ps_a = log_ps[range(self.batch_size), actions]  # log p(s_t, a_t; θonline)
@@ -367,12 +367,10 @@ class RainbowAgent():
         total_update_time = 0
         total_time = 0
         step_time = 0.0
-        obs : dict = self.obs
         loss = None
-
-        next_obs_processed = obs.copy()
-
         for s in range(int(self.num_steps_per_episode/self.num_actors)):
+            obs : dict = self.obs
+            random_exploration = self.step_num < self.num_warmup_steps
             self.set_eval()
             if self.step_num % self.update_frequency == 0:
                 self.reset_noise()
@@ -380,10 +378,10 @@ class RainbowAgent():
                 if self.env_rule_based_exploration:
                     action = None
                 else:
-                    action = torch.rand((self.num_actors, *self.env_info["action_space"].shape), device=self._device) * 2.0 - 1.0
+                    action = torch.randint(low=0, high = self.actions_num, size = (self.num_actors, 1), device=self._device) 
             else:
                 with torch.no_grad():
-                    action = self.act(obs.float(), self.env_info["action_space"].shape, sample=True)
+                    action = self.act(obs).unsqueeze(0)
 
             step_start = time.time()
 
@@ -422,7 +420,7 @@ class RainbowAgent():
             # self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
             obs_cpu = {}
             for key, value in obs.items():
-                obs_cpu[key] = value.squeeze().cpu()
+                obs_cpu[key] = value.cpu()
             action_cpu = action.squeeze().cpu()
             rewards_cpu = rewards.squeeze().cpu()
             dones_cpu = dones.squeeze().cpu()
@@ -453,8 +451,8 @@ class RainbowAgent():
         return step_time, play_time, total_update_time, total_time, loss
 
     def train_epoch(self):
-        random_exploration = self.epoch_num < self.num_warmup_steps
-        return self.play_steps(random_exploration)
+        # random_exploration = self.epoch_num < self.num_warmup_steps
+        return self.play_steps()
 
     def train(self):
         self.init_tensors()
@@ -466,7 +464,7 @@ class RainbowAgent():
             step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch()
 
             total_time += epoch_total_time
-            self.step_num += self.num_steps_per_episode
+            # self.step_num += self.num_steps_per_episode
 
             fps_step = self.num_steps_per_episode / step_time
             fps_step_inference = self.num_steps_per_episode / play_time

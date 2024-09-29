@@ -625,8 +625,8 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         """Initialize base superclass. Initialize instance variables."""
 
         super().__init__(name, sim_config, env)
-
-        self._get_env_yaml_params()
+        self.update_config(sim_config)
+        # self._get_env_yaml_params()
 
     def _get_env_yaml_params(self):
         """Initialize instance variables from YAML files."""
@@ -648,15 +648,18 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             "yaml"
         ]  # strip superfluous nesting
 
-    def update_config(self, sim_config):
-        self._sim_config = sim_config
-        self._cfg = sim_config.config
-        self._task_cfg = sim_config.task_config
+        
 
-        self._num_envs = self._task_cfg["env"]["numEnvs"]
-        self._num_observations = self._task_cfg["env"]["numObservations"]
-        self._num_actions = self._task_cfg["env"]["numActions"]
-        self._env_spacing = self.cfg_base["env"]["env_spacing"]
+    def update_config(self, sim_config):
+        # self._sim_config = sim_config
+        # self._cfg = sim_config.config
+        # self._task_cfg = sim_config.task_config
+
+        # self._num_envs = self._task_cfg["env"]["numEnvs"]
+        # self._num_observations = self._task_cfg["env"]["numObservations"]
+        # self._num_actions = self._task_cfg["env"]["numActions"]
+        self._dim_actions = self._task_cfg["env"]["dimActions"]
+        # self._env_spacing = self.cfg_base["env"]["env_spacing"]
 
         self._get_env_yaml_params()
 

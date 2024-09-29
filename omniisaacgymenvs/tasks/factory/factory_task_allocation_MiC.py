@@ -63,7 +63,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Step buffers. Refresh tensors. Compute observations and reward. Reset environments."""
-
+        self.check_reset()
         self.progress_buf[:] += 1
         move_horizontal = False
         move_vertical = False
@@ -75,12 +75,13 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             self.get_states()
             self.calculate_metrics()
             self.get_extras()
-            self.check_reset()
+            
 
         return obs, self.rew_buf, self.reset_buf, self.extras
     def check_reset(self):
         if self.reset_buf[0] == 1:
-            self._reset_buffers()
+            self._reset_buffers(env_ids=0)
+            self.post_reset()
         return
     def post_material_step(self):
         #part of materials state decision is in consideration
@@ -126,7 +127,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if actions is not None:
             #the action is contorlled by rl-based agent rather than the inner rule-based agent
             ###one hot vector to num classes
-            task_id = torch.argmax(actions[0], dim=0) - 1
+            # task_id = torch.argmax(actions[0], dim=0) - 1
+            task_id = actions[0] - 1
             task = self.task_manager.task_dic[task_id.item()]
             if task == 'none':
                 pass
@@ -176,7 +178,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.task_manager.task_clearing(task='collect_product')
                 self.task_manager.assign_task(task='placing_product')
                 self.task_manager.boxs.product_collecting_idx = -1
-            actions = Fun.one_hot(torch.tensor(task_id+1, device=self._device), num_classes = 10).unsqueeze(0)
+            actions = torch.tensor(task_id+1, device=self._device).unsqueeze(0)
+            # actions = Fun.one_hot(torch.tensor(task_id+1, device=self._device), num_classes = 10).unsqueeze(0)
 
         self.task_manager.step()
         
@@ -1660,22 +1663,22 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         ####1.tasks state
         obs_dict['tasks_state'] = self.task_manager.task_in_vector
         ####2.hoop
-        obs_dict['state_depot_hoop'] = torch.tensor(self.state_depot_hoop)
-        obs_dict['have_raw_hoops'] = torch.tensor(self.materials.hoop_states.count(0) > 0)
+        obs_dict['state_depot_hoop'] = torch.tensor([self.state_depot_hoop], dtype=torch.float32)
+        obs_dict['have_raw_hoops'] = torch.tensor([float(self.materials.hoop_states.count(0) > 0)])
         ####3.bending_tube
-        obs_dict['state_depot_bending_tube'] = torch.tensor(self.state_depot_bending_tube)
-        obs_dict['have_raw_bending_tube'] = torch.tensor(self.materials.bending_tube_states.count(0) > 0)
+        obs_dict['state_depot_bending_tube'] = torch.tensor([self.state_depot_bending_tube], dtype=torch.float32)
+        obs_dict['have_raw_bending_tube'] = torch.tensor([float(self.materials.bending_tube_states.count(0) > 0)])
         ####4.station state
-        obs_dict['station_state_inner_left'] = torch.tensor(self.station_state_inner_left)
-        obs_dict['station_state_inner_right'] = torch.tensor(self.station_state_inner_right)
-        obs_dict['station_state_outer_left'] = torch.tensor(self.station_state_outer_left)
-        obs_dict['station_state_outer_right'] = torch.tensor(self.station_state_outer_right)
+        obs_dict['station_state_inner_left'] = torch.tensor([self.station_state_inner_left], dtype=torch.float32)
+        obs_dict['station_state_inner_right'] = torch.tensor([self.station_state_inner_right], dtype=torch.float32)
+        obs_dict['station_state_outer_left'] = torch.tensor([self.station_state_outer_left], dtype=torch.float32)
+        obs_dict['station_state_outer_right'] = torch.tensor([self.station_state_outer_right], dtype=torch.float32)
         ####5.cutting_machine
-        obs_dict['cutting_machine_state'] = torch.tensor(self.cutting_machine_state)
+        obs_dict['cutting_machine_state'] = torch.tensor([self.cutting_machine_state], dtype=torch.float32)
         ####6.products
-        obs_dict['is_full_products'] = torch.tensor(self.task_manager.boxs.is_full_products())
-        obs_dict['produce_product_req'] = torch.tensor(self.materials.produce_product_req())
+        obs_dict['is_full_products'] = torch.tensor([float(self.task_manager.boxs.is_full_products())], dtype=torch.float32)
+        obs_dict['produce_product_req'] = torch.tensor([float(self.materials.produce_product_req())], dtype=torch.float32)
         ####7.time_step
-        obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
+        # obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
+        obs_dict['time_step'] = self.progress_buf[0].cpu()
         return obs_dict
-    

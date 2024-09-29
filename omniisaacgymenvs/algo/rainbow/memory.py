@@ -4,8 +4,8 @@ import numpy as np
 import torch
 
 ####TODO state shape
-Transition_dtype = np.dtype([('timestep', np.int32), ('state', dict), ('action', np.int32, (10)), ('reward', np.float32), ('nonterminal', np.bool_)])
-blank_trans = (0, {}, np.zeros((10), dtype=np.int32), 0.0, False)
+Transition_dtype = np.dtype([('timestep', np.int32), ('state', dict), ('action', np.int32, (1)), ('reward', np.float32), ('nonterminal', np.bool_)])
+blank_trans = (0, {}, np.zeros((1), dtype=np.int32), 0.0, False)
 
 
 # Segment tree data structure where parent node values are sum/max of children node values
@@ -128,14 +128,16 @@ class ReplayMemory():
     while not valid:
       samples = np.random.uniform(0.0, segment_length, [batch_size]) + segment_starts  # Uniformly sample from within all segments
       probs, idxs, tree_idxs = self.transitions.find(samples)  # Retrieve samples from tree with un-normalised probability
+      # #TODO debug
+      # valid = True
       if np.all((self.transitions.index - idxs) % self.capacity > self.n) and np.all((idxs - self.transitions.index) % self.capacity >= self.history) and np.all(probs != 0):
         valid = True  # Note that conditions are valid but extra conservative around buffer index 0
     # Retrieve all required transition data (from t - h to t + n)
     transitions = self._get_transitions(idxs)
     # Create un-discretised states and nth next states
     all_states = transitions['state']
-    states = torch.tensor(all_states[:, :self.history], device=self.device, dtype=torch.float32).div_(255)
-    next_states = torch.tensor(all_states[:, self.n:self.n + self.history], device=self.device, dtype=torch.float32).div_(255)
+    states = all_states[:, :self.history]
+    next_states = all_states[:, self.n:self.n + self.history]
     # Discrete actions to be used as index
     actions = torch.tensor(np.copy(transitions['action'][:, self.history - 1]), dtype=torch.int64, device=self.device)
     # Calculate truncated n-step discounted returns R^n = Σ_k=0->n-1 (γ^k)R_t+k+1 (note that invalid nth next states have reward 0)

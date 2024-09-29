@@ -107,3 +107,9 @@ rainbow.py 517行 需要改动
 # 9.25
 task reset
 max_episode_length: 10240 need to be change
+
+# 9.29
+参数归一化
+batch_size暂定为8
+history length 设为1
+new_zeros不对
