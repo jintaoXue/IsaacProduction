@@ -561,6 +561,9 @@ class TaskManager(object):
         self.task_dic_inverse = {value: key for key, value in self.task_dic.items()}
         return
     
+    def reset(self):
+        
+
     def assign_task(self, task):
         
         charac_idx = self.characters.assign_task(task)

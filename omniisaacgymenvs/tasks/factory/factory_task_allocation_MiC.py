@@ -76,13 +76,20 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             self.calculate_metrics()
             self.get_extras()
             
-
         return obs, self.rew_buf, self.reset_buf, self.extras
     def check_reset(self):
         if self.reset_buf[0] == 1:
             self._reset_buffers(env_ids=0)
             self.post_reset()
         return
+    
+    def post_reset(self) -> None:
+        #TODO
+        self.task_manager.reset()
+        self.materials.reset()
+        self.reset_machines()
+        
+        return 
     def post_material_step(self):
         #part of materials state decision is in consideration
         capacity = self.task_manager.boxs.CAPACITY

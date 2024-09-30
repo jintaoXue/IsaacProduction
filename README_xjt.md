@@ -109,7 +109,6 @@ task reset
 max_episode_length: 10240 need to be change
 
 # 9.29
-参数归一化
+输入参数归一化
 batch_size暂定为8
 history length 设为1
-new_zeros不对
