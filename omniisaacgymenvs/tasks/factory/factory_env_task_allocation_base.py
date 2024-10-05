@@ -85,7 +85,7 @@ class Materials(object):
         self.bending_tube_state_dic = {-1:"done", 0:"wait", 1:"in_box",  2:"on_table", 3:"in_list", 4:"loading", 5:"loaded"}
         self.upper_tube_state_dic = {}
         self.product_state_dic = {0:"waitng", 1:'collected', 2:"placed", -1:"finished"}
-
+        
         self.cube_states = [0]*len(self.cube_list)
         self.hoop_states = [0]*len(self.hoop_list)
         self.bending_tube_states = [0]*len(self.bending_tube_list)
@@ -116,10 +116,22 @@ class Materials(object):
         self.outer_bending_tube_processing_index = -1
         self.outer_upper_tube_processing_index = -1
 
-        self.initial_hoop_pose = None
-        self.initial_bending_tube_pose = None
-
-
+        self.initial_hoop_pose = []
+        self.initial_bending_tube_pose = []
+        self.initial_upper_tube_pose = []
+        self.initial_cube_pose = []
+        self.initial_product_pose = []
+                
+        for obj in self.hoop_list:
+            self.initial_hoop_pose.append(obj.get_world_poses())
+        for obj in self.bending_tube_list:
+            self.initial_bending_tube_pose.append(obj.get_world_poses())
+        for obj in self.upper_tube_list:
+            self.initial_upper_tube_pose.append(obj.get_world_poses())
+        for obj in self.cube_list:
+            self.initial_cube_pose.append(obj.get_world_poses())
+        for obj in self.product_list:
+            self.initial_product_pose.append(obj.get_world_poses())
         position = [[[-14.44042, 4.77828, 0.6]], [[-13.78823, 4.77828, 0.6]], [[-14.44042, 5.59765, 0.6]], [[-13.78823, 5.59765, 0.6]]]
         orientation = [[1 ,0 ,0, 0]]
         self.position_depot_hoop, self.orientation_depot_hoop = torch.tensor(position, dtype=torch.float32), torch.tensor(orientation, dtype=torch.float32)
@@ -135,7 +147,12 @@ class Materials(object):
         in_box_offsets = [[[0.5,0.5, 0.5]], [[-0.5,0.5, 0.5]], [[0.5,-0.5, 0.5]], [[-0.5, -0.5, 0.5]]]
         self.in_box_offsets = torch.tensor(in_box_offsets, dtype=torch.float32) 
 
-
+    def reset(self):
+        obj_list = self.hoop_list+self.bending_tube_list+self.upper_tube_list+self.cube_list+self.product_list
+        pose_list = self.initial_hoop_pose+self.initial_bending_tube_pose+self.initial_upper_tube_pose+self.initial_cube_pose+self.initial_product_pose
+        for obj, pose in zip(obj_list, pose_list):
+            obj.set_world_poses(pose[0], pose[1])
+            obj.set_velocities(torch.zeros((1,6)))
 
     def get_world_poses(self, list):
         poses = []
@@ -209,6 +226,9 @@ class Characters(object):
                         'hoop_loading_outer':[-16.26241, 6.0, np.deg2rad(180)], 'bending_tube_loading_outer': [-29.06123, 6.3725, np.deg2rad(0)],
                         'cutting_cube':[-29.83212, -1.54882, np.deg2rad(0)], 'placing_product':[-40.47391, 12.91755, np.deg2rad(0)],
                         'initial_pose_0':[-11.5768, 6.48821, 0.0], 'initial_pose_1':[-30.516169, 7.5748153, 0.0]}
+        self.initial_pose_list = []
+        for obj in self.list:
+            self.initial_pose_list.append(obj.get_world_poses())
         # for idx, charc in enumerate(self.list):
         #     xy_yaw = world_pose_to_navigation_pose(charc.get_world_poses())
         #     # self.initial_xy_yaw.append(xy_yaw)
@@ -241,7 +261,14 @@ class Characters(object):
         self.loading_operation_time_steps = [0 for i in range(len(character_list))]
         return
     
-    def reset(self, idx):
+    def reset(self):
+        for i in range(0, self.num):
+            self.list[i].set_world_poses(self.initial_pose_list[i][0], self.initial_pose_list[i][1])
+            self.list[i].set_velocities(torch.zeros((1,6)))
+            self.reset_idx(i)
+            self.reset_path(i)
+
+    def reset_idx(self, idx):
         if idx < 0 :
             return
         self.states[idx] = 0
@@ -345,7 +372,9 @@ class Agvs(object):
                         'collect_product':[-21.76757, 10.78427, np.deg2rad(0)],'placing_product':[-38.54638, 12.40097, np.deg2rad(0)], 
                         'initial_pose_0':[-4.8783107, 8.017096, 0.0], 'initial_pose_1': [-4.8726454, 11.656976, 0.0],
                         'initial_box_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_box_pose_1': [-1.7894887, 11.822739, 0.0]}
-        
+        self.initial_pose_list = []
+        for obj in self.list:
+            self.initial_pose_list.append(obj.get_world_poses())
         # self.initial_xy_yaw = []
         # for idx, agv in enumerate(self.list):
         #     xy_yaw = world_pose_to_navigation_pose(agv.get_world_poses())
@@ -371,7 +400,14 @@ class Agvs(object):
         self.placing_product_pose = [-38.54638, 12.40097, np.deg2rad(0)]
         return
     
-    def reset(self, idx):
+    def reset(self):
+        for i in range(0, self.num):
+            self.list[i].set_world_poses(self.initial_pose_list[i][0], self.initial_pose_list[i][1])
+            self.list[i].set_velocities(torch.zeros((1,6)))
+            self.reset_idx(i)
+            self.reset_path(i)
+    
+    def reset_idx(self, idx):
         if idx < 0 :
             return
         self.tasks[idx] = 0
@@ -461,7 +497,9 @@ class TransBoxs(object):
         self.task_range = {'hoop_preparing', 'bending_tube_preparing', 'collect_product','placing_product'}
 
         self.poses_dic = {'initial_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_pose_1': [-1.7894887, 11.822739, 0.0]}
-
+        self.initial_pose_list = []
+        for obj in self.list:
+            self.initial_pose_list.append(obj.get_world_poses())
         # for idx, box in enumerate(self.list):
         #     xy_yaw = world_pose_to_navigation_pose(box.get_world_poses())
         #     # self.initial_xy_yaw.append(xy_yaw)
@@ -485,7 +523,13 @@ class TransBoxs(object):
 
         return
     
-    def reset(self, idx):
+    def reset(self):
+        for i in range(0, self.num):
+            self.list[i].set_world_poses(self.initial_pose_list[i][0], self.initial_pose_list[i][1])
+            self.list[i].set_velocities(torch.zeros((1,6)))
+            self.reset_idx(i)
+
+    def reset_idx(self, idx):
         if idx < 0 :
             return
         self.tasks[idx] = 0
@@ -562,7 +606,12 @@ class TaskManager(object):
         return
     
     def reset(self):
-        
+        self.characters.reset()
+        self.agvs.reset()
+        self.boxs.reset()
+        self.task_in_set = set()
+        self.task_in_dic = {}
+        self.task_in_vector = torch.zeros(len(self.task_dic)-1)
 
     def assign_task(self, task):
         
@@ -584,9 +633,9 @@ class TaskManager(object):
     def task_clearing(self, task):
 
         charac_idx, agv_idx, box_idx = self.task_in_dic[task]['charac_idx'], self.task_in_dic[task]['agv_idx'], self.task_in_dic[task]['box_idx']
-        self.characters.reset(charac_idx)
-        self.agvs.reset(agv_idx)
-        self.boxs.reset(box_idx)
+        self.characters.reset_idx(charac_idx)
+        self.agvs.reset_idx(agv_idx)
+        self.boxs.reset_idx(box_idx)
         self.task_in_set.remove(task)
         del self.task_in_dic[task]
         self.task_in_vector[self.task_dic_inverse[task]] = 0
@@ -602,7 +651,7 @@ class TaskManager(object):
                     #reset agv idx and find the suitable agv for box again
                     agv_idx = self.task_in_dic[task]['agv_idx']
                     if agv_idx >= 0:
-                        self.agvs.reset(agv_idx)
+                        self.agvs.reset_idx(agv_idx)
                         self.task_in_dic[task]['agv_idx'] = -1
                 if self.task_in_dic[task]['agv_idx'] == -1:
                     box_idx = self.task_in_dic[task]['box_idx']
@@ -970,6 +1019,83 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.materials : Materials = Materials(cube_list=cube_list, hoop_list=hoop_list, bending_tube_list=bending_tube_list, upper_tube_list=upper_tube_list, product_list = product_list)
         # self.materials_flag_dic = {-1:"done", 0:"wait", 1:"conveying", 2:"conveyed", 3:"cutting", 4:"cut_done", 5:"pick_up_cut", 
         # 5:"down", 6:"combine_l", 7:"weld_l", 8:"combine_r", 9:"weld_r"}
+
+        '''for humans workers (characters) and robots (agv+boxs)'''
+        self.character_1 = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_01",
+            name="character_1",
+            track_contact_forces=True,
+        )
+        self.character_2 = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_02",
+            name="character_2",
+            track_contact_forces=True,
+        )
+        scene.add(self.character_1)
+        scene.add(self.character_2)
+        character_list = [self.character_1, self.character_2]
+        # self.characters = Characters(character_list)
+
+        self.box_1 = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/AGVs/box_01",
+            name="box_1",
+            track_contact_forces=True,
+        )
+        self.box_2 = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/AGVs/box_02",
+            name="box_2",
+            track_contact_forces=True,
+        )
+        scene.add(self.box_1)
+        scene.add(self.box_2)
+        box_list = [self.box_1, self.box_2]
+        # self.transboxs = TransBoxs(box_list)
+
+        self.agv_1 = ArticulationView(
+            prim_paths_expr="/World/envs/.*/obj/AGVs/agv_01",
+            name="agv_1",
+            reset_xform_properties=False,
+        )
+        self.agv_2 = ArticulationView(
+            prim_paths_expr="/World/envs/.*/obj/AGVs/agv_02",
+            name="agv_2",
+            reset_xform_properties=False,
+        )
+        scene.add(self.agv_1)
+        scene.add(self.agv_2)
+        agv_list = [self.agv_1, self.agv_2]
+        # self.agvs = Agvs(agv_list)
+
+        self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list)
+        '''Ending: for humans workers (characters) and robots (agv+boxs)'''
+        # from omniisaacgymenvs.robots.omni_anim_people.scripts.character_behavior import CharacterBehavior
+        # from pxr import Sdf
+        # prim_path = Sdf.Path(f"/World/envs/env_0" + "/obj/Characters/male_adult_construction_05/ManRoot")
+        # self.character_0 = CharacterBehavior(prim_path)
+        
+        # self.character_0.read_commands_from_file()
+        # self.upper_tube_stationt_state_dic = {0:"is_not_full", 1:"fulled"}
+        # self.station_state_tube_inner = 0
+
+        # _, hoop_world_pose_orientation = self.materials.hoop_list[self.materials.inner_hoop_processing_index].get_world_poses()
+        # from pxr import Gf, UsdGeom
+        # self.inital_inner_revolution_matrix = Gf.Matrix4d()
+        # position = hoop_world_pose_position.cpu()[0]
+        # self.inital_inner_revolution_matrix.SetTranslateOnly(Gf.Vec3d(float(position[0]), float(position[1]), float(position[2])))
+        # orientation = hoop_world_pose_orientation.cpu()[0]
+        # self.inital_inner_revolution_matrix.SetRotateOnly(Gf.Quatd(float(orientation[0]), float(orientation[1]), float(orientation[2]), float(orientation[3])))
+        # prim = self._stage.GetPrimAtPath(f"/World/envs/env_0" + "/obj/part9/manipulator2/robotiq_arg2f_base_link")
+        # prim = self._stage.GetPrimAtPath(f"/World/envs/env_0" + "/obj/part11/node/Station0")
+        # matrix = get_world_transform_matrix(prim)
+        # translate = matrix.ExtractTranslation()
+        # rotation: Gf.Rotation = matrix.ExtractRotation()
+        # self.pre_progress_buf = 0
+        self.cuda_device = torch.device("cuda:0")
+        self.initialize_pre_def_routes(from_file = True)
+        self.reset_machine_state()
+        return
+    
+    def reset_machine_state(self):
         # conveyor
         #0 free 1 working
         self.convey_state = 0
@@ -1049,79 +1175,6 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.state_depot_hoop = 0
         self.state_depot_bending_tube = 0
         self.depot_product_set = set()
-
-        '''for humans workers (characters) and robots (agv+boxs)'''
-        self.character_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_01",
-            name="character_1",
-            track_contact_forces=True,
-        )
-        self.character_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_02",
-            name="character_2",
-            track_contact_forces=True,
-        )
-        scene.add(self.character_1)
-        scene.add(self.character_2)
-        character_list = [self.character_1, self.character_2]
-        # self.characters = Characters(character_list)
-
-        self.box_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/box_01",
-            name="box_1",
-            track_contact_forces=True,
-        )
-        self.box_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/box_02",
-            name="box_2",
-            track_contact_forces=True,
-        )
-        scene.add(self.box_1)
-        scene.add(self.box_2)
-        box_list = [self.box_1, self.box_2]
-        # self.transboxs = TransBoxs(box_list)
-
-        self.agv_1 = ArticulationView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/agv_01",
-            name="agv_1",
-            reset_xform_properties=False,
-        )
-        self.agv_2 = ArticulationView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/agv_02",
-            name="agv_2",
-            reset_xform_properties=False,
-        )
-        scene.add(self.agv_1)
-        scene.add(self.agv_2)
-        agv_list = [self.agv_1, self.agv_2]
-        # self.agvs = Agvs(agv_list)
-
-        self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list)
-        '''Ending: for humans workers (characters) and robots (agv+boxs)'''
-        # from omniisaacgymenvs.robots.omni_anim_people.scripts.character_behavior import CharacterBehavior
-        # from pxr import Sdf
-        # prim_path = Sdf.Path(f"/World/envs/env_0" + "/obj/Characters/male_adult_construction_05/ManRoot")
-        # self.character_0 = CharacterBehavior(prim_path)
-        
-        # self.character_0.read_commands_from_file()
-        # self.upper_tube_stationt_state_dic = {0:"is_not_full", 1:"fulled"}
-        # self.station_state_tube_inner = 0
-
-        # _, hoop_world_pose_orientation = self.materials.hoop_list[self.materials.inner_hoop_processing_index].get_world_poses()
-        # from pxr import Gf, UsdGeom
-        # self.inital_inner_revolution_matrix = Gf.Matrix4d()
-        # position = hoop_world_pose_position.cpu()[0]
-        # self.inital_inner_revolution_matrix.SetTranslateOnly(Gf.Vec3d(float(position[0]), float(position[1]), float(position[2])))
-        # orientation = hoop_world_pose_orientation.cpu()[0]
-        # self.inital_inner_revolution_matrix.SetRotateOnly(Gf.Quatd(float(orientation[0]), float(orientation[1]), float(orientation[2]), float(orientation[3])))
-        # prim = self._stage.GetPrimAtPath(f"/World/envs/env_0" + "/obj/part9/manipulator2/robotiq_arg2f_base_link")
-        # prim = self._stage.GetPrimAtPath(f"/World/envs/env_0" + "/obj/part11/node/Station0")
-        # matrix = get_world_transform_matrix(prim)
-        # translate = matrix.ExtractTranslation()
-        # rotation: Gf.Rotation = matrix.ExtractRotation()
-        self.pre_progress_buf = 0
-        self.cuda_device = torch.device("cuda:0")
-        self.initialize_pre_def_routes(from_file = True)
         return
     
     def post_next_group_to_be_processed_step(self):

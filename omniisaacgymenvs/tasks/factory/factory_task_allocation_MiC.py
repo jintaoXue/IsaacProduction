@@ -87,9 +87,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         #TODO
         self.task_manager.reset()
         self.materials.reset()
-        self.reset_machines()
-        
+        self.reset_machine_state()
         return 
+
     def post_material_step(self):
         #part of materials state decision is in consideration
         capacity = self.task_manager.boxs.CAPACITY
@@ -434,7 +434,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     self.task_manager.agvs.reset_path(idx)
             if reaching_flag:
                 if task == 5: #reset agvs state
-                    self.task_manager.agvs.reset(idx)
+                    self.task_manager.agvs.reset_idx(idx)
                     self.task_manager.boxs.states[corresp_box_idx] = 1 #waiting
                     self.task_manager.boxs.tasks[corresp_box_idx] = 3 #collect products
                     self.task_manager.task_in_dic[high_level_task]['agv_idx'] = -2 #task collecting product dont need agv later 
