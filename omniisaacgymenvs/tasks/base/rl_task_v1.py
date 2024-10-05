@@ -120,8 +120,8 @@ class RLTask(RLTaskInterface):
         self.camera_target = [-28, 5, 3]
 
         # view of all
-        # self.camera_position = [-18, 14, 50]
-        # self.camera_target = [-18, 5, 3]
+        self.camera_position = [-18, 14, 50]
+        self.camera_target = [-18, 5, 3]
 
 
         self.viewport_camera_width = 1280

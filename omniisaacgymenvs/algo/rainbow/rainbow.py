@@ -427,6 +427,7 @@ class RainbowAgent():
             self.replay_buffer.append(obs_cpu, action_cpu, rewards_cpu, dones_cpu)
             self.obs = next_obs.copy()
 
+            update_time = 0
             if not random_exploration:
                 self.replay_buffer.priority_weight = min(self.replay_buffer.priority_weight + self.priority_weight_increase, 1)
                 if self.step_num % self.update_frequency == 0:
@@ -435,8 +436,6 @@ class RainbowAgent():
                     loss = self.update(self.epoch_num)
                     update_time_end = time.time()
                     update_time = update_time_end - update_time_start
-            else:
-                update_time = 0
 
             # Update target network
             if self.step_num % self.target_update == 0:

@@ -77,6 +77,16 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             self.get_extras()
             
         return obs, self.rew_buf, self.reset_buf, self.extras
+    
+    def _update_rew_buf(self) -> None:
+        """Compute reward at current timestep."""
+        a = 1
+        return
+    
+    def check_action_availability(self):
+        a = 1
+        return
+    
     def check_reset(self):
         if self.reset_buf[0] == 1:
             self._reset_buffers(env_ids=0)
@@ -135,6 +145,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             #the action is contorlled by rl-based agent rather than the inner rule-based agent
             ###one hot vector to num classes
             # task_id = torch.argmax(actions[0], dim=0) - 1
+            self.check_action_availability(actions)
             task_id = actions[0] - 1
             task = self.task_manager.task_dic[task_id.item()]
             if task == 'none':

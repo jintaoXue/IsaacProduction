@@ -85,36 +85,8 @@ class Materials(object):
         self.bending_tube_state_dic = {-1:"done", 0:"wait", 1:"in_box",  2:"on_table", 3:"in_list", 4:"loading", 5:"loaded"}
         self.upper_tube_state_dic = {}
         self.product_state_dic = {0:"waitng", 1:'collected', 2:"placed", -1:"finished"}
-        
-        self.cube_states = [0]*len(self.cube_list)
-        self.hoop_states = [0]*len(self.hoop_list)
-        self.bending_tube_states = [0]*len(self.bending_tube_list)
-        self.upper_tube_states = [0]*len(self.upper_tube_list)
-        self.product_states = [0]*len(self.product_list)
-        '''#for workers and agv to conveying the materials'''
-        # self.cube_convey_states = [0]*len(self.cube_list)
         self.hoop_state_dic = {0:"wait", 1:"in_box", 2:"on_table"}
         self.bending_tube_state_dic = {0:"wait", 1:"in_box", 2:"on_table"}
-        self.hoop_convey_states = [0]*len(self.hoop_list)
-        self.bending_tube_convey_states = [0]*len(self.bending_tube_list)
-        # self.upper_tube_convey_states = [0]*len(self.upper_tube_list)
-        #for belt conveyor
-        self.cube_convey_index = -1
-        #cutting machine
-        self.cube_cut_index = -1
-        #grippers
-        self.pick_up_place_cube_index = -1
-        self.pick_up_place_upper_tube_index = -1
-        #for inner station
-        self.inner_hoop_processing_index = -1
-        self.inner_cube_processing_index = -1
-        self.inner_bending_tube_processing_index = -1
-        self.inner_upper_tube_processing_index = -1
-        #for outer station
-        self.outer_hoop_processing_index = -1
-        self.outer_cube_processing_index = -1   #equal to product processing index
-        self.outer_bending_tube_processing_index = -1
-        self.outer_upper_tube_processing_index = -1
 
         self.initial_hoop_pose = []
         self.initial_bending_tube_pose = []
@@ -132,6 +104,9 @@ class Materials(object):
             self.initial_cube_pose.append(obj.get_world_poses())
         for obj in self.product_list:
             self.initial_product_pose.append(obj.get_world_poses())
+        
+        self.reset()
+
         position = [[[-14.44042, 4.77828, 0.6]], [[-13.78823, 4.77828, 0.6]], [[-14.44042, 5.59765, 0.6]], [[-13.78823, 5.59765, 0.6]]]
         orientation = [[1 ,0 ,0, 0]]
         self.position_depot_hoop, self.orientation_depot_hoop = torch.tensor(position, dtype=torch.float32), torch.tensor(orientation, dtype=torch.float32)
@@ -153,6 +128,35 @@ class Materials(object):
         for obj, pose in zip(obj_list, pose_list):
             obj.set_world_poses(pose[0], pose[1])
             obj.set_velocities(torch.zeros((1,6)))
+
+        self.cube_states = [0]*len(self.cube_list)
+        self.hoop_states = [0]*len(self.hoop_list)
+        self.bending_tube_states = [0]*len(self.bending_tube_list)
+        self.upper_tube_states = [0]*len(self.upper_tube_list)
+        self.product_states = [0]*len(self.product_list)
+        '''#for workers and agv to conveying the materials'''
+        # self.cube_convey_states = [0]*len(self.cube_list)
+
+        self.hoop_convey_states = [0]*len(self.hoop_list)
+        self.bending_tube_convey_states = [0]*len(self.bending_tube_list)
+        # self.upper_tube_convey_states = [0]*len(self.upper_tube_list)
+        #for belt conveyor
+        self.cube_convey_index = -1
+        #cutting machine
+        self.cube_cut_index = -1
+        #grippers
+        self.pick_up_place_cube_index = -1
+        self.pick_up_place_upper_tube_index = -1
+        #for inner station
+        self.inner_hoop_processing_index = -1
+        self.inner_cube_processing_index = -1
+        self.inner_bending_tube_processing_index = -1
+        self.inner_upper_tube_processing_index = -1
+        #for outer station
+        self.outer_hoop_processing_index = -1
+        self.outer_cube_processing_index = -1   #equal to product processing index
+        self.outer_bending_tube_processing_index = -1
+        self.outer_upper_tube_processing_index = -1
 
     def get_world_poses(self, list):
         poses = []
@@ -258,7 +262,7 @@ class Characters(object):
         self.placing_product_pose = [-40.47391, 12.91755, np.deg2rad(0)]
         self.PUTTING_TIME = 5
         self.LOADING_TIME = 5
-        self.loading_operation_time_steps = [0 for i in range(len(character_list))]
+        
         return
     
     def reset(self):
@@ -267,6 +271,7 @@ class Characters(object):
             self.list[i].set_velocities(torch.zeros((1,6)))
             self.reset_idx(i)
             self.reset_path(i)
+        self.loading_operation_time_steps = [0 for i in range(self.num)]
 
     def reset_idx(self, idx):
         if idx < 0 :
@@ -500,6 +505,15 @@ class TransBoxs(object):
         self.initial_pose_list = []
         for obj in self.list:
             self.initial_pose_list.append(obj.get_world_poses())
+
+        self.CAPACITY = 4
+        self.reset()
+        return
+    
+    def reset(self):
+        for i in range(0, self.num):
+            self.list[i].set_world_poses(self.initial_pose_list[i][0], self.initial_pose_list[i][1])
+            self.list[i].set_velocities(torch.zeros((1,6)))
         # for idx, box in enumerate(self.list):
         #     xy_yaw = world_pose_to_navigation_pose(box.get_world_poses())
         #     # self.initial_xy_yaw.append(xy_yaw)
@@ -513,21 +527,14 @@ class TransBoxs(object):
         # self.picking_pose_hoop = [-0.09067, 6.48821, np.deg2rad(180)]
         # self.picking_pose_bending_tube = [-0.09067, 13.12021, np.deg2rad(0)]
 
-        self.hoop_idx_list =[[] for i in range(len(box_list))]
-        self.bending_tube_idx_sets = [set() for i in range(len(box_list))]
-        self.product_idx_list = [[] for i in range(len(box_list))]
-        self.CAPACITY = 4
-        self.counts = [0 for i in range(len(box_list))]
+        self.hoop_idx_list =[[] for i in range(self.num)]
+        self.bending_tube_idx_sets = [set() for i in range(self.num)]
+        self.product_idx_list = [[] for i in range(self.num)]
+        
+        self.counts = [0 for i in range(self.num)]
 
         self.product_collecting_idx = -1
 
-        return
-    
-    def reset(self):
-        for i in range(0, self.num):
-            self.list[i].set_world_poses(self.initial_pose_list[i][0], self.initial_pose_list[i][1])
-            self.list[i].set_velocities(torch.zeros((1,6)))
-            self.reset_idx(i)
 
     def reset_idx(self, idx):
         if idx < 0 :
