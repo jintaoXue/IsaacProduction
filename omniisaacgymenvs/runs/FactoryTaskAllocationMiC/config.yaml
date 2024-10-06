@@ -15,7 +15,7 @@ solver_type: 1
 test: false
 checkpoint: ''
 evaluation: false
-headless: false
+headless: true
 enable_livestream: true
 mt_timeout: 300
 enable_recording: false
@@ -159,7 +159,7 @@ task:
     keypoint_scale: 0.5
     keypoint_reward_scale: 1.0
     action_penalty_scale: 0.0
-    max_episode_length: 10240
+    max_episode_length: 2500
     success_bonus: 0.0
   ctrl:
     ctrl_type: joint_space_id
@@ -366,7 +366,7 @@ train:
       entropy_coef: 0.0
       truncate_grads: false
       e_clip: 0.2
-      horizon_length: 1024
+      horizon_length: 2500
       minibatch_size: 4
       mini_epochs: 8
       critic_coef: 2

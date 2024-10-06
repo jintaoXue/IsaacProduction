@@ -82,8 +82,8 @@ env:
   controlFrequencyInv: 2  # 60 Hz
   numEnvs: ${resolve_default:1,${...num_envs}}
   numObservations: 20
-  numActions: 10
-  dimActions: 1
+  numActions: 10 #to initialize the rainbow agent action space
+  dimActions: 1 #to initialize the env action space
 
   close_and_lift: True  # close gripper and lift after last step of episode
   num_gripper_move_sim_steps: 40  # number of timesteps to reserve for moving gripper before first step of episode
@@ -116,7 +116,7 @@ rl:
   keypoint_reward_scale: 1.0  # scale on keypoint-based reward
   action_penalty_scale: 0.0  # scale on action penalty
 
-  max_episode_length: 10240
+  max_episode_length: 2500
 
   success_bonus: 0.0  # bonus if nut has been lifted
 

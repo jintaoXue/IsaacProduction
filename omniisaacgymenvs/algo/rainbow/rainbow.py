@@ -39,9 +39,9 @@ class RainbowAgent():
         self.max_steps = config.get("max_steps", int(50e6))
         self.max_epochs = config.get("max_epochs", int(1e6))
         self.batch_size = config.get('batch_size', 8)
-        self.num_warmup_steps = config.get('num_warmup_steps', int(64))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(10000))
         self.num_steps_per_episode = config.get("num_steps_per_episode", 500)
-        self.max_env_steps = config.get("max_env_steps", 1500) # temporary, in future we will use other approach
+        self.max_env_steps = config.get("horizon_length", 5000) # temporary, in future we will use other approach
         self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
@@ -111,7 +111,7 @@ class RainbowAgent():
         print('Env info:')
         print(self.env_info)
 
-        self.rewards_shaper = config['reward_shaper']
+        # self.rewards_shaper = config['reward_shaper']
         
         # self.weight_decay = config.get('weight_decay', 0.0)
         #self.use_action_masks = config.get('use_action_masks', False)
@@ -415,7 +415,7 @@ class RainbowAgent():
             # if isinstance(next_obs, dict):    
             #     next_obs_processed = next_obs['obs']
 
-            rewards = self.rewards_shaper(rewards)
+            # rewards = self.rewards_shaper(rewards)
             ####TODO refine replay buffer
             # self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
             obs_cpu = {}

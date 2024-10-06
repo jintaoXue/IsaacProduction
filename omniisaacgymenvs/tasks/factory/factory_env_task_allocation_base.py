@@ -84,7 +84,7 @@ class Materials(object):
         self.hoop_state_dic = {-1:"done", 0:"wait", 1:"in_box", 2:"on_table", 3:"in_list", 4:"loading", 5:"loaded"}
         self.bending_tube_state_dic = {-1:"done", 0:"wait", 1:"in_box",  2:"on_table", 3:"in_list", 4:"loading", 5:"loaded"}
         self.upper_tube_state_dic = {}
-        self.product_state_dic = {0:"waitng", 1:'collected', 2:"placed", -1:"finished"}
+        self.product_state_dic = {0:"waitng", 1:'collected', 2:"placed"}
         self.hoop_state_dic = {0:"wait", 1:"in_box", 2:"on_table"}
         self.bending_tube_state_dic = {0:"wait", 1:"in_box", 2:"on_table"}
 
@@ -157,6 +157,8 @@ class Materials(object):
         self.outer_cube_processing_index = -1   #equal to product processing index
         self.outer_bending_tube_processing_index = -1
         self.outer_upper_tube_processing_index = -1
+        #prduction progress
+        self.pre_progress = 0
 
     def get_world_poses(self, list):
         poses = []
@@ -169,6 +171,11 @@ class Materials(object):
 
     def done(self):
         return min(self.product_states) == 2
+
+    def progress(self):
+        totall_progress = 2*len(self.product_states)
+        progress = 2*self.product_states.count(2) + self.product_states.count(1)
+        return progress/totall_progress
     
     def produce_product_req(self):
         try:
@@ -608,7 +615,7 @@ class TaskManager(object):
                           5:'bending_tube_loading_outer', 6:'cutting_cube', 7:'collect_product', 8:'placing_product'}
         self.task_in_set = set()
         self.task_in_dic = {}
-        self.task_in_vector = torch.zeros(len(self.task_dic)-1)
+        self.task_mask = torch.zeros(len(self.task_dic))
         self.task_dic_inverse = {value: key for key, value in self.task_dic.items()}
         return
     
@@ -618,7 +625,7 @@ class TaskManager(object):
         self.boxs.reset()
         self.task_in_set = set()
         self.task_in_dic = {}
-        self.task_in_vector = torch.zeros(len(self.task_dic)-1)
+        self.task_mask = torch.zeros(len(self.task_dic))
 
     def assign_task(self, task):
         
@@ -633,7 +640,6 @@ class TaskManager(object):
 
         self.task_in_set.add(task)
         self.task_in_dic[task] = {'charac_idx': charac_idx, 'agv_idx': agv_idx, 'box_idx': box_idx, 'lacking_resource': lacking_resource}
-        self.task_in_vector[self.task_dic_inverse[task]] = 1
 
         return True
 
@@ -645,7 +651,6 @@ class TaskManager(object):
         self.boxs.reset_idx(box_idx)
         self.task_in_set.remove(task)
         del self.task_in_dic[task]
-        self.task_in_vector[self.task_dic_inverse[task]] = 0
         return
 
     def step(self):

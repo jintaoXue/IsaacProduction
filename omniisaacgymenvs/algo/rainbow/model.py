@@ -8,7 +8,7 @@ from torch.nn import functional as F
 from dataclasses import dataclass
 @dataclass
 class DimState :
-    tasks_state: int = 9
+    action_mask: int = 10
     state_depot_hoop: int = 1
     have_raw_hoops: int = 1
     state_depot_bending_tube: int = 1
@@ -104,7 +104,7 @@ class FeatureExtractor(nn.Module):
         hidden_size = cfg['hidden_size']
         self.num_lstm_layers = 1
         self.bi = True
-        self.task_embedding= nn.LSTM(dimstate.tasks_state, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
+        self.action_mask_embedding= nn.LSTM(dimstate.action_mask, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
         self.state_depot_hoop_embedding = nn.LSTM(dimstate.state_depot_hoop, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
         self.have_raw_hoops_embedding = nn.LSTM(dimstate.have_raw_hoops, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
         self.state_depot_bending_tube_embedding= nn.LSTM(dimstate.state_depot_bending_tube, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
@@ -123,7 +123,7 @@ class FeatureExtractor(nn.Module):
 
     def forward(self, state, **kwargs):
 
-        task_embedding, (h_n, h_c)  = self.task_embedding(state['tasks_state'])
+        action_mask_embedding, (h_n, h_c)  = self.action_mask_embedding(state['action_mask'])
         state_depot_hoop_embedding, _ = self.state_depot_hoop_embedding(state['state_depot_hoop'])
         have_raw_hoops_embedding, _ = self.have_raw_hoops_embedding(state['have_raw_hoops'])
         state_depot_bending_tube_embedding, _ = self.state_depot_bending_tube_embedding(state['state_depot_bending_tube'])
@@ -140,7 +140,7 @@ class FeatureExtractor(nn.Module):
         ###########################################################################################
         ###########################################################################################
 
-        all_embs = torch.cat([task_embedding.unsqueeze(1), state_depot_hoop_embedding.unsqueeze(1), have_raw_hoops_embedding.unsqueeze(1), state_depot_bending_tube_embedding.unsqueeze(1), 
+        all_embs = torch.cat([action_mask_embedding.unsqueeze(1), state_depot_hoop_embedding.unsqueeze(1), have_raw_hoops_embedding.unsqueeze(1), state_depot_bending_tube_embedding.unsqueeze(1), 
                               have_raw_bending_tube_embedding.unsqueeze(1), station_state_inner_left_embedding.unsqueeze(1), station_state_inner_right_embedding.unsqueeze(1), 
                               station_state_outer_left_embedding.unsqueeze(1), station_state_outer_right_embedding.unsqueeze(1), cutting_machine_state_embedding.unsqueeze(1), 
                               is_full_products_embedding.unsqueeze(1), produce_product_req_embedding.unsqueeze(1)], dim=1)
@@ -160,7 +160,7 @@ class VectorizedEmbedding(nn.Module):
         """
         super().__init__()
         self.state_types = {
-            "tasks_state": 0,
+            "action_mask": 0,
             "state_depot_hoop": 1,
             "have_raw_hoops": 2,
             "state_depot_bending_tube": 3,
@@ -192,7 +192,7 @@ class VectorizedEmbedding(nn.Module):
         """
 
         with torch.no_grad():
-            batch_size = state['tasks_state'].shape[0]
+            batch_size = state['action_mask'].shape[0]
             #total_len = 12
             total_len = len(self.state_types)
 
@@ -200,10 +200,10 @@ class VectorizedEmbedding(nn.Module):
                 (batch_size, total_len),
                 fill_value=-1,
                 dtype=torch.long,
-                device=state['tasks_state'].device,
+                device=state['action_mask'].device,
             )
 
-            indices[:, 0].fill_(self.state_types["tasks_state"])
+            indices[:, 0].fill_(self.state_types["action_mask"])
             indices[:, 1].fill_(self.state_types["state_depot_hoop"])
             indices[:, 2].fill_(self.state_types["have_raw_hoops"])
             indices[:, 3].fill_(self.state_types["state_depot_bending_tube"])
