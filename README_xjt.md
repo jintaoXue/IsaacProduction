@@ -108,7 +108,9 @@ rainbow.py 517行 需要改动
 task reset
 max_episode_length: 10240 need to be change
 
-# 9.29
+# 9.29 10.6
 输入参数归一化
 batch_size暂定为8
 history length 设为1
+multi step
+如何缩短epoch的时间
