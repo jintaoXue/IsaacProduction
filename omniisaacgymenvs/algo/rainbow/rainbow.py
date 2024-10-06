@@ -137,6 +137,7 @@ class RainbowAgent():
         # self.min_alpha = torch.tensor(np.log(1)).float().to(self._device)
         self.step_num = 0
         self.epoch_num = 0
+        self.episode_num = 0
         self.update_time = 0
         self.last_mean_rewards = -1000000000
         self.play_time = 0
@@ -175,21 +176,26 @@ class RainbowAgent():
         self.last_rnn_indices = None
         self.last_state_indices = None
 
-        use_wandb = config.get('wandb_activate', False)
-        if use_wandb:
+        self.use_wandb = config.get('wandb_activate', False)
+        if self.use_wandb:
             self.init_wandb_logger()
 
     def init_wandb_logger(self):
         wandb.define_metric("Train/step")
         wandb.define_metric("Train/buffer_size", step_metric="Train/step")
         wandb.define_metric("Train/Loss", step_metric="Train/step")
+        wandb.define_metric("Train/num_episode", step_metric="Train/step")
 
-        wandb.define_metric("Metrics/Episode")
-        wandb.define_metric("Metrics/EpRet", step_metric="Metrics/Episode")
-        wandb.define_metric("Metrics/EpLen", step_metric="Metrics/Episode")
-        wandb.define_metric("Metrics/EpTime", step_metric="Metrics/Episode")
-        wandb.define_metric("Metrics/EpProgress", step_metric="Metrics/Episode")
-        wandb.define_metric("Metrics/EpRetAction", step_metric="Metrics/Episode")
+
+        wandb.define_metric("Metrics/Mrewards", step_metric="Train/step")
+        wandb.define_metric("Metrics/MLen", step_metric="Train/step")
+        wandb.define_metric("Metrics/step_episode")
+        wandb.define_metric("Metrics/EpRet", step_metric="Metrics/step_episode")
+        wandb.define_metric("Metrics/EpLen", step_metric="Metrics/step_episode")
+        wandb.define_metric("Metrics/EpTime", step_metric="Metrics/step_episode")
+        wandb.define_metric("Metrics/EpProgress", step_metric="Metrics/step_episode")
+        wandb.define_metric("Metrics/EpRetAction", step_metric="Metrics/step_episode")
+
 
         total = sum([param.nelement() for param in self.online_net.parameters()])
         # print("Number of parameters: %.2fM" % (total/1e6))
@@ -234,8 +240,9 @@ class RainbowAgent():
         batch_size = self.num_agents * self.num_actors
 
         self.current_rewards = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
+        self.current_rewards_action = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
         self.current_lengths = torch.zeros(batch_size, dtype=torch.long, device=self._device)
-
+        self.current_ep_time = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
         self.dones = torch.zeros((batch_size,), dtype=torch.uint8, device=self._device)
 
     @property
@@ -419,8 +426,9 @@ class RainbowAgent():
             assert self.num_agents == 1, ('only support num_agents == 1')
             self.step_num += self.num_actors * 1
             self.current_rewards += rewards
+            self.current_rewards_action += infos["rew_action"]
             self.current_lengths += 1
-
+            self.current_ep_time += (step_end - step_start)
             total_time += (step_end - step_start)
             step_time += (step_end - step_start)
 
@@ -433,10 +441,22 @@ class RainbowAgent():
 
             no_timeouts = self.current_lengths != self.max_env_steps
             dones = dones * no_timeouts
+            if dones[0]:
+                self.episode_num += 1
+                if self.use_wandb:
 
+                    wandb.log({
+                        'Metrics/step_episode': self.episode_num,
+                        'Metrics/EpRet': self.current_rewards,
+                        'Metrics/EpLen': self.current_lengths,
+                        "Metrics/EpTime": self.current_ep_time,
+                        "Metrics/EpProgress": infos['progress'],
+                        "Metrics/EpRetAction": self.current_rewards_action,
+                    })    
             self.current_rewards = self.current_rewards * not_dones
             self.current_lengths = self.current_lengths * not_dones
-
+            self.current_ep_time = self.current_ep_time * not_dones
+            self.current_rewards_action = self.current_rewards_action * not_dones
             # if isinstance(next_obs, dict):    
             #     next_obs_processed = next_obs['obs']
 
@@ -486,6 +506,7 @@ class RainbowAgent():
         while True:
             self.epoch_num += 1
             step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch()
+            
 
             total_time += epoch_total_time
             # self.step_num += self.num_steps_per_episode
@@ -494,26 +515,43 @@ class RainbowAgent():
             fps_step_inference = self.num_steps_per_episode / play_time
             fps_total = self.num_steps_per_episode / epoch_total_time
 
-            self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.step_num)
-            self.writer.add_scalar('performance/step_inference_fps', fps_step_inference, self.step_num)
-            self.writer.add_scalar('performance/step_fps', fps_step, self.step_num)
-            self.writer.add_scalar('performance/rl_update_time', update_time, self.step_num)
-            self.writer.add_scalar('performance/step_inference_time', play_time, self.step_num)
-            self.writer.add_scalar('performance/step_time', step_time, self.step_num)
+            if self.use_wandb:
+                wandb.log({
+                        "Train/step": self.step_num,
+                        "Train/num_episode": self.episode_num,
+                        'Train/buffer_size': self.replay_buffer.transitions.index,
+                    })  
+                if self.game_rewards.current_size > 0:
+                    wandb.log({
+                        'Metrics/Mrewards': self.game_rewards.get_mean(),
+                        'Metrics/MLen': self.game_lengths.get_mean(),
+                    })  
+                if self.step_num >= self.num_warmup_steps and loss is not None:
+                    wandb.log({
+                            'Train/buffer_size': self.replay_buffer.transitions.index,
+                            "Train/Loss": loss,
+                        })                  
 
-            if self.epoch_num >= self.num_warmup_steps and loss is not None:
-                self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.step_num)
+            # self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.step_num)
+            # self.writer.add_scalar('performance/step_inference_fps', fps_step_inference, self.step_num)
+            # self.writer.add_scalar('performance/step_fps', fps_step, self.step_num)
+            # self.writer.add_scalar('performance/rl_update_time', update_time, self.step_num)
+            # self.writer.add_scalar('performance/step_inference_time', play_time, self.step_num)
+            # self.writer.add_scalar('performance/step_time', step_time, self.step_num)
 
-            self.writer.add_scalar('info/epochs', self.epoch_num, self.step_num)
+            # if self.epoch_num >= self.num_warmup_steps and loss is not None:
+            #     self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.step_num)
+
+            # self.writer.add_scalar('info/epochs', self.epoch_num, self.step_num)
 
             if self.game_rewards.current_size > 0:
                 mean_rewards = self.game_rewards.get_mean()
-                mean_lengths = self.game_lengths.get_mean()
+                # mean_lengths = self.game_lengths.get_mean()
 
-                self.writer.add_scalar('rewards/step', mean_rewards, self.step_num)
-                self.writer.add_scalar('rewards/time', mean_rewards, total_time)
-                self.writer.add_scalar('episode_lengths/step', mean_lengths, self.step_num)
-                self.writer.add_scalar('episode_lengths/time', mean_lengths, total_time)
+                # self.writer.add_scalar('rewards/step', mean_rewards, self.step_num)
+                # self.writer.add_scalar('rewards/time', mean_rewards, total_time)
+                # self.writer.add_scalar('episode_lengths/step', mean_lengths, self.step_num)
+                # self.writer.add_scalar('episode_lengths/time', mean_lengths, total_time)
                 checkpoint_name = self.config['name'] + '_ep_' + str(self.epoch_num) + '_rew_' + str(mean_rewards)
 
                 should_exit = False

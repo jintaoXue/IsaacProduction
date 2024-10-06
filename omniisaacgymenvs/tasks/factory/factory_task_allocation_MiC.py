@@ -98,6 +98,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
         self.rew_buf[0] = self.reward_action + reward_time + rew_task
         self.materials.pre_progress = progress
+        self.extras['progress'] = progress
+        self.extras['rew_action'] = self.reward_action
         return
     
     def get_available_task(self):
