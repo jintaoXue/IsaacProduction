@@ -17,6 +17,7 @@ from tqdm import trange
 import time
 from omegaconf import DictConfig
 from omniisaacgymenvs.utils.data import data
+import wandb
 class RainbowAgent():
     def __init__(self, base_name, params):
 
@@ -173,6 +174,30 @@ class RainbowAgent():
         self.is_rnn = False
         self.last_rnn_indices = None
         self.last_state_indices = None
+
+        use_wandb = config.get('wandb_activate', False)
+        if use_wandb:
+            self.init_wandb_logger()
+
+    def init_wandb_logger(self):
+        wandb.define_metric("Train/step")
+        wandb.define_metric("Train/buffer_size", step_metric="Train/step")
+        wandb.define_metric("Train/Loss", step_metric="Train/step")
+
+        wandb.define_metric("Metrics/Episode")
+        wandb.define_metric("Metrics/EpRet", step_metric="Metrics/Episode")
+        wandb.define_metric("Metrics/EpLen", step_metric="Metrics/Episode")
+        wandb.define_metric("Metrics/EpTime", step_metric="Metrics/Episode")
+        wandb.define_metric("Metrics/EpProgress", step_metric="Metrics/Episode")
+        wandb.define_metric("Metrics/EpRetAction", step_metric="Metrics/Episode")
+
+        total = sum([param.nelement() for param in self.online_net.parameters()])
+        # print("Number of parameters: %.2fM" % (total/1e6))
+        param_table = wandb.Table(columns=["online_net_size"], data=[[total]])
+        wandb.log({"Parameter": param_table})
+
+        return
+    
     # Resets noisy weights in all linear layers (of online net only)
     def reset_noise(self):
         self.online_net.reset_noise()
