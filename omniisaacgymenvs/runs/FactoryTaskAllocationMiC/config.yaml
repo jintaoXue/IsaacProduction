@@ -15,7 +15,7 @@ solver_type: 1
 test: false
 checkpoint: ''
 evaluation: false
-headless: true
+headless: false
 enable_livestream: true
 mt_timeout: 300
 enable_recording: false
@@ -23,11 +23,10 @@ recording_interval: 2000
 recording_length: 100
 recording_fps: 30
 recording_dir: ''
-wandb_activate: false
+wandb_activate: true
 wandb_group: ''
 wandb_name: ${train.params.config.name}
-wandb_entity: ''
-wandb_project: omniisaacgymenvs
+wandb_project: IsaacProduction
 kit_app: ''
 warp: false
 task:
@@ -343,6 +342,7 @@ train:
     load_path: ${...checkpoint}
     config:
       name: ${resolve_default:FactoryTaskAllocationMiC,${....experiment}}
+      wandb_activate: ${....wandb_activate}
       full_experiment_name: ${.name}
       device: ${....rl_device}
       device_name: ${....rl_device}

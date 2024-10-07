@@ -192,7 +192,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
     def post_task_manager_step(self, actions):
         self.get_available_task()
-        self.reward_action = 0.5
+        self.reward_action = 0.2
         #TODO only support single action, not actions
         task_id = -1 #default as none
         if actions is not None:
@@ -202,7 +202,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             task_id = actions[0] - 1
             task = self.task_manager.task_dic[task_id.item()]
             if task not in self.available_task_dic.keys():
-                self.reward_action = -10
+                self.reward_action = -1
                 # self.reset_buf[0] = 1
                 task = 'none'
             elif len(self.available_task_dic.keys()) > 1 and task == 'none':

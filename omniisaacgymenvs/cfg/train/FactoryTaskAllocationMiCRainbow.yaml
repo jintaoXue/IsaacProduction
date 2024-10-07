@@ -7,6 +7,7 @@ params:
 
   config:
     name: ${resolve_default:FactoryTaskAllocationMiC,${....experiment}}
+    wandb_activate: ${....wandb_activate}
     full_experiment_name: ${.name}
     device: ${....rl_device}
     device_name: ${....rl_device}

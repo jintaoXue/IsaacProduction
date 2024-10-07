@@ -1,0 +1,65 @@
+2024-10-07 13:42:27,845 INFO    MainThread:84781 [internal.py:wandb_internal():90] W&B internal server running at pid: 84781, started at: 2024-10-07 13:42:27.844755
+2024-10-07 13:42:27,847 INFO    WriterThread:84781 [datastore.py:open_for_write():75] open: /home/xue/work/IsaacProduction/wandb/run-20241007_134226-285cl8ua/run-285cl8ua.wandb
+2024-10-07 13:42:27,861 DEBUG   SenderThread:84781 [sender.py:send():236] send: header
+2024-10-07 13:42:27,861 DEBUG   SenderThread:84781 [sender.py:send():236] send: run
+2024-10-07 13:42:27,883 INFO    SenderThread:84781 [sender.py:_maybe_setup_resume():493] checking resume status for None/IsaacProduction/285cl8ua
+2024-10-07 13:42:28,434 ERROR   SenderThread:84781 [internal_api.py:execute():161] 403 response executing GraphQL.
+2024-10-07 13:42:28,434 ERROR   SenderThread:84781 [internal_api.py:execute():162] {"errors":[{"message":"permission denied","path":["upsertBucket"],"extensions":{"code":"PERMISSION_ERROR"}}],"data":{"upsertBucket":null}}
+2024-10-07 13:42:28,848 INFO    HandlerThread:84781 [handler.py:finish():806] shutting down handler
+2024-10-07 13:42:28,858 INFO    WriterThread:84781 [datastore.py:close():279] close: /home/xue/work/IsaacProduction/wandb/run-20241007_134226-285cl8ua/run-285cl8ua.wandb
+2024-10-07 13:42:28,858 ERROR   MainThread:84781 [internal.py:wandb_internal():165] Thread SenderThread:
+Traceback (most recent call last):
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/lib/retry.py", line 108, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/internal_api.py", line 158, in execute
+    return self.client.execute(*args, **kwargs)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/transport/requests.py", line 39, in execute
+    request.raise_for_status()
+  File "/home/xue/.local/share/ov/pkg/isaac-sim-2023.1.1/exts/omni.pip.cloud/pip_prebundle/requests/models.py", line 1021, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.wandb.ai/graphql
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/apis/normalize.py", line 25, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/internal_api.py", line 1341, in upsert_run
+    response = self.gql(mutation, variable_values=variable_values, **kwargs)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/lib/retry.py", line 124, in __call__
+    if not check_retry_fn(e):
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/util.py", line 887, in no_retry_auth
+    raise CommError("Permission denied, ask the project owner to grant you access")
+wandb.errors.CommError: Permission denied, ask the project owner to grant you access
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/internal_util.py", line 51, in run
+    self._run()
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/internal_util.py", line 102, in _run
+    self._process(record)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/internal.py", line 310, in _process
+    self._sm.send(record)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/sender.py", line 238, in send
+    send_handler(record)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/sender.py", line 696, in send_run
+    self._init_run(run, config_value_dict)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/sender.py", line 720, in _init_run
+    server_run, inserted = self._api.upsert_run(
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/apis/normalize.py", line 61, in wrapper
+    raise CommError(message, err).with_traceback(sys.exc_info()[2])
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/apis/normalize.py", line 25, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/internal/internal_api.py", line 1341, in upsert_run
+    response = self.gql(mutation, variable_values=variable_values, **kwargs)
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/sdk/lib/retry.py", line 124, in __call__
+    if not check_retry_fn(e):
+  File "/home/xue/Repos/miniconda3/envs/isaac-sim/lib/python3.10/site-packages/wandb/util.py", line 887, in no_retry_auth
+    raise CommError("Permission denied, ask the project owner to grant you access")
+wandb.errors.CommError: Permission denied, ask the project owner to grant you access
+2024-10-07 13:42:31,496 INFO    MainThread:84781 [internal.py:handle_exit():80] Internal process exited

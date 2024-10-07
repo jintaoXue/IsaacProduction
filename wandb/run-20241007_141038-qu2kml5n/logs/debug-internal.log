@@ -1,0 +1,51 @@
+2024-10-07 14:10:39,461 INFO    MainThread:92263 [internal.py:wandb_internal():90] W&B internal server running at pid: 92263, started at: 2024-10-07 14:10:39.461596
+2024-10-07 14:10:39,465 INFO    WriterThread:92263 [datastore.py:open_for_write():75] open: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/run-qu2kml5n.wandb
+2024-10-07 14:10:39,478 DEBUG   SenderThread:92263 [sender.py:send():236] send: header
+2024-10-07 14:10:39,478 DEBUG   SenderThread:92263 [sender.py:send():236] send: run
+2024-10-07 14:10:39,500 INFO    SenderThread:92263 [sender.py:_maybe_setup_resume():493] checking resume status for None/IsaacProduction/qu2kml5n
+2024-10-07 14:10:40,258 INFO    SenderThread:92263 [dir_watcher.py:__init__():216] watching files in: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files
+2024-10-07 14:10:40,258 INFO    SenderThread:92263 [sender.py:_start_run_threads():815] run started: qu2kml5n with start time 1728281438
+2024-10-07 14:10:40,273 DEBUG   SenderThread:92263 [sender.py:send():236] send: summary
+2024-10-07 14:10:40,273 DEBUG   HandlerThread:92263 [handler.py:handle_request():140] handle_request: check_version
+2024-10-07 14:10:40,274 INFO    SenderThread:92263 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2024-10-07 14:10:40,274 DEBUG   SenderThread:92263 [sender.py:send_request():250] send_request: check_version
+2024-10-07 14:10:40,400 DEBUG   HandlerThread:92263 [handler.py:handle_request():140] handle_request: run_start
+2024-10-07 14:10:40,424 DEBUG   HandlerThread:92263 [meta.py:__init__():35] meta init
+2024-10-07 14:10:40,424 DEBUG   HandlerThread:92263 [meta.py:__init__():49] meta init done
+2024-10-07 14:10:40,424 DEBUG   HandlerThread:92263 [meta.py:probe():209] probe
+2024-10-07 14:10:40,433 DEBUG   HandlerThread:92263 [meta.py:_setup_git():199] setup git
+2024-10-07 14:10:40,439 DEBUG   HandlerThread:92263 [meta.py:_setup_git():206] setup git done
+2024-10-07 14:10:40,439 DEBUG   HandlerThread:92263 [meta.py:_save_pip():53] save pip
+2024-10-07 14:10:40,439 DEBUG   HandlerThread:92263 [meta.py:_save_pip():67] save pip done
+2024-10-07 14:10:40,439 DEBUG   HandlerThread:92263 [meta.py:_save_conda():74] save conda
+2024-10-07 14:10:41,141 DEBUG   HandlerThread:92263 [meta.py:_save_conda():84] save conda done
+2024-10-07 14:10:41,141 DEBUG   HandlerThread:92263 [meta.py:probe():247] probe done
+2024-10-07 14:10:41,224 DEBUG   SenderThread:92263 [sender.py:send():236] send: files
+2024-10-07 14:10:41,225 INFO    SenderThread:92263 [sender.py:_save_file():952] saving file wandb-metadata.json with policy now
+2024-10-07 14:10:41,229 DEBUG   HandlerThread:92263 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-07 14:10:41,229 DEBUG   SenderThread:92263 [sender.py:send_request():250] send_request: stop_status
+2024-10-07 14:10:41,260 INFO    Thread-12 :92263 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files/wandb-metadata.json
+2024-10-07 14:10:41,261 INFO    Thread-12 :92263 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files/output.log
+2024-10-07 14:10:41,261 INFO    Thread-12 :92263 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files/conda-environment.yaml
+2024-10-07 14:10:41,261 INFO    Thread-12 :92263 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files/wandb-summary.json
+2024-10-07 14:10:41,261 INFO    Thread-12 :92263 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files/requirements.txt
+2024-10-07 14:10:41,270 INFO    HandlerThread:92263 [handler.py:handle_tbrecord():723] handling tbrecord: tbrecord {
+  log_dir: "runs/FactoryTaskAllocationMiC_07-14-10-41"
+  save: true
+}
+
+2024-10-07 14:10:41,270 DEBUG   HandlerThread:92263 [config_util.py:dict_from_config_file():100] no default config file found in config-defaults.yaml
+2024-10-07 14:10:41,723 DEBUG   SenderThread:92263 [sender.py:send():236] send: telemetry
+2024-10-07 14:10:41,724 DEBUG   SenderThread:92263 [sender.py:send():236] send: tbrecord
+2024-10-07 14:10:41,724 DEBUG   SenderThread:92263 [sender.py:send():236] send: files
+2024-10-07 14:10:41,724 INFO    SenderThread:92263 [sender.py:_save_file():952] saving file events.out.tfevents.1728281441.sci.91788.0 with policy live
+2024-10-07 14:10:42,014 INFO    Thread-16 :92263 [upload_job.py:push():138] Uploaded file /tmp/tmpi29z3kyhwandb/x3jdmfpi-wandb-metadata.json
+2024-10-07 14:10:42,259 INFO    Thread-12 :92263 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files/events.out.tfevents.1728281441.sci.91788.0
+2024-10-07 14:10:42,684 INFO    Thread-19 :92263 [upload_job.py:push():138] Uploaded file /tmp/tmpi29z3kyhwandb/71ofrytg-events.out.tfevents.1728281441.sci.91788.0
+2024-10-07 14:10:43,259 INFO    Thread-12 :92263 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files/output.log
+2024-10-07 14:10:56,725 DEBUG   HandlerThread:92263 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-07 14:10:56,725 DEBUG   SenderThread:92263 [sender.py:send_request():250] send_request: stop_status
+2024-10-07 14:11:08,613 DEBUG   SenderThread:92263 [sender.py:send():236] send: stats
+2024-10-07 14:11:10,266 INFO    Thread-12 :92263 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241007_141038-qu2kml5n/files/config.yaml
+2024-10-07 14:11:12,015 DEBUG   HandlerThread:92263 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-07 14:11:12,015 DEBUG   SenderThread:92263 [sender.py:send_request():250] send_request: stop_status

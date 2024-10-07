@@ -35,12 +35,12 @@ class RainbowAgent():
         self.discount = config['discount']
         self.norm_clip = config.get('norm_clip', 10)
         ###########for agent training
-        self.update_frequency = config.get('update_frequency', 4)
+        self.update_frequency = config.get('update_frequency', 16)
         self.target_update = config.get('target_update', int(8e3))
-        self.max_steps = config.get("max_steps", int(50e6))
+        self.max_steps = config.get("max_steps", int(50e7))
         self.max_epochs = config.get("max_epochs", int(1e6))
-        self.batch_size = config.get('batch_size', 8)
-        self.num_warmup_steps = config.get('num_warmup_steps', int(10000))
+        self.batch_size = config.get('batch_size', 256)
+        self.num_warmup_steps = config.get('num_warmup_steps', int(40e3))
         self.num_steps_per_episode = config.get("num_steps_per_episode", 500)
         self.max_env_steps = config.get("horizon_length", 5000) # temporary, in future we will use other approach
         self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
@@ -59,7 +59,9 @@ class RainbowAgent():
             param.requires_grad = False
         #####
         self.optimiser = optim.Adam(self.online_net.parameters(), lr=config['learning_rate'], eps=config['adam_eps'])
-
+        self.use_wandb = config.get('wandb_activate', False)
+        if self.use_wandb:
+            self.init_wandb_logger()
     # def load_networks(self, params):
     #     builder = model_builder.ModelBuilder()
     #     config['network'] = builder.load(params)
@@ -176,10 +178,6 @@ class RainbowAgent():
         self.last_rnn_indices = None
         self.last_state_indices = None
 
-        self.use_wandb = config.get('wandb_activate', False)
-        if self.use_wandb:
-            self.init_wandb_logger()
-
     def init_wandb_logger(self):
         wandb.define_metric("Train/step")
         wandb.define_metric("Train/buffer_size", step_metric="Train/step")
@@ -199,7 +197,7 @@ class RainbowAgent():
 
         total = sum([param.nelement() for param in self.online_net.parameters()])
         # print("Number of parameters: %.2fM" % (total/1e6))
-        param_table = wandb.Table(columns=["online_net_size"], data=[[total]])
+        param_table = wandb.Table(columns=["online_net_size", "num_warm_up_steps"], data=[[total], [self.num_warmup_steps]])
         wandb.log({"Parameter": param_table})
 
         return

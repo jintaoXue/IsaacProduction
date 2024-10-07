@@ -58,10 +58,9 @@ recording_fps: 30
 # directory to save recordings in
 recording_dir: ''
 
-wandb_activate: False
+wandb_activate: True
 wandb_group: ''
 wandb_name: ${train.params.config.name}
-wandb_entity: ''
 wandb_project: 'IsaacProduction'
 
 # path to a kit app file

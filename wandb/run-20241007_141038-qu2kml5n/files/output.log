@@ -1,0 +1,8 @@
+self.seed = 42
+Started to train
+Env name: rlgpu
+Box(-1.0, 1.0, (10,), float32) Box(-inf, inf, (20,), float32)
+Env info:
+{'action_space': Box(-1.0, 1.0, (10,), float32), 'observation_space': Box(-inf, inf, (20,), float32)}
+Exact experiment name requested from command line: FactoryTaskAllocationMiC
+Run Directory: FactoryTaskAllocationMiC_07-14-10-41
