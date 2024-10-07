@@ -197,7 +197,7 @@ class RainbowAgent():
 
         total = sum([param.nelement() for param in self.online_net.parameters()])
         # print("Number of parameters: %.2fM" % (total/1e6))
-        param_table = wandb.Table(columns=["online_net_size", "num_warm_up_steps"], data=[[total], [self.num_warmup_steps]])
+        param_table = wandb.Table(columns=["online_net_size", "num_warm_up_steps"], data=[[total, self.num_warmup_steps]])
         wandb.log({"Parameter": param_table})
 
         return
