@@ -40,7 +40,7 @@ class RainbowAgent():
         self.max_steps = config.get("max_steps", int(50e7))
         self.max_epochs = config.get("max_epochs", int(1e6))
         self.batch_size = config.get('batch_size', 256)
-        self.num_warmup_steps = config.get('num_warmup_steps', int(40e3))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(2e3))
         self.num_steps_per_episode = config.get("num_steps_per_episode", 500)
         self.max_env_steps = config.get("horizon_length", 5000) # temporary, in future we will use other approach
         self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
@@ -181,7 +181,7 @@ class RainbowAgent():
     def init_wandb_logger(self):
         wandb.define_metric("Train/step")
         wandb.define_metric("Train/buffer_size", step_metric="Train/step")
-        wandb.define_metric("Train/Loss", step_metric="Train/step")
+        wandb.define_metric("Train/loss", step_metric="Train/step")
         wandb.define_metric("Train/num_episode", step_metric="Train/step")
 
 
@@ -194,7 +194,7 @@ class RainbowAgent():
         wandb.define_metric("Metrics/EpProgress", step_metric="Metrics/step_episode")
         wandb.define_metric("Metrics/EpRetAction", step_metric="Metrics/step_episode")
 
-
+ 
         total = sum([param.nelement() for param in self.online_net.parameters()])
         # print("Number of parameters: %.2fM" % (total/1e6))
         param_table = wandb.Table(columns=["online_net_size", "num_warm_up_steps"], data=[[total, self.num_warmup_steps]])
@@ -412,7 +412,8 @@ class RainbowAgent():
             else:
                 with torch.no_grad():
                     action = self.act(obs).unsqueeze(0)
-
+            #debug TODO
+            action = None
             step_start = time.time()
 
             with torch.no_grad():
@@ -479,6 +480,12 @@ class RainbowAgent():
                     loss = self.update(self.epoch_num)
                     update_time_end = time.time()
                     update_time = update_time_end - update_time_start
+                    if self.use_wandb:
+                        wandb.log({
+                                'Train/step': self.step_num,
+                                "Train/loss": loss.mean().item(),
+                            })   
+                        print("traning loss: ", loss.mean().item()) 
 
             # Update target network
             if self.step_num % self.target_update == 0:
@@ -524,11 +531,13 @@ class RainbowAgent():
                         'Metrics/Mrewards': self.game_rewards.get_mean(),
                         'Metrics/MLen': self.game_lengths.get_mean(),
                     })  
-                if self.step_num >= self.num_warmup_steps and loss is not None:
-                    wandb.log({
-                            'Train/buffer_size': self.replay_buffer.transitions.index,
-                            "Train/Loss": loss,
-                        })                  
+                # if self.step_num >= self.num_warmup_steps and loss is not None:
+                #     assert type(loss.mean().item()) == float, "not approprate loss"
+                #     wandb.log({
+                #             # 'Train/buffer_size': self.replay_buffer.transitions.index,
+                #             "Train/Loss": loss.mean().item(),
+                #             # "Train/Loss": loss.mean().cpu().detach().numpy().item(),
+                #         })                  
 
             # self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.step_num)
             # self.writer.add_scalar('performance/step_inference_fps', fps_step_inference, self.step_num)
@@ -538,7 +547,7 @@ class RainbowAgent():
             # self.writer.add_scalar('performance/step_time', step_time, self.step_num)
 
             # if self.epoch_num >= self.num_warmup_steps and loss is not None:
-            #     self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.step_num)
+                # self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.step_num)
 
             # self.writer.add_scalar('info/epochs', self.epoch_num, self.step_num)
 

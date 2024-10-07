@@ -192,7 +192,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
     def post_task_manager_step(self, actions):
         self.get_available_task()
-        self.reward_action = 0.2
+        self.reward_action = None
         #TODO only support single action, not actions
         task_id = -1 #default as none
         if actions is not None:
@@ -206,24 +206,27 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 # self.reset_buf[0] = 1
                 task = 'none'
             elif len(self.available_task_dic.keys()) > 1 and task == 'none':
-                self.reward_action = -0.1
+                self.reward_action = -1
             # else:
             #     self.reward_action = 0.5    
             if task == 'none':
                 pass
-            elif task == 'hoop_preparing' and self.materials.hoop_states.count(0) > 0:
-                if self.task_manager.assign_task(task = 'hoop_preparing'):
-                    self.state_depot_hoop = 1
-            elif task == 'bending_tube_preparing' and self.materials.bending_tube_states.count(0) > 0:
-                if self.task_manager.assign_task(task = 'bending_tube_preparing'):
-                    self.state_depot_bending_tube = 1
-            elif task == 'placing_product':
-                self.task_manager.task_clearing(task='collect_product')
-                self.task_manager.assign_task(task='placing_product')
-                self.task_manager.boxs.product_collecting_idx = -1
             else:
-                self.task_manager.assign_task(task)
+                self.reward_action = 1
+                if task == 'hoop_preparing' and self.materials.hoop_states.count(0) > 0:
+                    if self.task_manager.assign_task(task = 'hoop_preparing'):
+                        self.state_depot_hoop = 1
+                elif task == 'bending_tube_preparing' and self.materials.bending_tube_states.count(0) > 0:
+                    if self.task_manager.assign_task(task = 'bending_tube_preparing'):
+                        self.state_depot_bending_tube = 1
+                elif task == 'placing_product':
+                    self.task_manager.task_clearing(task='collect_product')
+                    self.task_manager.assign_task(task='placing_product')
+                    self.task_manager.boxs.product_collecting_idx = -1
+                else:
+                    self.task_manager.assign_task(task)
         else:
+            self.reward_action = 1.0
             #use rule-based agent
             if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
                 if self.task_manager.assign_task(task = 'hoop_preparing'):
@@ -257,6 +260,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.task_manager.task_clearing(task='collect_product')
                 self.task_manager.assign_task(task='placing_product')
                 self.task_manager.boxs.product_collecting_idx = -1
+            else:
+                self.reward_action = 0.
             actions = torch.tensor(task_id+1, device=self._device).unsqueeze(0)
             # actions = Fun.one_hot(torch.tensor(task_id+1, device=self._device), num_classes = 10).unsqueeze(0)
 
