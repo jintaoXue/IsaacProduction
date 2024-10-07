@@ -114,3 +114,17 @@ batch_size暂定为8
 history length 设为1
 multi step
 如何缩短epoch的时间
+
+
+
+
+# ignore
+
+__pycache___
+__pycache__/
+**/runs/
+omniisaacgymenvs.egg-info/
+checkpoints
+omniisaacgymenvs/wandb
+**/__pycache__
+wandb/
