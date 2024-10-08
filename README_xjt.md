@@ -126,7 +126,7 @@ vectorized environment。 代码的修改量很大，需要的时间较多
 算法上进行简化，去掉distribution RL
 没有用到multi-step和这个history length
 
-
+避免world step
 
 
 

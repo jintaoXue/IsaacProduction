@@ -37,8 +37,8 @@ class RainbowAgent():
         ###########for agent training
         self.update_frequency = config.get('update_frequency', 16)
         self.target_update = config.get('target_update', int(8e3))
-        self.max_steps = config.get("max_steps", int(50e7))
-        self.max_epochs = config.get("max_epochs", int(1e6))
+        self.max_steps = config.get("max_steps", int(50e12))
+        self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 256)
         self.num_warmup_steps = config.get('num_warmup_steps', int(2e3))
         self.num_steps_per_episode = config.get("num_steps_per_episode", 500)
@@ -76,7 +76,7 @@ class RainbowAgent():
         self.setdefault(self.config, key='device', default='cuda:0')
         ########for replay buffer args initialize
         self.setdefault(self.config, key='atoms', default=51) 
-        self.setdefault(self.config, key='replay_buffer_size', default=int(1e6))
+        self.setdefault(self.config, key='replay_buffer_size', default=int(1e7))
         self.setdefault(self.config, key='history_length', default=1)
         self.setdefault(self.config, key='discount', default=0.99)
         self.setdefault(self.config, key='multi_step', default=1)
@@ -150,12 +150,15 @@ class RainbowAgent():
         if self.population_based_training:
             # in PBT, make sure experiment name contains a unique id of the policy within a population
             pbt_str = f'_pbt_{config["pbt_idx"]:02d}'
-        full_experiment_name = config.get('full_experiment_name', None)
-        if full_experiment_name:
-            print(f'Exact experiment name requested from command line: {full_experiment_name}')
-            self.experiment_name = full_experiment_name
-        else:
-            self.experiment_name = config['name'] + pbt_str + datetime.now().strftime("_%d-%H-%M-%S")
+        # full_experiment_name = config.get('full_experiment_name', None)
+        # if full_experiment_name:
+        #     print(f'Exact experiment name requested from command line: {full_experiment_name}')
+        #     self.experiment_name = full_experiment_name
+        # else:
+        #     self.experiment_name = config['name'] + pbt_str + datetime.now().strftime("_%d-%H-%M-%S")
+        # time_now = datetime.now().strftime("_%d-%H-%M-%S")
+        time_now = self.config['time_str']
+        self.experiment_name = config['name'] + pbt_str + time_now
         self.train_dir = config.get('train_dir', 'runs')
 
         # a folder inside of train_dir containing everything related to a particular experiment
@@ -170,8 +173,8 @@ class RainbowAgent():
         os.makedirs(self.nn_dir, exist_ok=True)
         os.makedirs(self.summaries_dir, exist_ok=True)
 
-        self.writer = SummaryWriter('runs/' + config['name'] + datetime.now().strftime("_%d-%H-%M-%S"))
-        print("Run Directory:", config['name'] + datetime.now().strftime("_%d-%H-%M-%S"))
+        self.writer = SummaryWriter('runs/' + config['name'] + time_now)
+        print("Run Directory:", config['name'] + time_now)
 
         self.is_tensor_obses = False
         self.is_rnn = False
@@ -443,7 +446,6 @@ class RainbowAgent():
             if dones[0]:
                 self.episode_num += 1
                 if self.use_wandb:
-
                     wandb.log({
                         'Metrics/step_episode': self.episode_num,
                         'Metrics/EpRet': self.current_rewards,
@@ -484,8 +486,9 @@ class RainbowAgent():
                         wandb.log({
                                 'Train/step': self.step_num,
                                 "Train/loss": loss.mean().item(),
-                            })   
-                        print("traning loss: ", loss.mean().item()) 
+                            })
+                        time_now = datetime.now().strftime("_%d-%H-%M-%S")   
+                        print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item()) 
 
             # Update target network
             if self.step_num % self.target_update == 0:
@@ -539,7 +542,7 @@ class RainbowAgent():
                 #             # "Train/Loss": loss.mean().cpu().detach().numpy().item(),
                 #         })                  
 
-            # self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.step_num)
+            self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.step_num)
             # self.writer.add_scalar('performance/step_inference_fps', fps_step_inference, self.step_num)
             # self.writer.add_scalar('performance/step_fps', fps_step, self.step_num)
             # self.writer.add_scalar('performance/rl_update_time', update_time, self.step_num)
@@ -598,7 +601,8 @@ class RainbowAgent():
                     should_exit = True
 
                 update_time = 0
-
+                #TODO 
+                should_exit = False
                 if should_exit:
                     return self.last_mean_rewards, self.epoch_num
 

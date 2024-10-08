@@ -84,6 +84,7 @@ class RLGTrainer:
 def parse_hydra_configs(cfg: DictConfig):
 
     time_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    cfg.time_str = time_str
     setproctitle.setproctitle(cfg.task_name)
     headless = cfg.headless
 

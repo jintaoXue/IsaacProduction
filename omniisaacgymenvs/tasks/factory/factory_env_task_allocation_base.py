@@ -712,6 +712,8 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             "yaml"
         ]  # strip superfluous nesting
 
+        self.accerlate_train = self._task_cfg['env']['accerlate_train']
+
         
 
     def update_config(self, sim_config):
@@ -947,7 +949,6 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             track_contact_forces=True,
         )
 
-
         self.materials_cube_4 = RigidPrimView(
             prim_paths_expr="/World/envs/.*/obj/Materials/cubes/cube_04",
             name="cube_4",
@@ -1116,6 +1117,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.cutting_state_dic = {0:"free", 1:"work", 2:"reseting"}
         self.cutting_machine_state = 0
         self.c_machine_oper_time = 0
+        self.c_machine_oper_len = int(10/self.accerlate_train) if int(10/self.accerlate_train) > 0 else 1
         #gripper
         # self.max_speed_in_out = 0.1
         # self.max_speed_left_right = 0.1

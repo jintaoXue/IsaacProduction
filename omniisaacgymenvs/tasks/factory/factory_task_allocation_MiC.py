@@ -83,18 +83,18 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         # If max episode length has been reached
         self.reset_buf[0] = 1 if is_last_step or task_finished else self.reset_buf[0]
         """Compute reward at current timestep."""
-        reward_time = -0.1
+        reward_time = -0.01
         progress = self.materials.progress()
         if is_last_step: 
             if task_finished:
-                rew_task = 50
+                rew_task = 1
             else:
-                rew_task = -50 + self.materials.progress()*50
+                rew_task = -1 + self.materials.progress()
         else:
             if task_finished:
-                rew_task = 50 + 50*(self.max_episode_length - self.progress_buf[0])/self.max_episode_length 
+                rew_task = 1 + (self.max_episode_length - self.progress_buf[0])/self.max_episode_length 
             else:
-                rew_task = 50*(progress - self.materials.pre_progress)
+                rew_task = (progress - self.materials.pre_progress)
 
         self.rew_buf[0] = self.reward_action + reward_time + rew_task
         self.materials.pre_progress = progress
@@ -638,21 +638,21 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.cutting_machine_state = 1
         elif self.cutting_machine_state == 1:
             '''cutting cube'''
-            if self.c_machine_oper_time < 10:
+            if self.c_machine_oper_time < self.c_machine_oper_len:
                 # self.c_machine_oper_time += 1 by human worker
-                dof_pos_10 = (end_pose - initial_pose)*self.c_machine_oper_time/10 + initial_pose
+                dof_pos_10 = (end_pose - initial_pose)*self.c_machine_oper_time/self.c_machine_oper_len + initial_pose
                 self.materials.cube_states[cube_cut_index] = 4
-            elif self.c_machine_oper_time == 10:
+            elif self.c_machine_oper_time == self.c_machine_oper_len:
                 self.c_machine_oper_time = 0
                 self.cutting_machine_state = 2
                 dof_pos_10 = end_pose
                 #sending picking flag to gripper
         elif self.cutting_machine_state == 2:
             '''reseting machine'''
-            if self.c_machine_oper_time < 5:
+            if self.c_machine_oper_time < self.c_machine_oper_len:
                 self.c_machine_oper_time += 1
-                dof_pos_10 = (initial_pose - end_pose)*self.c_machine_oper_time/5 + end_pose
-            elif self.c_machine_oper_time == 5:
+                dof_pos_10 = (initial_pose - end_pose)*self.c_machine_oper_time/self.c_machine_oper_len + end_pose
+            elif self.c_machine_oper_time >= self.c_machine_oper_len:
                 self.c_machine_oper_time = 0
                 self.cutting_machine_state = 0
                 dof_pos_10 = initial_pose

@@ -75,6 +75,7 @@ class DQN(nn.Module):
     self.fc_z_a = NoisyLinear(config['hidden_size'], action_space * self.atoms, std_init=config['noisy_std'])
 
   def forward(self, x, log=False):
+    action_mask = x['action_mask']
     x = self.fe(x)
     x = self.fm(x)
     v = self.fc_z_v(F.relu(self.fc_h_v(x)))  # Value stream
@@ -85,6 +86,10 @@ class DQN(nn.Module):
       q = F.log_softmax(q, dim=2)  # Log probabilities with action over second dimension
     else:
       q = F.softmax(q, dim=2)  # Probabilities with action over second dimension
+    action_mask = torch.unsqueeze(action_mask, -1).repeat(1,1,self.atoms)
+    prob = ((action_mask[:,:,[0]]-1)*-1)
+    q = action_mask*q
+    q[:,:,[0]] += prob
     return q
 
   def reset_noise(self):
