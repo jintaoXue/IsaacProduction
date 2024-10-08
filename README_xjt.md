@@ -117,6 +117,20 @@ multi step
 
 
 
+# 10.8 如何提高训练效率？
+
+vectorized environment。 代码的修改量很大，需要的时间较多
+缩短simulation time，等比缩短训练时间。在evaluate的阶段再回到正常仿真时间
+采用imitation learning 结合的方法缩短训练时间 
+
+算法上进行简化，去掉distribution RL
+没有用到multi-step和这个history length
+
+
+
+
+
+
 
 # ignore
 
