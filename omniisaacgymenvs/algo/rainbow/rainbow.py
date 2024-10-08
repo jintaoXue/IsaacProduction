@@ -577,7 +577,7 @@ class RainbowAgent():
                     self.save(os.path.join(self.nn_dir, self.config['name']))
                     if self.last_mean_rewards > self.config.get('score_to_win', float('inf')):
                         print('Maximum reward achieved. Network won!')
-                        self.save(os.path.join(self.nn_dir, checkpoint_name))
+                        # self.save(os.path.join(self.nn_dir, checkpoint_name))
                         should_exit = True
 
                 if self.epoch_num >= self.max_epochs and self.max_epochs != -1:
@@ -585,8 +585,8 @@ class RainbowAgent():
                         print('WARNING: Max epochs reached before any env terminated at least once')
                         mean_rewards = -np.inf
 
-                    self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_ep_' + str(self.epoch_num) \
-                        + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
+                    # self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_ep_' + str(self.epoch_num) \
+                    #     + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
                     print('MAX EPOCHS NUM!')
                     should_exit = True
 
@@ -595,8 +595,8 @@ class RainbowAgent():
                         print('WARNING: Max steps reached before any env terminated at least once')
                         mean_rewards = -np.inf
 
-                    self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_step_' + str(self.step_num) \
-                        + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
+                    # self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_step_' + str(self.step_num) \
+                    #     + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
                     print('MAX STEPS NUM!')
                     should_exit = True
 
