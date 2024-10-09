@@ -50,29 +50,36 @@ MAX_FLOAT = 3.40282347e38
 class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
     def pre_physics_step(self, actions):
-        self.post_material_step()
+
         actions = self.post_task_manager_step(actions)
-        self.post_conveyor_belt_step()
-        self.post_cutting_machine_step()
-        self.post_grippers_step()
-        self.post_weld_station_step()
-        self.post_welder_step()
+
         return actions
 
     def post_physics_step(
         self,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Step buffers. Refresh tensors. Compute observations and reward. Reset environments."""
-        self.check_reset()
-        self.progress_buf[:] += 1
-        move_horizontal = False
-        move_vertical = False
         if self.world.is_playing():
             ###TODO only support single env training
-            obs = self.get_observations()
-            self.get_states()
-            self.calculate_metrics()
-            self.get_extras()
+            # action_mask
+            while True:
+                self.check_reset()
+                self.progress_buf[:] += 1
+                self.post_material_step()
+                self.post_conveyor_belt_step()
+                self.post_cutting_machine_step()
+                self.post_grippers_step()
+                self.post_weld_station_step()
+                self.post_welder_step()
+
+                obs = self.get_observations()
+                self.calculate_metrics()
+                # self.get_states()
+                self.get_extras()
+                if self.task_manager.task_mask[1:].count_nonzero() == 0:
+                    self.post_task_manager_step(actions=None)
+                else:
+                    break
             
         return obs, self.rew_buf, self.reset_buf, self.extras
     
