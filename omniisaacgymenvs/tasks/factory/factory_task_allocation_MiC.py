@@ -76,7 +76,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.calculate_metrics()
                 # self.get_states()
                 self.get_extras()
-                if self.task_manager.task_mask[1:].count_nonzero() == 0:
+                if self.task_manager.task_mask[1:].count_nonzero() == 0 and self.reset_buf[0] == 0:
                     self.post_task_manager_step(actions=None)
                 else:
                     break
