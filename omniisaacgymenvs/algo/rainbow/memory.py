@@ -4,8 +4,14 @@ import numpy as np
 import torch
 
 ####TODO state shape
-Transition_dtype = np.dtype([('timestep', np.int32), ('state', dict), ('action', np.int32, (1)), ('reward', np.float32), ('nonterminal', np.bool_)])
-blank_trans = (0, {}, np.zeros((1), dtype=np.int32), 0.0, False)
+blank_state = {'action_mask': torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]), 'state_depot_hoop': torch.tensor([0.]), 'have_raw_hoops': torch.tensor([0.]), 
+ 'state_depot_bending_tube': torch.tensor([0.]), 'have_raw_bending_tube': torch.tensor([0.]), 'station_state_inner_left': torch.tensor([0.]), 
+ 'station_state_inner_right': torch.tensor([0.]), 'station_state_outer_left': torch.tensor([0.]), 'station_state_outer_right': torch.tensor([0.]), 
+ 'cutting_machine_state': torch.tensor([0.]), 'is_full_products': torch.tensor([0.]), 'produce_product_req': torch.tensor([0.]), 'time_step': torch.tensor(0)}
+
+Transition_dtype = np.dtype([('timestep', np.int32), ('state', dict), ('action', np.int32), ('reward', np.float32), ('nonterminal', np.bool_)])
+blank_trans = (0, blank_state, torch.zeros((1), dtype=torch.int64), 0.0, False)
+
 
 
 # Segment tree data structure where parent node values are sum/max of children node values
@@ -128,8 +134,6 @@ class ReplayMemory():
     while not valid:
       samples = np.random.uniform(0.0, segment_length, [batch_size]) + segment_starts  # Uniformly sample from within all segments
       probs, idxs, tree_idxs = self.transitions.find(samples)  # Retrieve samples from tree with un-normalised probability
-      # #TODO debug
-      # valid = True
       if np.all((self.transitions.index - idxs) % self.capacity > self.n) and np.all((idxs - self.transitions.index) % self.capacity >= self.history) and np.all(probs != 0):
         valid = True  # Note that conditions are valid but extra conservative around buffer index 0
     # Retrieve all required transition data (from t - h to t + n)
