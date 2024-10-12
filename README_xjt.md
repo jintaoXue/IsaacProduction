@@ -129,7 +129,8 @@ vectorized environment。 代码的修改量很大，需要的时间较多
 避免world step
 
 
-
+# 10.10
+loss曲线为什么会是阶梯状？可能是因为target net 和 online net，也可能是nosie net
 
 
 # ignore

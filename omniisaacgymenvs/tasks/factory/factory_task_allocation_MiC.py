@@ -80,6 +80,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     self.post_task_manager_step(actions=None)
                 else:
                     break
+                if self._evaluate:
+                    self.world.step(render=True)
             
         return obs, self.rew_buf, self.reset_buf, self.extras
     
@@ -101,10 +103,10 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             if task_finished:
                 rew_task = 1 + (self.max_episode_length - self.progress_buf[0])/self.max_episode_length 
             else:
-                rew_task = (progress - self.materials.pre_progress)
+                rew_task = (progress - self.materials.pro_progress)
 
         self.rew_buf[0] = self.reward_action + reward_time + rew_task
-        self.materials.pre_progress = progress
+        self.materials.pro_progress = progress
         self.extras['progress'] = progress
         self.extras['rew_action'] = self.reward_action
         return
@@ -214,12 +216,11 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 task = 'none'
             elif len(self.available_task_dic.keys()) > 1 and task == 'none':
                 self.reward_action = -1
-            # else:
-            #     self.reward_action = 0.5    
+            else:
+                self.reward_action = 0.
             if task == 'none':
                 pass
             else:
-                self.reward_action = 1
                 if task == 'hoop_preparing' and self.materials.hoop_states.count(0) > 0:
                     if self.task_manager.assign_task(task = 'hoop_preparing'):
                         self.state_depot_hoop = 1

@@ -63,6 +63,8 @@ wandb_group: ''
 wandb_name: ${train.params.config.name}
 wandb_project: 'IsaacProduction'
 time_str: 'None'
+
+evaluate: False
 # path to a kit app file
 kit_app: ''
 

@@ -158,7 +158,7 @@ class Materials(object):
         self.outer_bending_tube_processing_index = -1
         self.outer_upper_tube_processing_index = -1
         #prduction progress
-        self.pre_progress = 0
+        self.pro_progress = 0
 
     def get_world_poses(self, list):
         poses = []
@@ -713,7 +713,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         ]  # strip superfluous nesting
 
         self.accerlate_train = self._task_cfg['env']['accerlate_train']
-
+        self._evaluate = self._task_cfg['rl']['evaluate']
         
 
     def update_config(self, sim_config):
@@ -1102,10 +1102,11 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         # matrix = get_world_transform_matrix(prim)
         # translate = matrix.ExtractTranslation()
         # rotation: Gf.Rotation = matrix.ExtractRotation()
-        # self.pre_progress_buf = 0
+        # self.pro_progress_buf = 0
         self.cuda_device = torch.device("cuda:0")
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
+
         return
     
     def reset_machine_state(self):
