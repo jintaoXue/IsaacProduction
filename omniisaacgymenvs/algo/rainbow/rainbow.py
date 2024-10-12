@@ -563,6 +563,7 @@ class RainbowAgent():
             self.evaluate_current_lengths = self.evaluate_current_lengths * not_dones
             self.evaluate_current_ep_time = self.evaluate_current_ep_time * not_dones
             self.evaluate_current_rewards_action = self.evaluate_current_rewards_action * not_dones
+            
             if dones[0]:
                 self.evaluate_episode_num += 1
                 if self.use_wandb:
