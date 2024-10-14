@@ -63,7 +63,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             ###TODO only support single env training
             # action_mask
             while True:
-                self.check_reset()
+                self.reset_step()
                 self.progress_buf[:] += 1
                 self.post_material_step()
                 self.post_conveyor_belt_step()
@@ -71,14 +71,15 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.post_grippers_step()
                 self.post_weld_station_step()
                 self.post_welder_step()
-
                 obs = self.get_observations()
-                self.calculate_metrics()
+                self.reset_update()
+                # self.calculate_metrics()
                 # self.get_states()
                 self.get_extras()
                 if self.task_manager.task_mask[1:].count_nonzero() == 0 and self.reset_buf[0] == 0:
                     self.post_task_manager_step(actions=None)
                 else:
+                    self.calculate_metrics()
                     break
                 if self._evaluate:
                     self.world.step(render=True)
@@ -86,13 +87,11 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         return obs, self.rew_buf, self.reset_buf, self.extras
     
     def calculate_metrics(self):
-        """Assign environments for reset if successful or failed."""
         task_finished = self.materials.done()
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
-        # If max episode length has been reached
-        self.reset_buf[0] = 1 if is_last_step or task_finished else self.reset_buf[0]
+
         """Compute reward at current timestep."""
-        reward_time = -0.01
+        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.01
         progress = self.materials.progress()
         if is_last_step: 
             if task_finished:
@@ -101,12 +100,13 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 rew_task = -1 + self.materials.progress()
         else:
             if task_finished:
-                rew_task = 1 + (self.max_episode_length - self.progress_buf[0])/self.max_episode_length 
+                rew_task = 1 
             else:
-                rew_task = (progress - self.materials.pro_progress)
+                rew_task = (progress - self.materials.pre_progress)
 
         self.rew_buf[0] = self.reward_action + reward_time + rew_task
-        self.materials.pro_progress = progress
+        self.pre_progress_step = self.progress_buf[0]
+        self.materials.pre_progress = progress
         self.extras['progress'] = progress
         self.extras['rew_action'] = self.reward_action
         return
@@ -148,7 +148,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.task_manager.task_mask = task_mask
         return
     
-    def check_reset(self):
+    def reset_step(self):
         if self.reset_buf[0] == 1:
             self._reset_buffers(env_ids=0)
             self.post_reset()
@@ -160,6 +160,13 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.materials.reset()
         self.reset_machine_state()
         return 
+    
+    def reset_update(self):
+        """Assign environments for reset if successful or failed."""
+        task_finished = self.materials.done()
+        is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
+        # If max episode length has been reached
+        self.reset_buf[0] = 1 if is_last_step or task_finished else self.reset_buf[0]
 
     def post_material_step(self):
         #part of materials state decision is in consideration

@@ -439,7 +439,7 @@ class RainbowAgent():
                 with torch.no_grad():
                     action = self.act(obs).unsqueeze(0)
             #debug TODO
-            action = None
+            # action = None
             step_start = time.time()
 
             with torch.no_grad():

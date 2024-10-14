@@ -158,7 +158,7 @@ class Materials(object):
         self.outer_bending_tube_processing_index = -1
         self.outer_upper_tube_processing_index = -1
         #prduction progress
-        self.pro_progress = 0
+        self.pre_progress = 0
 
     def get_world_poses(self, list):
         poses = []
@@ -1102,7 +1102,6 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         # matrix = get_world_transform_matrix(prim)
         # translate = matrix.ExtractTranslation()
         # rotation: Gf.Rotation = matrix.ExtractRotation()
-        # self.pro_progress_buf = 0
         self.cuda_device = torch.device("cuda:0")
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
@@ -1190,6 +1189,9 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.state_depot_hoop = 0
         self.state_depot_bending_tube = 0
         self.depot_product_set = set()
+        '''progress step'''
+        self.pre_progress_step = 0
+        
         return
     
     def post_next_group_to_be_processed_step(self):
