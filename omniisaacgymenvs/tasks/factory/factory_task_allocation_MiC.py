@@ -134,7 +134,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.available_task_dic = {'none':-1}
         task_mask = torch.zeros(len(self.task_manager.task_dic))
         task_mask[0] = 1
-        #use rule-based agent
         if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
             self.available_task_dic['hoop_preparing'] = 0
             task_mask[1] = 1

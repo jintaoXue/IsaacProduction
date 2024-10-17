@@ -141,6 +141,8 @@ rule-based:
 ['hoop_preparing', 'bending_tube_preparing', 'hoop_loading_inner', 'bending_tube_loading_inner', 'collect_product', 'cutting_cube', 'hoop_loading_outer', 'bending_tube_loading_outer', 'cutting_cube', 'hoop_loading_inner', 'bending_tube_loading_inner', 'cutting_cube', 'cutting_cube', 'hoop_loading_inner', 'bending_tube_loading_inner', 'hoop_preparing', 'bending_tube_preparing', 'placing_product', 'hoop_loading_inner', 'bending_tube_loading_inner', 'collect_product', 'cutting_cube', 'placing_product']
 length = 23
 
+add two actions
+
 # ignore
 
 __pycache___
