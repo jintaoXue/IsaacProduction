@@ -626,6 +626,7 @@ class TaskManager(object):
         self.task_in_set = set()
         self.task_in_dic = {}
         self.task_mask = torch.zeros(len(self.task_dic))
+        self.task_mask[0] = 1
 
     def assign_task(self, task):
         
@@ -1191,7 +1192,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.depot_product_set = set()
         '''progress step'''
         self.pre_progress_step = 0
-        
+        self.available_task_dic = {'none': -1}
         return
     
     def post_next_group_to_be_processed_step(self):

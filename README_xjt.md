@@ -132,6 +132,9 @@ vectorized environment。 代码的修改量很大，需要的时间较多
 # 10.10
 loss曲线为什么会是阶梯状？可能是因为target net 和 online net，也可能是nosie net
 
+# 10.16
+1. 进一步缩短训练时间
+2. 可视化训练效果，找到为什么reward 会低一些的原因
 
 # ignore
 

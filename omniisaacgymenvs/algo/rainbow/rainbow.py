@@ -42,7 +42,7 @@ class RainbowAgent():
         self.batch_size = config.get('batch_size', 512)
         self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
         self.num_steps_per_episode = config.get("num_steps_per_episode", 100)
-        self.max_env_steps = config.get("horizon_length", 5000) # temporary, in future we will use other approach
+        self.max_env_steps = config.get("horizon_length", 50) # temporary, in future we will use other approach
         self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
@@ -199,7 +199,7 @@ class RainbowAgent():
 
         wandb.define_metric("Metrics/Mrewards", step_metric="Train/step")
         wandb.define_metric("Metrics/MLen", step_metric="Train/step")
-        wandb.define_metric("Metrics/step_episode")
+        wandb.define_metric("Metrics/step_episode", step_metric="Train/step")
         wandb.define_metric("Metrics/EpRet", step_metric="Metrics/step_episode")
         wandb.define_metric("Metrics/EpLen", step_metric="Metrics/step_episode")
         wandb.define_metric("Metrics/EpTime", step_metric="Metrics/step_episode")
@@ -470,13 +470,14 @@ class RainbowAgent():
                 self.episode_num += 1
                 if self.use_wandb:
                     wandb.log({
+                        "Train/step": self.step_num,
                         'Metrics/step_episode': self.episode_num,
                         'Metrics/EpRet': self.current_rewards,
                         'Metrics/EpLen': self.current_lengths,
                         "Metrics/EpTime": self.current_ep_time,
                         "Metrics/EpProgress": infos['progress'],
                         "Metrics/EpRetAction": self.current_rewards_action,
-                    })    
+                    })  
             self.current_rewards = self.current_rewards * not_dones
             self.current_lengths = self.current_lengths * not_dones
             self.current_ep_time = self.current_ep_time * not_dones
@@ -533,6 +534,7 @@ class RainbowAgent():
         total_time_start = time.time()
         total_time = 0
         step_time = 0.0
+        action_info_list = []
         while True:
             self.set_eval()
             obs : dict = self.obs
@@ -551,6 +553,7 @@ class RainbowAgent():
             self.evaluate_step_num += self.num_actors * 1
             self.evaluate_current_rewards += rewards
             self.evaluate_current_rewards_action += infos["rew_action"]
+            action_info_list.append(infos["action_info"])
             self.evaluate_current_lengths += 1
             self.evaluate_current_ep_time += (step_end - step_start)
             total_time += (step_end - step_start)
@@ -558,24 +561,27 @@ class RainbowAgent():
 
             no_timeouts = self.evaluate_current_lengths != self.max_env_steps
             dones = dones * no_timeouts
-            not_dones = 1.0 - dones.float()
+            not_dones = 1.0 - dones.float()            
+            if dones[0] and self.use_wandb:
+                wandb.log({
+                    'Evaluate/step': self.evaluate_step_num,
+                    'Evaluate/step_episode': self.evaluate_episode_num,
+                    'Evaluate/EpRet': self.evaluate_current_rewards,
+                    'Evaluate/EpLen': self.evaluate_current_lengths,
+                    "Evaluate/EpTime": self.evaluate_current_ep_time,
+                    "Evaluate/EpProgress": infos['progress'],
+                    "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
+                })    
+                param_table = wandb.Table(columns=["action_list"], data=[[action_info_list]])
+                wandb.log({"Actions": param_table}) 
+                action_info_list = []
+
             self.evaluate_current_rewards = self.evaluate_current_rewards * not_dones
             self.evaluate_current_lengths = self.evaluate_current_lengths * not_dones
             self.evaluate_current_ep_time = self.evaluate_current_ep_time * not_dones
             self.evaluate_current_rewards_action = self.evaluate_current_rewards_action * not_dones
-            
             if dones[0]:
-                self.evaluate_episode_num += 1
-                if self.use_wandb:
-                    wandb.log({
-                        'Evaluate/step': self.evaluate_step_num,
-                        'Evaluate/step_episode': self.evaluate_episode_num,
-                        'Evaluate/EpRet': self.evaluate_current_rewards,
-                        'Evaluate/EpLen': self.evaluate_current_lengths,
-                        "Evaluate/EpTime": self.evaluate_current_ep_time,
-                        "Evaluate/EpProgress": infos['progress'],
-                        "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
-                    })    
+                self.evaluate_episode_num += 1    
                 break
 
             self.obs = next_obs.copy()
@@ -642,16 +648,16 @@ class RainbowAgent():
                     # self.writer.add_scalar('rewards/time', mean_rewards, total_time)
                     # self.writer.add_scalar('episode_lengths/step', mean_lengths, self.step_num)
                     # self.writer.add_scalar('episode_lengths/time', mean_lengths, total_time)
-                    checkpoint_name = self.config['name'] + '_ep_' + str(self.epoch_num) + '_rew_' + str(mean_rewards)
+                    checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_rew_' + str(mean_rewards)
 
                     should_exit = False
 
                     if self.save_freq > 0:
-                        if self.epoch_num % self.save_freq == 0:
+                        if self.episode_num % self.save_freq == 0:
                             self.save(os.path.join(self.nn_dir, 'last_' + checkpoint_name))
                                 # Save model parameters on current device (don't move model between devices)
 
-                    if mean_rewards > self.last_mean_rewards and self.epoch_num >= self.save_best_after:
+                    if mean_rewards > self.last_mean_rewards and self.episode_num >= self.save_best_after:
                         print('saving next best rewards: ', mean_rewards)
                         self.last_mean_rewards = mean_rewards
                         self.save(os.path.join(self.nn_dir, self.config['name']))

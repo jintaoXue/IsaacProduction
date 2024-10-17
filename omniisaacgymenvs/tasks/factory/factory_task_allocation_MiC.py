@@ -50,9 +50,12 @@ MAX_FLOAT = 3.40282347e38
 class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
     def pre_physics_step(self, actions):
-
+        if self._evaluate:
+            task_id = actions[0] - 1
+            task = self.task_manager.task_dic[task_id.item()]
+            self.extras['action_info'] = task
         actions = self.post_task_manager_step(actions)
-
+        self.caculate_metric_action(actions)
         return actions
 
     def post_physics_step(
@@ -71,21 +74,37 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.post_grippers_step()
                 self.post_weld_station_step()
                 self.post_welder_step()
-                obs = self.get_observations()
                 self.reset_update()
+                self.update_available_task()
+                # obs = self.get_observations()
                 # self.calculate_metrics()
                 # self.get_states()
                 self.get_extras()
-                if self.task_manager.task_mask[1:].count_nonzero() == 0 and self.reset_buf[0] == 0:
+                if (self.task_manager.task_mask[1:].count_nonzero() == 0 and self.reset_buf[0] == 0):
                     self.post_task_manager_step(actions=None)
                 else:
                     self.calculate_metrics()
+                    obs = self.get_observations()
                     break
                 if self._evaluate:
                     self.world.step(render=True)
             
         return obs, self.rew_buf, self.reset_buf, self.extras
     
+    def caculate_metric_action(self, actions):
+        self.reward_action = None
+        task_id = actions[0] - 1
+        task = self.task_manager.task_dic[task_id.item()]
+        if task not in self.available_task_dic.keys():
+            self.reward_action = -1
+        elif task == 'none':
+            if len(self.available_task_dic.keys()) > 1:
+                self.reward_action = -1
+            else:
+                self.reward_action = 0.
+        else:
+            self.reward_action = 1.
+        
     def calculate_metrics(self):
         task_finished = self.materials.done()
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
@@ -111,8 +130,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.extras['rew_action'] = self.reward_action
         return
     
-    def get_available_task(self):
-        self.available_task_dic = {}
+    def update_available_task(self):
+        self.available_task_dic = {'none':-1}
         task_mask = torch.zeros(len(self.task_manager.task_dic))
         task_mask[0] = 1
         #use rule-based agent
@@ -144,7 +163,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
             self.available_task_dic['placing_product'] = 8
             task_mask[9] = 1
-        self.available_task_dic['none'] = -1
+        # self.available_task_dic['none'] = -1
         self.task_manager.task_mask = task_mask
         return
     
@@ -207,8 +226,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.materials.cube_list[idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))
 
     def post_task_manager_step(self, actions):
-        self.get_available_task()
-        self.reward_action = None
         #TODO only support single action, not actions
         task_id = -1 #default as none
         if actions is not None:
@@ -218,13 +235,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             task_id = actions[0] - 1
             task = self.task_manager.task_dic[task_id.item()]
             if task not in self.available_task_dic.keys():
-                self.reward_action = -1
-                # self.reset_buf[0] = 1
                 task = 'none'
-            elif len(self.available_task_dic.keys()) > 1 and task == 'none':
-                self.reward_action = -1
-            else:
-                self.reward_action = 0.
             if task == 'none':
                 pass
             else:
@@ -241,7 +252,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 else:
                     self.task_manager.assign_task(task)
         else:
-            self.reward_action = 1.0
             #use rule-based agent
             if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
                 if self.task_manager.assign_task(task = 'hoop_preparing'):
@@ -275,8 +285,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.task_manager.task_clearing(task='collect_product')
                 self.task_manager.assign_task(task='placing_product')
                 self.task_manager.boxs.product_collecting_idx = -1
-            else:
-                self.reward_action = 0.
+            # else:
+            #     self.reward_action = 0.
             actions = torch.tensor(task_id+1, device=self._device).unsqueeze(0)
             # actions = Fun.one_hot(torch.tensor(task_id+1, device=self._device), num_classes = 10).unsqueeze(0)
 
@@ -288,7 +298,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             self.post_agv_step(agv_idx)
         for box_idx in range(0, self.task_manager.boxs.num):
             self.post_trans_box_step(box_idx)
-
+        
         return actions
     
     def post_character_step(self, idx):

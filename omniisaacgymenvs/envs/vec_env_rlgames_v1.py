@@ -379,16 +379,18 @@ class VecEnvRLGames(VecEnvBase):
 
         if self._task._evaluate == True:
             #evaluate to visualize result
-            if (self.sim_frame_count + self._task.control_frequency_inv) % self._task.rendering_interval == 0:
-                for _ in range(self._task.control_frequency_inv - 1):
-                    self._world.step(render=False)
-                    self.sim_frame_count += 1
-                self._world.step(render=to_render)
-                self.sim_frame_count += 1
-            else:
-                for _ in range(self._task.control_frequency_inv):
-                    self._world.step(render=False)
-                    self.sim_frame_count += 1
+            self.world.step(render=to_render)
+            self.sim_frame_count += 1
+            # if (self.sim_frame_count + self._task.control_frequency_inv) % self._task.rendering_interval == 0:
+            #     for _ in range(self._task.control_frequency_inv - 1):
+            #         self._world.step(render=False)
+            #         self.sim_frame_count += 1
+            #     self._world.step(render=to_render)
+            #     self.sim_frame_count += 1
+            # else:
+            #     for _ in range(self._task.control_frequency_inv):
+            #         self._world.step(render=False)
+            #         self.sim_frame_count += 1
         else:
             self.sim_frame_count += 1
             if self.sim_frame_count % 5000 == 0:
