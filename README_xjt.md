@@ -136,6 +136,11 @@ loss曲线为什么会是阶梯状？可能是因为target net 和 online net，
 1. 进一步缩短训练时间
 2. 可视化训练效果，找到为什么reward 会低一些的原因
 
+# 10.17
+rule-based:
+['hoop_preparing', 'bending_tube_preparing', 'hoop_loading_inner', 'bending_tube_loading_inner', 'collect_product', 'cutting_cube', 'hoop_loading_outer', 'bending_tube_loading_outer', 'cutting_cube', 'hoop_loading_inner', 'bending_tube_loading_inner', 'cutting_cube', 'cutting_cube', 'hoop_loading_inner', 'bending_tube_loading_inner', 'hoop_preparing', 'bending_tube_preparing', 'placing_product', 'hoop_loading_inner', 'bending_tube_loading_inner', 'collect_product', 'cutting_cube', 'placing_product']
+length = 23
+
 # ignore
 
 __pycache___

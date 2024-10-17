@@ -542,7 +542,7 @@ class RainbowAgent():
                 action = self.act(obs).unsqueeze(0)
 
             step_start = time.time()
-
+            action = None
             with torch.no_grad():
                 next_obs, rewards, dones, infos, action = self.env_step(action)
             # if self.reward_clip > 0:
