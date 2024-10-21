@@ -143,6 +143,18 @@ length = 23
 
 add two actions
 
+# 10.21
+如何调整weld station的inner还是outer的选择方式？
+原来的是cube in list 之后然后再做选择
+
+
+self.proc_groups_inner_list 要改
+self.proc_groups_outer_list 也要改
+
+改hoop loading 以及bending tube loading的规则
+
+placing product时 选择inner还是outer的规则也要优化，优先选已经完成hoop loading的station
+
 # ignore
 
 __pycache___

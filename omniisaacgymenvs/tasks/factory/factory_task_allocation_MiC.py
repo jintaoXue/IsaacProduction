@@ -140,16 +140,16 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(0) > 0:
             self.available_task_dic['bending_tube_preparing'] = 1
             task_mask[2] = 1
-        if self.station_state_inner_left == 1 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys(): #loading
+        if self.station_state_inner_left == 0 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
             self.available_task_dic['hoop_loading_inner'] = 2
             task_mask[3] = 1
-        if self.station_state_inner_right == 1 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys(): 
+        if self.station_state_inner_right == 0 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
             self.available_task_dic['bending_tube_loading_inner'] = 3
             task_mask[4] = 1
-        if self.station_state_outer_left == 1 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys(): #loading
+        if self.station_state_outer_left == 0 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
             self.available_task_dic['hoop_loading_outer'] = 4
             task_mask[5] = 1
-        if self.station_state_outer_right == 1 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys(): 
+        if self.station_state_outer_right == 0 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
             self.available_task_dic['bending_tube_loading_outer'] = 5
             task_mask[6] = 1
         if self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
@@ -250,6 +250,22 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     self.task_manager.boxs.product_collecting_idx = -1
                 else:
                     self.task_manager.assign_task(task)
+                    if task == 'hoop_loading_inner':
+                        hoop_index = self.materials.find_next_raw_hoop_index()
+                        self.materials.hoop_states[hoop_index] = 3
+                        self.materials.inner_hoop_processing_index = hoop_index
+                    elif task == 'hoop_loading_outer':
+                        hoop_index = self.materials.find_next_raw_hoop_index()
+                        self.materials.hoop_states[hoop_index] = 3
+                        self.materials.outer_hoop_processing_index = hoop_index
+                    elif task == 'bending_tube_loading_inner':
+                        _index = self.materials.find_next_raw_bending_tube_index()
+                        self.materials.bending_tube_states[_index] = 3
+                        self.materials.inner_bending_tube_processing_index = _index
+                    elif task == 'bending_tube_loading_outer':
+                        _index = self.materials.find_next_raw_bending_tube_index()
+                        self.materials.bending_tube_states[_index] = 3
+                        self.materials.outer_bending_tube_processing_index = _index
         else:
             #use rule-based agent
             if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
@@ -260,18 +276,30 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 if self.task_manager.assign_task(task = 'bending_tube_preparing'):
                     self.state_depot_bending_tube = 1
                     task_id = 1
-            elif self.station_state_inner_left == 1 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys(): #loading
+            elif self.station_state_inner_left == 0 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
                 self.task_manager.assign_task(task='hoop_loading_inner')
                 task_id = 2
-            elif self.station_state_inner_right == 1 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys(): 
+                hoop_index = self.materials.find_next_raw_hoop_index()
+                self.materials.hoop_states[hoop_index] = 3
+                self.materials.inner_hoop_processing_index = hoop_index
+            elif self.station_state_inner_right == 0 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
                 self.task_manager.assign_task(task='bending_tube_loading_inner')
                 task_id = 3
-            elif self.station_state_outer_left == 1 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys(): #loading
+                _index = self.materials.find_next_raw_bending_tube_index()
+                self.materials.bending_tube_states[_index] = 3
+                self.materials.inner_bending_tube_processing_index = _index
+            elif self.station_state_outer_left == 0 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
                 self.task_manager.assign_task(task='hoop_loading_outer')
                 task_id = 4
-            elif self.station_state_outer_right == 1 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys(): 
+                hoop_index = self.materials.find_next_raw_hoop_index()
+                self.materials.hoop_states[hoop_index] = 3
+                self.materials.outer_hoop_processing_index = hoop_index
+            elif self.station_state_outer_right == 0 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
                 self.task_manager.assign_task(task='bending_tube_loading_outer')
                 task_id = 5
+                _index = self.materials.find_next_raw_bending_tube_index()
+                self.materials.bending_tube_states[_index] = 3
+                self.materials.outer_bending_tube_processing_index = _index
             elif self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
                 self.task_manager.assign_task(task='cutting_cube') 
                 task_id = 6
@@ -601,7 +629,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         #first check the state
         if  self.convey_state == 0:
             #conveyor is free, we can process it
-            raw_cube_index, upper_tube_index, hoop_index, bending_tube_index = self.post_next_group_to_be_processed_step()
+            # raw_cube_index, upper_tube_index, hoop_index, bending_tube_index = self.post_next_group_to_be_processed_step()
+            raw_cube_index = self.materials.find_next_raw_cube_index()
             if raw_cube_index >=0 :
                 #todo check convey startup
                 self.materials.cube_convey_index = raw_cube_index
@@ -722,14 +751,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 self.gripper_inner_task = 5
                 self.gripper_inner_state = 1
             elif (pick_up_place_cube_index>=0): #pick cut cube by cutting machine
-                if self.process_groups_dict[pick_up_place_cube_index]['station'] == 'inner':
-                    if self.station_state_inner_middle == 1: #station is waiting
-                        self.gripper_inner_task = 1
-                        self.gripper_inner_state = 1
-                elif self.process_groups_dict[pick_up_place_cube_index]['station'] == 'outer':
-                    if self.station_state_outer_middle == 1 and self.gripper_outer_state == 0: #station is wating
-                        self.gripper_inner_task = 1
-                        self.gripper_inner_state = 1
+                if self.station_state_inner_middle == 1 or (self.station_state_outer_middle == 1 and self.gripper_outer_state == 0): #station is waiting
+                    self.gripper_inner_task = 1
+                    self.gripper_inner_state = 1
             
             next_pos_inner, delta_pos, move_done = self.get_gripper_moving_pose(gripper_pose_inner[0], inner_initial_pose[0], 'reset')
         elif self.gripper_inner_state == 1:
@@ -740,9 +764,15 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 if move_done: 
                     #choose which station to place on the cube
                     self.gripper_inner_state = 2
-                    if self.process_groups_dict[pick_up_place_cube_index]['station'] == 'inner':
+                    if self.station_state_inner_middle == 1 and (self.station_state_outer_middle == 1 and self.gripper_outer_state == 0):
+                        no_load = self.materials.inner_hoop_processing_index < 0 and self.materials.outer_hoop_processing_index < 0
+                        if no_load or self.materials.inner_hoop_processing_index > 0:
+                            self.gripper_inner_task = 2 #place on inner station
+                        else:
+                            self.gripper_inner_task = 3 #place on outer station
+                    elif self.station_state_inner_middle == 1:
                         self.gripper_inner_task = 2 #place on inner station
-                    elif self.process_groups_dict[pick_up_place_cube_index]['station'] == 'outer':
+                    else:
                         self.gripper_inner_task = 3 #place on outer station
             elif self.gripper_inner_task == 4: #pick_product_from_inner
                 target_pose = torch.tensor([[-2.55, -1, -0.8, 0, 0.045, -0.045, -0.045, -0.045, 0.045,  0.045]], device=self.cuda_device)
@@ -792,7 +822,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     "a product is produced and placed on the robot, then do resetting"
                     self.gripper_inner_state = 0
                     self.materials.product_states[self.materials.inner_cube_processing_index] = 1 # product is collected
-                    self.proc_groups_inner_list.pop(0)
                     collecting_box_idx = self.task_manager.task_in_dic['collect_product']['box_idx'] 
                     self.task_manager.boxs.product_idx_list[collecting_box_idx].append(self.materials.inner_cube_processing_index)
                     self.task_manager.boxs.counts[collecting_box_idx] += 1
@@ -1052,13 +1081,10 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if self.station_state_inner_left == 0: #reset_empty
             #station is free now, find existing process group task
             # inner_revolution_target = 1.5
-            if len(self.proc_groups_inner_list) > 0:
-                raw_cube_index = self.proc_groups_inner_list[0]
-                raw_hoop_index = self.process_groups_dict[raw_cube_index]["hoop_index"]
-                if self.materials.hoop_states[raw_hoop_index] == 3: #in list
-                    self.station_state_inner_left = 1
-                    self.materials.inner_hoop_processing_index = raw_hoop_index
-                    self.materials.hoop_states[raw_hoop_index] = 4
+            if inner_hoop_index > 0:
+                assert self.materials.hoop_states[inner_hoop_index] == 3, "error" #in list
+                self.station_state_inner_left = 1
+                self.materials.hoop_states[inner_hoop_index] = 4
         elif self.station_state_inner_left == 1: #loading
             # inner_revolution_target = 1.5
             # if self.put_hoop_on_weld_station_inner(self.materials.inner_hoop_processing_index):
@@ -1187,14 +1213,12 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         THRESHOLD = 0.05
         welding_right_pose = -2.5
         target_inner_right = 0.0 
+        raw_bending_tube_index = self.materials.inner_bending_tube_processing_index
         if self.station_state_inner_right == 0: #reset_empty
-            if len(self.proc_groups_inner_list) > 0:
-                raw_cube_index = self.proc_groups_inner_list[0]
-                raw_bending_tube_index = self.process_groups_dict[raw_cube_index]["bending_tube_index"]
-                if self.materials.bending_tube_states[raw_bending_tube_index] == 3: #in list
-                    self.station_state_inner_right = 1
-                    self.materials.inner_bending_tube_processing_index = raw_bending_tube_index      
-                    self.materials.bending_tube_states[raw_bending_tube_index] = 4   
+            if raw_bending_tube_index > 0:
+                assert self.materials.bending_tube_states[raw_bending_tube_index] == 3
+                self.station_state_inner_right = 1     
+                self.materials.bending_tube_states[raw_bending_tube_index] = 4   
         elif self.station_state_inner_right == 1: #placing
             #place bending tube on the station right 
             # if self.put_bending_tube_on_weld_station_inner(self.materials.inner_bending_tube_processing_index):
@@ -1217,7 +1241,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if self.station_state_inner_right in range(2, 5):
             raw_orientation = torch.tensor([[1, 0,  0,  0]], device=self.cuda_device)
             ref_position, _ = self.obj_11_station_0_right.get_world_poses()
-            raw_bending_tube_index = self.materials.inner_bending_tube_processing_index
             self.materials.bending_tube_list[raw_bending_tube_index].set_world_poses(positions=ref_position+torch.tensor([[-2.47, -3.225, 0.54]], device=self.cuda_device), orientations = raw_orientation)
             self.materials.bending_tube_list[raw_bending_tube_index].set_velocities(torch.zeros((1,6), device=self.cuda_device))
         if self.station_state_inner_right in range(3,5):
@@ -1463,13 +1486,10 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if self.station_state_outer_left == 0: #reset_empty
             #station is free now, find existing process group task
             # outer_revolution_target = 1.5
-            if len(self.proc_groups_outer_list) > 0:
-                raw_cube_index = self.proc_groups_outer_list[0]
-                raw_hoop_index = self.process_groups_dict[raw_cube_index]["hoop_index"]
-                if self.materials.hoop_states[raw_hoop_index] == 3:
-                    self.station_state_outer_left = 1
-                    self.materials.outer_hoop_processing_index = raw_hoop_index
-                    self.materials.hoop_states[raw_hoop_index] = 4
+            if outer_hoop_index > 0:
+                assert self.materials.hoop_states[outer_hoop_index] == 3, "error" #in list
+                self.station_state_outer_left = 1
+                self.materials.hoop_states[outer_hoop_index] = 4
         elif self.station_state_outer_left == 1: #loading
             # outer_revolution_target = 1.5
             # if self.put_hoop_on_weld_station_outer(self.materials.outer_hoop_processing_index):
@@ -1597,14 +1617,12 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         THRESHOLD = 0.05
         welding_right_pose = -2.5
         target_outer_right = 0.0 
+        raw_bending_tube_index = self.materials.outer_bending_tube_processing_index
         if self.station_state_outer_right == 0: #reset_empty
-            if len(self.proc_groups_outer_list) > 0:
-                raw_cube_index = self.proc_groups_outer_list[0]
-                raw_bending_tube_index = self.process_groups_dict[raw_cube_index]["bending_tube_index"]
-                if self.materials.bending_tube_states[raw_bending_tube_index] == 3: #in list
-                    self.station_state_outer_right = 1
-                    self.materials.outer_bending_tube_processing_index = raw_bending_tube_index      
-                    self.materials.bending_tube_states[raw_bending_tube_index] = 4
+            if raw_bending_tube_index > 0:
+                assert self.materials.bending_tube_states[raw_bending_tube_index] == 3
+                self.station_state_outer_right = 1     
+                self.materials.bending_tube_states[raw_bending_tube_index] = 4   
         elif self.station_state_outer_right == 1: #placing
             #place bending tube on the station right 
             # if self.put_bending_tube_on_weld_station_outer(self.materials.outer_bending_tube_processing_index):
@@ -1627,7 +1645,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if self.station_state_outer_right in range(2, 5):
             raw_orientation = torch.tensor([[1, 0,  0,  0]], device=self.cuda_device)
             ref_position, _ = self.obj_11_station_1_right.get_world_poses()
-            raw_bending_tube_index = self.materials.outer_bending_tube_processing_index
             self.materials.bending_tube_list[raw_bending_tube_index].set_world_poses(
                 positions=ref_position+torch.tensor([[-2.47, -3.225, 0.54]], device=self.cuda_device), orientations = raw_orientation)
             self.materials.bending_tube_list[raw_bending_tube_index].set_velocities(torch.zeros((1,6), device=self.cuda_device))
