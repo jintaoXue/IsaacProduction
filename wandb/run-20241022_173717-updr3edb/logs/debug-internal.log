@@ -1,0 +1,99 @@
+2024-10-22 17:37:18,923 INFO    MainThread:157130 [internal.py:wandb_internal():90] W&B internal server running at pid: 157130, started at: 2024-10-22 17:37:18.913782
+2024-10-22 17:37:18,926 INFO    WriterThread:157130 [datastore.py:open_for_write():75] open: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/run-updr3edb.wandb
+2024-10-22 17:37:19,197 DEBUG   SenderThread:157130 [sender.py:send():236] send: header
+2024-10-22 17:37:19,197 DEBUG   SenderThread:157130 [sender.py:send():236] send: run
+2024-10-22 17:37:19,212 INFO    SenderThread:157130 [sender.py:_maybe_setup_resume():493] checking resume status for None/IsaacProduction/updr3edb
+2024-10-22 17:37:19,780 INFO    SenderThread:157130 [dir_watcher.py:__init__():216] watching files in: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files
+2024-10-22 17:37:19,780 INFO    SenderThread:157130 [sender.py:_start_run_threads():815] run started: updr3edb with start time 1729589837
+2024-10-22 17:37:19,795 DEBUG   SenderThread:157130 [sender.py:send():236] send: summary
+2024-10-22 17:37:19,796 INFO    SenderThread:157130 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2024-10-22 17:37:19,796 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: check_version
+2024-10-22 17:37:19,796 DEBUG   SenderThread:157130 [sender.py:send_request():250] send_request: check_version
+2024-10-22 17:37:19,869 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: run_start
+2024-10-22 17:37:19,892 DEBUG   HandlerThread:157130 [meta.py:__init__():35] meta init
+2024-10-22 17:37:19,893 DEBUG   HandlerThread:157130 [meta.py:__init__():49] meta init done
+2024-10-22 17:37:19,893 DEBUG   HandlerThread:157130 [meta.py:probe():209] probe
+2024-10-22 17:37:19,901 DEBUG   HandlerThread:157130 [meta.py:_setup_git():199] setup git
+2024-10-22 17:37:19,906 DEBUG   HandlerThread:157130 [meta.py:_setup_git():206] setup git done
+2024-10-22 17:37:19,906 DEBUG   HandlerThread:157130 [meta.py:_save_pip():53] save pip
+2024-10-22 17:37:19,907 DEBUG   HandlerThread:157130 [meta.py:_save_pip():67] save pip done
+2024-10-22 17:37:19,907 DEBUG   HandlerThread:157130 [meta.py:_save_conda():74] save conda
+2024-10-22 17:37:20,782 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/conda-environment.yaml
+2024-10-22 17:37:20,783 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/requirements.txt
+2024-10-22 17:37:20,783 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/wandb-summary.json
+2024-10-22 17:37:20,932 DEBUG   HandlerThread:157130 [meta.py:_save_conda():84] save conda done
+2024-10-22 17:37:20,932 DEBUG   HandlerThread:157130 [meta.py:probe():247] probe done
+2024-10-22 17:37:21,038 DEBUG   SenderThread:157130 [sender.py:send():236] send: files
+2024-10-22 17:37:21,038 INFO    SenderThread:157130 [sender.py:_save_file():952] saving file wandb-metadata.json with policy now
+2024-10-22 17:37:21,042 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:37:21,043 DEBUG   SenderThread:157130 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:37:21,072 INFO    HandlerThread:157130 [handler.py:handle_tbrecord():723] handling tbrecord: tbrecord {
+  log_dir: "runs/FactoryTaskAllocationMiC2024-10-22_17-37-02"
+  save: true
+}
+
+2024-10-22 17:37:21,072 DEBUG   HandlerThread:157130 [config_util.py:dict_from_config_file():100] no default config file found in config-defaults.yaml
+2024-10-22 17:37:21,364 DEBUG   SenderThread:157130 [sender.py:send():236] send: telemetry
+2024-10-22 17:37:21,364 DEBUG   SenderThread:157130 [sender.py:send():236] send: tbrecord
+2024-10-22 17:37:21,365 DEBUG   SenderThread:157130 [sender.py:send():236] send: files
+2024-10-22 17:37:21,365 INFO    SenderThread:157130 [sender.py:_save_file():952] saving file events.out.tfevents.1729589841.MS-7E01.155993.0 with policy live
+2024-10-22 17:37:21,679 INFO    Thread-16 :157130 [upload_job.py:push():138] Uploaded file /tmp/tmpyjnq44kbwandb/5i48gu6h-wandb-metadata.json
+2024-10-22 17:37:21,781 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/conda-environment.yaml
+2024-10-22 17:37:21,781 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/wandb-metadata.json
+2024-10-22 17:37:21,781 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/events.out.tfevents.1729589841.MS-7E01.155993.0
+2024-10-22 17:37:21,781 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/output.log
+2024-10-22 17:37:22,229 INFO    Thread-19 :157130 [upload_job.py:push():138] Uploaded file /tmp/tmpyjnq44kbwandb/ug8padsn-events.out.tfevents.1729589841.MS-7E01.155993.0
+2024-10-22 17:37:23,781 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/output.log
+2024-10-22 17:37:24,269 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,269 DEBUG   SenderThread:157130 [sender.py:send():236] send: telemetry
+2024-10-22 17:37:24,269 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,269 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,270 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:24,537 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: log_artifact
+2024-10-22 17:37:24,537 DEBUG   SenderThread:157130 [sender.py:send_request():250] send_request: log_artifact
+2024-10-22 17:37:24,782 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json
+2024-10-22 17:37:24,782 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/media/table
+2024-10-22 17:37:24,782 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/media
+2024-10-22 17:37:25,062 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: partial_history
+2024-10-22 17:37:26,284 INFO    Thread-21 :157130 [upload_job.py:push():96] Uploaded file /home/xue/.cache/wandb/artifacts/obj/md5/09/01e96eece176ff4d7b2e5b525949f0
+2024-10-22 17:37:28,374 INFO    SenderThread:157130 [sender.py:send_request_log_artifact():1009] logged artifact run-updr3edb-Parameter - {'id': 'QXJ0aWZhY3Q6MTI4OTk4MzQwNA==', 'digest': '5f55c8a6bee253865efaf96dc3d83aa6', 'state': 'PENDING', 'aliases': [], 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjQ4MDA4NzQzOA==', 'latestArtifact': None}, 'version': 'latest'}
+2024-10-22 17:37:28,374 DEBUG   SenderThread:157130 [sender.py:send():236] send: files
+2024-10-22 17:37:28,374 INFO    SenderThread:157130 [sender.py:_save_file():952] saving file media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json with policy now
+2024-10-22 17:37:28,374 DEBUG   SenderThread:157130 [sender.py:send():236] send: history
+2024-10-22 17:37:28,374 DEBUG   SenderThread:157130 [sender.py:send():236] send: summary
+2024-10-22 17:37:28,375 INFO    SenderThread:157130 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2024-10-22 17:37:28,377 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:28,377 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:28,377 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:28,377 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:28,377 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:28,377 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:28,377 DEBUG   SenderThread:157130 [sender.py:send():236] send: metric
+2024-10-22 17:37:28,783 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/wandb-summary.json
+2024-10-22 17:37:29,192 INFO    Thread-22 :157130 [upload_job.py:push():138] Uploaded file /tmp/tmpyjnq44kbwandb/rsebifaq-media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json
+2024-10-22 17:37:36,365 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:37:36,365 DEBUG   SenderThread:157130 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:37:48,073 DEBUG   SenderThread:157130 [sender.py:send():236] send: stats
+2024-10-22 17:37:49,788 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/config.yaml
+2024-10-22 17:37:51,680 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:37:51,681 DEBUG   SenderThread:157130 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:38:02,792 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/output.log
+2024-10-22 17:38:04,792 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/output.log
+2024-10-22 17:38:06,793 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/output.log
+2024-10-22 17:38:07,031 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:38:07,031 DEBUG   SenderThread:157130 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:38:09,793 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/output.log
+2024-10-22 17:38:11,794 INFO    Thread-12 :157130 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173717-updr3edb/files/output.log
+2024-10-22 17:38:18,232 DEBUG   SenderThread:157130 [sender.py:send():236] send: stats
+2024-10-22 17:38:22,501 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:38:22,501 DEBUG   SenderThread:157130 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:38:37,853 DEBUG   HandlerThread:157130 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:38:37,853 DEBUG   SenderThread:157130 [sender.py:send_request():250] send_request: stop_status

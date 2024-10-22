@@ -1,0 +1,320 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.12.21
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    m:
+    - 1: Train/step
+      6:
+      - 3
+    - 1: Train/buffer_size
+      5: 1
+      6:
+      - 1
+      - 3
+    - 1: Train/loss
+      5: 1
+      6:
+      - 1
+      - 3
+    - 1: Train/num_episode
+      5: 1
+      6:
+      - 1
+      - 3
+    - 1: Metrics/Mrewards
+      5: 1
+      6:
+      - 1
+      - 3
+    - 1: Metrics/MLen
+      5: 1
+      6:
+      - 1
+      - 3
+    - 1: Metrics/step_episode
+      5: 1
+      6:
+      - 1
+      - 3
+    - 1: Metrics/EpRet
+      5: 7
+      6:
+      - 1
+      - 3
+    - 1: Metrics/EpLen
+      5: 7
+      6:
+      - 1
+      - 3
+    - 1: Metrics/EpTime
+      5: 7
+      6:
+      - 1
+      - 3
+    - 1: Metrics/EpProgress
+      5: 7
+      6:
+      - 1
+      - 3
+    - 1: Metrics/EpRetAction
+      5: 7
+      6:
+      - 1
+      - 3
+    - 1: Evaluate/step
+      6:
+      - 3
+    - 1: Evaluate/step_episode
+      5: 13
+      6:
+      - 1
+      - 3
+    - 1: Evaluate/EpRet
+      5: 14
+      6:
+      - 1
+      - 3
+    - 1: Evaluate/EpLen
+      5: 14
+      6:
+      - 1
+      - 3
+    - 1: Evaluate/EpTime
+      5: 14
+      6:
+      - 1
+      - 3
+    - 1: Evaluate/EpProgress
+      5: 14
+      6:
+      - 1
+      - 3
+    - 1: Evaluate/EpRetAction
+      5: 14
+      6:
+      - 1
+      - 3
+    python_version: 3.10.14
+    start_time: 1729615598
+    t:
+      1:
+      - 1
+      - 50
+      - 55
+      3:
+      - 7
+      - 13
+      - 16
+      - 35
+      4: 3.10.14
+      5: 0.12.21
+      8:
+      - 5
+checkpoint:
+  desc: null
+  value: ''
+device_id:
+  desc: null
+  value: 0
+enable_livestream:
+  desc: null
+  value: true
+enable_recording:
+  desc: null
+  value: false
+evaluate:
+  desc: null
+  value: false
+evaluation:
+  desc: null
+  value: false
+experiment:
+  desc: null
+  value: ''
+headless:
+  desc: null
+  value: false
+kit_app:
+  desc: null
+  value: ''
+max_iterations:
+  desc: null
+  value: ''
+mt_timeout:
+  desc: null
+  value: 300
+multi_gpu:
+  desc: null
+  value: false
+num_envs:
+  desc: null
+  value: ''
+num_threads:
+  desc: null
+  value: 4
+physics_engine:
+  desc: null
+  value: physx
+pipeline:
+  desc: null
+  value: gpu
+recording_dir:
+  desc: null
+  value: ''
+recording_fps:
+  desc: null
+  value: 30
+recording_interval:
+  desc: null
+  value: 2000
+recording_length:
+  desc: null
+  value: 100
+rl_device:
+  desc: null
+  value: cuda:0
+seed:
+  desc: null
+  value: 42
+sim_device:
+  desc: null
+  value: cuda:0
+solver_type:
+  desc: null
+  value: 1
+task:
+  desc: null
+  value:
+    env:
+      accerlate_train: 1
+      close_and_lift: true
+      controlFrequencyInv: 2
+      dimActions: 1
+      numActions: 10
+      numEnvs: 1
+      numObservations: 20
+      num_gripper_close_sim_steps: 40
+      num_gripper_lift_sim_steps: 40
+      num_gripper_move_sim_steps: 40
+    name: FactoryTaskAllocationMiC
+    physics_engine: physx
+    renderingInterval: 1
+    rl:
+      evaluate: false
+      max_episode_length: 2500
+    sim:
+      add_distant_light: false
+      add_ground_plane: true
+      default_material:
+        dynamic_friction: 1.0
+        restitution: 0.0
+        static_friction: 1.0
+      disable_contact_processing: false
+      disable_gravity: false
+      dt: 0.00833333333
+      enable_scene_query_support: true
+      gravity_mag: 9.81
+      physx:
+        bounce_threshold_velocity: 0.2
+        contact_offset: 0.005
+        enable_sleeping: true
+        enable_stabilization: true
+        friction_correlation_distance: 0.00625
+        friction_offset_threshold: 0.01
+        gpu_found_lost_aggregate_pairs_capacity: 262144
+        gpu_found_lost_pairs_capacity: 8192
+        gpu_heap_capacity: 33554432
+        gpu_max_num_partitions: 8
+        gpu_max_particle_contacts: 1048576
+        gpu_max_rigid_contact_count: 524288
+        gpu_max_rigid_patch_count: 33554432
+        gpu_max_soft_body_contacts: 1048576
+        gpu_temp_buffer_capacity: 16777216
+        gpu_total_aggregate_pairs_capacity: 1048576
+        max_depenetration_velocity: 5.0
+        rest_offset: 0.0
+        solver_position_iteration_count: 16
+        solver_type: 1
+        solver_velocity_iteration_count: 0
+        use_gpu: true
+        worker_thread_count: 4
+      use_fabric: true
+      use_gpu_pipeline: true
+task_name:
+  desc: null
+  value: FactoryTaskAllocationMiC
+test:
+  desc: null
+  value: false
+time_str:
+  desc: null
+  value: 2024-10-23_00-46-23
+torch_deterministic:
+  desc: null
+  value: false
+train:
+  desc: null
+  value:
+    params:
+      algo:
+        name: rainbow
+      config:
+        bounds_loss_coef: 0.0001
+        clip_value: true
+        critic_coef: 2
+        device: cuda:0
+        device_name: cuda:0
+        e_clip: 0.2
+        entropy_coef: 0.0
+        env_name: rlgpu
+        env_rule_based_exploration: true
+        evaluate: false
+        full_experiment_name: FactoryTaskAllocationMiC
+        gamma: 0.99
+        grad_norm: 1.0
+        horizon_length: 2500
+        kl_threshold: 0.016
+        learning_rate: 0.0001
+        load_dir: /FactoryTaskAllocationMiC2024-10-14_20-49-44/nn
+        load_name: /last_FactoryTaskAllocationMiC_ep_2000_rew_17.879822.pth
+        lr_schedule: fixed
+        mini_epochs: 8
+        minibatch_size: 4
+        multi_gpu: false
+        name: FactoryTaskAllocationMiC
+        num_actors: 1
+        print_stats: true
+        reward_shaper:
+          scale_value: 1.0
+        save_best_after: 50
+        save_frequency: 1000
+        schedule_type: standard
+        score_to_win: 20000
+        seq_length: 4
+        tau: 0.95
+        time_str: 2024-10-23_00-46-23
+        truncate_grads: false
+        wandb_activate: true
+      load_checkpoint: false
+      load_path: ''
+      seed: 42
+wandb_activate:
+  desc: null
+  value: true
+wandb_group:
+  desc: null
+  value: ''
+wandb_name:
+  desc: null
+  value: FactoryTaskAllocationMiC
+wandb_project:
+  desc: null
+  value: IsaacProduction
+warp:
+  desc: null
+  value: false

@@ -152,11 +152,15 @@ class Materials(object):
         self.inner_cube_processing_index = -1
         self.inner_bending_tube_processing_index = -1
         self.inner_upper_tube_processing_index = -1
+        # self.inner_hoop_loading_index = -1
+        self.inner_bending_tube_loading_index = -1
         #for outer station
         self.outer_hoop_processing_index = -1
         self.outer_cube_processing_index = -1   #equal to product processing index
         self.outer_bending_tube_processing_index = -1
         self.outer_upper_tube_processing_index = -1
+        # self.outer_hoop_loading_index = -1
+        self.outer_bending_tube_loading_index = -1
         #prduction progress
         self.pre_progress = 0
 

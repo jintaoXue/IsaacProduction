@@ -1,0 +1,9 @@
+self.seed = 42
+Started to train
+Env name: rlgpu
+Box(-1.0, 1.0, (10,), float32) Box(-inf, inf, (20,), float32)
+Env info:
+{'action_space': Box(-1.0, 1.0, (10,), float32), 'observation_space': Box(-inf, inf, (20,), float32)}
+Run Directory: FactoryTaskAllocationMiC2024-10-22_16-51-30
+{'name': 'FactoryTaskAllocationMiC', 'wandb_activate': True, 'time_str': '2024-10-22_16-51-30', 'full_experiment_name': 'FactoryTaskAllocationMiC', 'device': 'cuda:0', 'device_name': 'cuda:0', 'env_name': 'rlgpu', 'multi_gpu': False, 'num_actors': 1, 'reward_shaper': <rl_games.common.tr_helpers.DefaultRewardsShaper object at 0x7f7bc9bec5e0>, 'gamma': 0.99, 'tau': 0.95, 'learning_rate': 0.0001, 'lr_schedule': 'fixed', 'schedule_type': 'standard', 'kl_threshold': 0.016, 'score_to_win': 20000, 'save_best_after': 50, 'save_frequency': 1000, 'print_stats': True, 'grad_norm': 1.0, 'entropy_coef': 0.0, 'truncate_grads': False, 'e_clip': 0.2, 'horizon_length': 2500, 'minibatch_size': 4, 'mini_epochs': 8, 'critic_coef': 2, 'clip_value': True, 'seq_length': 4, 'bounds_loss_coef': 0.0001, 'env_rule_based_exploration': True, 'evaluate': False, 'load_dir': '/FactoryTaskAllocationMiC2024-10-14_20-49-44/nn', 'load_name': '/last_FactoryTaskAllocationMiC_ep_2000_rew_17.879822.pth', 'train_dir': '/home/xue/work/IsaacProduction/omniisaacgymenvs/runs', 'features': {'observer': <omniisaacgymenvs.utils.rlgames.rlgames_utils.RLGPUAlgoObserver object at 0x7f7bc9bec610>}, 'atoms': 51, 'replay_buffer_size': 10000000, 'history_length': 1, 'discount': 0.99, 'multi_step': 1, 'priority_exponent': 0.5, 'priority_weight': 0.4, 'architecture': 'canonical', 'hidden_size': 512, 'noisy_std': 0.1, 'adam_eps': 0.00015}
+512 1 1

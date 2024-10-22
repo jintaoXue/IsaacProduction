@@ -153,8 +153,13 @@ self.proc_groups_outer_list 也要改
 
 改hoop loading 以及bending tube loading的规则
 
-placing product时 选择inner还是outer的规则也要优化，优先选已经完成hoop loading的station
+placing cube时 选择inner还是outer的规则也要优化，优先选已经完成hoop loading的station
+# 10.22
+修改worker agv运输的时长
+增加welding 的时间
+调整回正常训练：两个地方要改回去
 
+！！collect product 的环节的规则比较难写 可以尝试用RL做突破 这个地方比较灵活！
 # ignore
 
 __pycache___

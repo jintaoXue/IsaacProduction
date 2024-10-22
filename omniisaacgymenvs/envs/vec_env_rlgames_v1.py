@@ -393,8 +393,10 @@ class VecEnvRLGames(VecEnvBase):
             #         self.sim_frame_count += 1
         else:
             self.sim_frame_count += 1
-            if self.sim_frame_count % 5000 == 0:
-                self.world.step(render=to_render)
+            # if self.sim_frame_count % 5000 == 0:
+            #     self.world.step(render=to_render)
+            self.world.step(render=to_render)
+            
 
         self._obs, self._rew, self._resets, self._extras = self._task.post_physics_step()
 

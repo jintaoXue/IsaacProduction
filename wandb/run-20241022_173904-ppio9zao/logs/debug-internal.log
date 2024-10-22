@@ -1,0 +1,149 @@
+2024-10-22 17:39:06,133 INFO    MainThread:161364 [internal.py:wandb_internal():90] W&B internal server running at pid: 161364, started at: 2024-10-22 17:39:06.133374
+2024-10-22 17:39:06,145 INFO    WriterThread:161364 [datastore.py:open_for_write():75] open: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/run-ppio9zao.wandb
+2024-10-22 17:39:06,415 DEBUG   SenderThread:161364 [sender.py:send():236] send: header
+2024-10-22 17:39:06,415 DEBUG   SenderThread:161364 [sender.py:send():236] send: run
+2024-10-22 17:39:06,430 INFO    SenderThread:161364 [sender.py:_maybe_setup_resume():493] checking resume status for None/IsaacProduction/ppio9zao
+2024-10-22 17:39:07,199 INFO    SenderThread:161364 [dir_watcher.py:__init__():216] watching files in: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files
+2024-10-22 17:39:07,199 INFO    SenderThread:161364 [sender.py:_start_run_threads():815] run started: ppio9zao with start time 1729589944
+2024-10-22 17:39:07,216 DEBUG   SenderThread:161364 [sender.py:send():236] send: summary
+2024-10-22 17:39:07,216 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: check_version
+2024-10-22 17:39:07,216 INFO    SenderThread:161364 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2024-10-22 17:39:07,217 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: check_version
+2024-10-22 17:39:07,312 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: run_start
+2024-10-22 17:39:07,336 DEBUG   HandlerThread:161364 [meta.py:__init__():35] meta init
+2024-10-22 17:39:07,337 DEBUG   HandlerThread:161364 [meta.py:__init__():49] meta init done
+2024-10-22 17:39:07,337 DEBUG   HandlerThread:161364 [meta.py:probe():209] probe
+2024-10-22 17:39:07,345 DEBUG   HandlerThread:161364 [meta.py:_setup_git():199] setup git
+2024-10-22 17:39:07,350 DEBUG   HandlerThread:161364 [meta.py:_setup_git():206] setup git done
+2024-10-22 17:39:07,350 DEBUG   HandlerThread:161364 [meta.py:_save_pip():53] save pip
+2024-10-22 17:39:07,351 DEBUG   HandlerThread:161364 [meta.py:_save_pip():67] save pip done
+2024-10-22 17:39:07,351 DEBUG   HandlerThread:161364 [meta.py:_save_conda():74] save conda
+2024-10-22 17:39:08,201 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/requirements.txt
+2024-10-22 17:39:08,201 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/conda-environment.yaml
+2024-10-22 17:39:08,202 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/wandb-summary.json
+2024-10-22 17:39:08,375 DEBUG   HandlerThread:161364 [meta.py:_save_conda():84] save conda done
+2024-10-22 17:39:08,375 DEBUG   HandlerThread:161364 [meta.py:probe():247] probe done
+2024-10-22 17:39:08,480 DEBUG   SenderThread:161364 [sender.py:send():236] send: files
+2024-10-22 17:39:08,480 INFO    SenderThread:161364 [sender.py:_save_file():952] saving file wandb-metadata.json with policy now
+2024-10-22 17:39:08,486 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:39:08,487 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:39:08,516 INFO    HandlerThread:161364 [handler.py:handle_tbrecord():723] handling tbrecord: tbrecord {
+  log_dir: "runs/FactoryTaskAllocationMiC2024-10-22_17-38-49"
+  save: true
+}
+
+2024-10-22 17:39:08,516 DEBUG   HandlerThread:161364 [config_util.py:dict_from_config_file():100] no default config file found in config-defaults.yaml
+2024-10-22 17:39:08,831 DEBUG   SenderThread:161364 [sender.py:send():236] send: telemetry
+2024-10-22 17:39:08,833 DEBUG   SenderThread:161364 [sender.py:send():236] send: tbrecord
+2024-10-22 17:39:08,833 DEBUG   SenderThread:161364 [sender.py:send():236] send: files
+2024-10-22 17:39:08,833 INFO    SenderThread:161364 [sender.py:_save_file():952] saving file events.out.tfevents.1729589948.MS-7E01.160270.0 with policy live
+2024-10-22 17:39:09,199 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/conda-environment.yaml
+2024-10-22 17:39:09,200 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:09,200 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/wandb-metadata.json
+2024-10-22 17:39:09,200 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/events.out.tfevents.1729589948.MS-7E01.160270.0
+2024-10-22 17:39:09,225 INFO    Thread-16 :161364 [upload_job.py:push():138] Uploaded file /tmp/tmpvl1s6ixgwandb/gnqzv7w1-wandb-metadata.json
+2024-10-22 17:39:09,956 INFO    Thread-19 :161364 [upload_job.py:push():138] Uploaded file /tmp/tmpvl1s6ixgwandb/piqp7h01-events.out.tfevents.1729589948.MS-7E01.160270.0
+2024-10-22 17:39:11,200 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:11,733 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: telemetry
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,734 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:11,735 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:12,012 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: log_artifact
+2024-10-22 17:39:12,012 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: log_artifact
+2024-10-22 17:39:12,200 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json
+2024-10-22 17:39:12,201 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/media/table
+2024-10-22 17:39:12,201 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/media
+2024-10-22 17:39:12,551 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: partial_history
+2024-10-22 17:39:13,852 INFO    Thread-21 :161364 [upload_job.py:push():96] Uploaded file /home/xue/.cache/wandb/artifacts/obj/md5/09/01e96eece176ff4d7b2e5b525949f0
+2024-10-22 17:39:14,973 INFO    SenderThread:161364 [sender.py:send_request_log_artifact():1009] logged artifact run-ppio9zao-Parameter - {'id': 'QXJ0aWZhY3Q6MTI4OTk4NDcwNw==', 'digest': '5f55c8a6bee253865efaf96dc3d83aa6', 'state': 'PENDING', 'aliases': [], 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjQ4MDA4NzgwMA==', 'latestArtifact': None}, 'version': 'latest'}
+2024-10-22 17:39:14,974 DEBUG   SenderThread:161364 [sender.py:send():236] send: files
+2024-10-22 17:39:14,974 INFO    SenderThread:161364 [sender.py:_save_file():952] saving file media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json with policy now
+2024-10-22 17:39:14,974 DEBUG   SenderThread:161364 [sender.py:send():236] send: history
+2024-10-22 17:39:14,974 DEBUG   SenderThread:161364 [sender.py:send():236] send: summary
+2024-10-22 17:39:14,976 INFO    SenderThread:161364 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2024-10-22 17:39:14,976 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:14,976 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:14,976 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:14,976 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:14,977 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:14,977 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:14,977 DEBUG   SenderThread:161364 [sender.py:send():236] send: metric
+2024-10-22 17:39:15,201 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/wandb-summary.json
+2024-10-22 17:39:15,764 INFO    Thread-22 :161364 [upload_job.py:push():138] Uploaded file /tmp/tmpvl1s6ixgwandb/l2fn1ebd-media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json
+2024-10-22 17:39:16,202 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:18,202 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:20,203 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:22,203 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:23,834 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:39:23,834 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:39:24,204 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:26,204 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:28,205 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:30,206 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:32,206 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:34,207 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:35,519 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:39:37,208 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:38,208 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/config.yaml
+2024-10-22 17:39:39,209 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:39,293 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:39:39,293 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:39:41,210 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:43,210 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:45,211 INFO    Thread-12 :161364 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241022_173904-ppio9zao/files/output.log
+2024-10-22 17:39:54,658 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:39:54,658 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:40:05,681 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:40:10,013 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:40:10,014 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:40:25,377 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:40:25,377 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:40:35,839 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:40:40,736 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:40:40,736 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:40:56,094 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:40:56,095 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:41:05,991 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:41:11,557 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:41:11,557 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:41:26,917 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:41:26,917 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:41:36,152 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:41:42,278 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:41:42,278 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:41:59,788 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:41:59,789 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:42:06,315 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:42:15,149 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:42:15,149 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:42:30,508 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:42:30,508 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:42:36,474 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:42:46,074 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:42:46,074 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:43:01,439 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:43:01,439 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:43:06,625 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:43:16,794 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:43:16,794 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:43:32,155 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:43:32,155 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:43:36,775 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:43:47,465 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:43:47,465 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:44:02,780 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:44:02,780 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:44:06,928 DEBUG   SenderThread:161364 [sender.py:send():236] send: stats
+2024-10-22 17:44:18,138 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:44:18,138 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status
+2024-10-22 17:44:33,494 DEBUG   HandlerThread:161364 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-22 17:44:33,494 DEBUG   SenderThread:161364 [sender.py:send_request():250] send_request: stop_status

@@ -1,0 +1,220 @@
+2024-10-23 01:21:29,513 INFO    MainThread:1002479 [internal.py:wandb_internal():90] W&B internal server running at pid: 1002479, started at: 2024-10-23 01:21:29.513318
+2024-10-23 01:21:29,525 INFO    WriterThread:1002479 [datastore.py:open_for_write():75] open: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/run-bnzc8ddd.wandb
+2024-10-23 01:21:29,812 DEBUG   SenderThread:1002479 [sender.py:send():236] send: header
+2024-10-23 01:21:29,812 DEBUG   SenderThread:1002479 [sender.py:send():236] send: run
+2024-10-23 01:21:29,827 INFO    SenderThread:1002479 [sender.py:_maybe_setup_resume():493] checking resume status for None/IsaacProduction/bnzc8ddd
+2024-10-23 01:21:30,623 INFO    SenderThread:1002479 [dir_watcher.py:__init__():216] watching files in: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files
+2024-10-23 01:21:30,624 INFO    SenderThread:1002479 [sender.py:_start_run_threads():815] run started: bnzc8ddd with start time 1729617688
+2024-10-23 01:21:30,640 DEBUG   SenderThread:1002479 [sender.py:send():236] send: summary
+2024-10-23 01:21:30,641 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: check_version
+2024-10-23 01:21:30,641 INFO    SenderThread:1002479 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2024-10-23 01:21:30,642 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: check_version
+2024-10-23 01:21:30,718 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: run_start
+2024-10-23 01:21:30,744 DEBUG   HandlerThread:1002479 [meta.py:__init__():35] meta init
+2024-10-23 01:21:30,744 DEBUG   HandlerThread:1002479 [meta.py:__init__():49] meta init done
+2024-10-23 01:21:30,744 DEBUG   HandlerThread:1002479 [meta.py:probe():209] probe
+2024-10-23 01:21:30,752 DEBUG   HandlerThread:1002479 [meta.py:_setup_git():199] setup git
+2024-10-23 01:21:30,760 DEBUG   HandlerThread:1002479 [meta.py:_setup_git():206] setup git done
+2024-10-23 01:21:30,760 DEBUG   HandlerThread:1002479 [meta.py:_save_pip():53] save pip
+2024-10-23 01:21:30,762 DEBUG   HandlerThread:1002479 [meta.py:_save_pip():67] save pip done
+2024-10-23 01:21:30,762 DEBUG   HandlerThread:1002479 [meta.py:_save_conda():74] save conda
+2024-10-23 01:21:31,628 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/requirements.txt
+2024-10-23 01:21:31,628 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/wandb-summary.json
+2024-10-23 01:21:31,628 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/conda-environment.yaml
+2024-10-23 01:21:31,925 DEBUG   HandlerThread:1002479 [meta.py:_save_conda():84] save conda done
+2024-10-23 01:21:31,925 DEBUG   HandlerThread:1002479 [meta.py:probe():247] probe done
+2024-10-23 01:21:32,052 DEBUG   SenderThread:1002479 [sender.py:send():236] send: files
+2024-10-23 01:21:32,053 INFO    SenderThread:1002479 [sender.py:_save_file():952] saving file wandb-metadata.json with policy now
+2024-10-23 01:21:32,057 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:21:32,057 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:21:32,089 INFO    HandlerThread:1002479 [handler.py:handle_tbrecord():723] handling tbrecord: tbrecord {
+  log_dir: "runs/FactoryTaskAllocationMiC2024-10-23_01-21-13"
+  save: true
+}
+
+2024-10-23 01:21:32,090 DEBUG   HandlerThread:1002479 [config_util.py:dict_from_config_file():100] no default config file found in config-defaults.yaml
+2024-10-23 01:21:32,439 DEBUG   SenderThread:1002479 [sender.py:send():236] send: telemetry
+2024-10-23 01:21:32,440 DEBUG   SenderThread:1002479 [sender.py:send():236] send: tbrecord
+2024-10-23 01:21:32,440 DEBUG   SenderThread:1002479 [sender.py:send():236] send: files
+2024-10-23 01:21:32,440 INFO    SenderThread:1002479 [sender.py:_save_file():952] saving file events.out.tfevents.1729617692.MS-7E01.1001332.0 with policy live
+2024-10-23 01:21:32,624 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/conda-environment.yaml
+2024-10-23 01:21:32,625 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:32,625 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/wandb-metadata.json
+2024-10-23 01:21:32,625 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/events.out.tfevents.1729617692.MS-7E01.1001332.0
+2024-10-23 01:21:32,819 INFO    Thread-16 :1002479 [upload_job.py:push():138] Uploaded file /tmp/tmph111mliuwandb/3jtyio2s-wandb-metadata.json
+2024-10-23 01:21:33,048 INFO    Thread-19 :1002479 [upload_job.py:push():138] Uploaded file /tmp/tmph111mliuwandb/1op7xoqt-events.out.tfevents.1729617692.MS-7E01.1001332.0
+2024-10-23 01:21:34,625 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:35,606 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,607 DEBUG   SenderThread:1002479 [sender.py:send():236] send: telemetry
+2024-10-23 01:21:35,607 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,609 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,610 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:35,954 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: log_artifact
+2024-10-23 01:21:35,955 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: log_artifact
+2024-10-23 01:21:36,405 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: partial_history
+2024-10-23 01:21:36,626 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json
+2024-10-23 01:21:36,626 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/media
+2024-10-23 01:21:36,626 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_created():269] file/dir created: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/media/table
+2024-10-23 01:21:38,626 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:38,979 INFO    Thread-21 :1002479 [upload_job.py:push():96] Uploaded file /home/xue/.cache/wandb/artifacts/obj/md5/09/01e96eece176ff4d7b2e5b525949f0
+2024-10-23 01:21:40,253 INFO    SenderThread:1002479 [sender.py:send_request_log_artifact():1009] logged artifact run-bnzc8ddd-Parameter - {'id': 'QXJ0aWZhY3Q6MTI5MDM5MzA4NQ==', 'digest': '5f55c8a6bee253865efaf96dc3d83aa6', 'state': 'PENDING', 'aliases': [], 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjQ4MDIxMjU5Mw==', 'latestArtifact': None}, 'version': 'latest'}
+2024-10-23 01:21:40,253 DEBUG   SenderThread:1002479 [sender.py:send():236] send: files
+2024-10-23 01:21:40,253 INFO    SenderThread:1002479 [sender.py:_save_file():952] saving file media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json with policy now
+2024-10-23 01:21:40,253 DEBUG   SenderThread:1002479 [sender.py:send():236] send: history
+2024-10-23 01:21:40,253 DEBUG   SenderThread:1002479 [sender.py:send():236] send: summary
+2024-10-23 01:21:40,255 INFO    SenderThread:1002479 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2024-10-23 01:21:40,255 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:40,255 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:40,255 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:40,255 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:40,255 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:40,256 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:40,256 DEBUG   SenderThread:1002479 [sender.py:send():236] send: metric
+2024-10-23 01:21:40,627 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:40,627 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/wandb-summary.json
+2024-10-23 01:21:41,993 INFO    Thread-22 :1002479 [upload_job.py:push():138] Uploaded file /tmp/tmph111mliuwandb/qee70pss-media/table/Parameter_0_8b0a901f4590b3b0cb7f.table.json
+2024-10-23 01:21:42,628 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:44,629 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:46,630 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:47,446 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:21:47,446 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:21:48,631 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:51,632 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:53,633 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:55,634 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:57,635 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:21:58,965 DEBUG   SenderThread:1002479 [sender.py:send():236] send: stats
+2024-10-23 01:21:59,636 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:00,636 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/config.yaml
+2024-10-23 01:22:01,637 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:02,786 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:22:02,786 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:22:03,638 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:05,639 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:07,640 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:09,641 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:11,642 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:13,643 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:16,644 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:18,258 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:22:18,258 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:22:18,645 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:20,646 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:22,646 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:24,647 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:26,648 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:28,648 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:29,172 DEBUG   SenderThread:1002479 [sender.py:send():236] send: stats
+2024-10-23 01:22:30,649 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:32,650 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:33,551 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:22:33,552 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:22:34,651 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:36,652 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:38,653 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:40,654 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:43,655 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:45,656 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:47,657 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:48,937 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:22:48,937 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:22:49,658 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:51,658 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:53,659 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:55,660 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:57,660 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:22:59,352 DEBUG   SenderThread:1002479 [sender.py:send():236] send: stats
+2024-10-23 01:22:59,661 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:01,662 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:03,662 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:04,271 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:23:04,271 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:23:06,663 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:08,664 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:10,665 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:12,666 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:14,667 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:16,668 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:18,670 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:19,733 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:23:19,733 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:23:20,670 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:22,671 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:24,672 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:26,673 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:28,673 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:29,537 DEBUG   SenderThread:1002479 [sender.py:send():236] send: stats
+2024-10-23 01:23:30,674 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:33,675 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:35,025 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:23:35,025 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:23:35,676 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:37,676 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:37,764 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: partial_history
+2024-10-23 01:23:37,765 DEBUG   SenderThread:1002479 [sender.py:send():236] send: history
+2024-10-23 01:23:37,765 DEBUG   SenderThread:1002479 [sender.py:send():236] send: summary
+2024-10-23 01:23:37,765 INFO    SenderThread:1002479 [sender.py:_save_file():952] saving file wandb-summary.json with policy end
+2024-10-23 01:23:38,677 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/wandb-summary.json
+2024-10-23 01:23:39,677 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:41,678 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:43,678 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:45,679 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:47,680 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:49,681 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:50,350 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:23:50,350 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:23:51,682 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:53,682 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:55,683 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:57,684 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:23:59,726 DEBUG   SenderThread:1002479 [sender.py:send():236] send: stats
+2024-10-23 01:24:00,686 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:02,687 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:04,688 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:05,710 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:24:05,710 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:24:06,689 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:08,690 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:10,690 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:12,691 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:14,692 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:16,692 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:18,693 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:20,694 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:21,072 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:24:21,072 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:24:22,695 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:25,696 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:27,696 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:29,697 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:29,920 DEBUG   SenderThread:1002479 [sender.py:send():236] send: stats
+2024-10-23 01:24:31,699 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:33,699 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:35,700 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:36,435 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:24:36,435 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:24:37,701 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:39,702 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:41,703 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:43,704 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:45,704 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:47,705 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:50,706 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:51,810 DEBUG   HandlerThread:1002479 [handler.py:handle_request():140] handle_request: stop_status
+2024-10-23 01:24:51,810 DEBUG   SenderThread:1002479 [sender.py:send_request():250] send_request: stop_status
+2024-10-23 01:24:52,706 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:54,707 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:56,707 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:24:58,708 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:25:00,096 DEBUG   SenderThread:1002479 [sender.py:send():236] send: stats
+2024-10-23 01:25:00,709 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:25:02,709 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
+2024-10-23 01:25:04,710 INFO    Thread-12 :1002479 [dir_watcher.py:_on_file_modified():286] file/dir modified: /home/xue/work/IsaacProduction/wandb/run-20241023_012128-bnzc8ddd/files/output.log
