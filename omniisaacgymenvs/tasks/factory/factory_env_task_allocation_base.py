@@ -1128,7 +1128,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         # self.max_speed_left_right = 0.1
         # self.max_speed_up_down = 0.1
         # self.max_speed_grip = 0.1
-        speed = 0.3
+        speed = 0.6
         self.operator_gripper = torch.tensor([speed]*10, device='cuda:0')
         self.gripper_inner_task_dic = {0: "reset", 1:"pick_cut", 2:"place_cut_to_inner_station", 3:"place_cut_to_outer_station", 
                                     4:"pick_product_from_inner", 5:"pick_product_from_outer", 6:"place_product_from_inner", 7:"place_product_from_outer"}
@@ -1145,7 +1145,8 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         # self.max_speed_welder = 0.1
         self.welder_inner_oper_time = 0
         self.welder_outer_oper_time = 0
-        self.operator_welder = torch.tensor([0.2], device='cuda:0')
+        self.welding_once_time = 20
+        self.operator_welder = torch.tensor([0.4], device='cuda:0')
         self.welder_task_dic = {0: "reset", 1:"weld_left", 2:"weld_right", 3:"weld_middle",}
         self.welder_state_dic = {0: "free_empty", 1: "moving_left", 2:"welding_left", 3:"welded_left", 4:"moving_right",
                                  5:"welding_right", 6:"rotate_and_welding", 7:"welded_right", 8:"welding_middle" , 9:"welded_upper"}
@@ -1158,7 +1159,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         
         #station
         # self.welder_inner_oper_time = 10
-        self.operator_station = torch.tensor([0.1, 0.1, 0.1, 0.1], device='cuda:0')
+        self.operator_station = torch.tensor([0.3, 0.3, 0.3, 0.3], device='cuda:0')
         self.station_task_left_dic = {0: "reset", 1:"weld"}
         self.station_state_left_dic = {0: "reset_empty", 1:"loading", 2:"rotating", 3:"waiting", 4:"welding", 5:"welded", 6:"finished", -1:"resetting"}
         self.station_task_inner_left = 0
@@ -1282,10 +1283,19 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
                 'initial_box_pose_0':[[-22.0, 14.0, 0], [-12.4, 14.0, 0]], 'initial_box_pose_1':[[-22.0, 14.0, 0], [-12.4, 14.0, 0]]},
         }
         if from_file == True:
+            sampling_flag = True 
             with open(os.path.expanduser(self.cfg_env.env.route_character_file_path), 'rb') as f:
-                self.task_manager.characters.routes_dic = pickle.load(f)
+                dic = pickle.load(f)
+                if sampling_flag:
+                    self.task_manager.characters.routes_dic = self.routes_down_sampling(dic)
+                else:
+                    self.task_manager.characters.routes_dic = dic
             with open(os.path.expanduser(self.cfg_env.env.route_agv_file_path), 'rb') as f:
-                self.task_manager.agvs.routes_dic = pickle.load(f)
+                dic = pickle.load(f)
+                if sampling_flag:
+                    self.task_manager.agvs.routes_dic = self.routes_down_sampling(dic)
+                else:
+                    self.task_manager.agvs.routes_dic = dic
         else:
             self.xyResolution = 5
             self.obstacleX, self.obstacleY = hybridAStar.map_png(self.xyResolution)
@@ -1295,7 +1305,24 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             self.task_manager.agvs.routes_dic = self.generate_routes(self.task_manager.agvs.poses_dic, os.path.expanduser(self.cfg_env.env.route_agv_file_path), have_problem_routes_agv)
 
 
-    
+    def routes_down_sampling(self, routes_dic): 
+        min_len = 2e32
+        max_len = -1
+        def down_sampling_helper(route):
+            interval = 5
+            x,y,yaw = route
+            x = [x[0]] + x[1:-1][::interval] + [x[-1]]
+            y = [y[0]] + y[1:-1][::interval] + [y[-1]]
+            yaw = [yaw[0]] + yaw[1:-1][::interval] + [yaw[-1]]
+            return x,y,yaw
+        for (key, route_dic) in routes_dic.items():
+            for (_key, route) in route_dic.items():
+                route_dic[_key] = down_sampling_helper(route)
+                x = route_dic[_key][0]
+                min_len = min(min_len, len(x))
+                max_len = max(max_len, len(x))
+            routes_dic[key] = route_dic
+        return routes_dic
     def generate_routes(self, pose_dic : dict, file_path, have_problem_routes: dict):
         path = os.path.expanduser(file_path)
         routes_dic = {}
