@@ -163,9 +163,9 @@ placing cube时 选择inner还是outer的规则也要优化，优先选已经完
 
 # 10.23
 ！！collect product 以及loading的环节 的规则比较难写 可以尝试用RL做突破 这个地方比较灵活！
-957 inner length
-
-
+957 inner length 870 outer length 
+max env step 也要改
+三段式exploration
 # ignore
 
 __pycache___

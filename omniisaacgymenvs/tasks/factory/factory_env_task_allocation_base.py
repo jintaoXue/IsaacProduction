@@ -1198,6 +1198,8 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         '''progress step'''
         self.pre_progress_step = 0
         self.available_task_dic = {'none': -1}
+        '''reward_test'''
+        # self.reward_test_list = []
         return
     
     def post_next_group_to_be_processed_step(self):

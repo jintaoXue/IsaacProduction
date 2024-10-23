@@ -40,10 +40,11 @@ class RainbowAgent():
         self.max_steps = config.get("max_steps", int(5e9))
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
-        self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
-        self.num_steps_per_episode = config.get("num_steps_per_episode", 100)
-        self.max_env_steps = config.get("horizon_length", 50) # temporary, in future we will use other approach
-        self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
+        self.num_warmup_steps = config.get('num_warmup_steps', int(13e3))
+        self.demonstration_steps = config.get('demonstration_steps', int(3e3))
+        self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
+        self.max_env_steps = config.get("horizon_length", 40) # temporary, in future we will use other approach
+        # self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
         #########buffer
@@ -195,13 +196,15 @@ class RainbowAgent():
         wandb.define_metric("Train/step")
         wandb.define_metric("Train/buffer_size", step_metric="Train/step")
         wandb.define_metric("Train/loss", step_metric="Train/step")
-        wandb.define_metric("Train/num_episode", step_metric="Train/step")
+        wandb.define_metric("Train/train_epoch", step_metric="Train/step")
 
-        wandb.define_metric("Metrics/Mrewards", step_metric="Train/step")
-        wandb.define_metric("Metrics/MLen", step_metric="Train/step")
+        wandb.define_metric("Train/Mrewards", step_metric="Train/step")
+        wandb.define_metric("Train/MLen", step_metric="Train/step")
         wandb.define_metric("Metrics/step_episode", step_metric="Train/step")
         wandb.define_metric("Metrics/EpRet", step_metric="Metrics/step_episode")
         wandb.define_metric("Metrics/EpLen", step_metric="Metrics/step_episode")
+        wandb.define_metric("Metrics/EpEnvLen", step_metric="Metrics/step_episode")
+
         wandb.define_metric("Metrics/EpTime", step_metric="Metrics/step_episode")
         wandb.define_metric("Metrics/EpProgress", step_metric="Metrics/step_episode")
         wandb.define_metric("Metrics/EpRetAction", step_metric="Metrics/step_episode")
@@ -217,6 +220,7 @@ class RainbowAgent():
         wandb.define_metric("Evaluate/step_episode", step_metric="Evaluate/step")
         wandb.define_metric("Evaluate/EpRet", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpLen", step_metric="Evaluate/step_episode")
+        wandb.define_metric("Evaluate/EpEnvLen", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpTime", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpProgress", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpRetAction", step_metric="Evaluate/step_episode")
@@ -417,24 +421,31 @@ class RainbowAgent():
         self.game_rewards.clear()
         self.game_lengths.clear()
         self.mean_rewards = self.last_mean_rewards = -1000000000
-
+    
+    def train_epoch(self):
+        # random_exploration = self.epoch_num < self.num_warmup_steps
+        return self.play_steps()
+    
     def play_steps(self, random_exploration = False):
         total_time_start = time.time()
         total_update_time = 0
         total_time = 0
         step_time = 0.0
         loss = None
-        for s in range(int(self.num_steps_per_episode/self.num_actors)):
+        for s in range(int(self.num_steps_per_epoch/self.num_actors)):
             obs : dict = self.obs
             random_exploration = self.step_num < self.num_warmup_steps
             self.set_eval()
             if self.step_num % self.update_frequency == 0:
                 self.reset_noise()
             if random_exploration:
-                if self.env_rule_based_exploration:
+                if self.step_num < self.demonstration_steps:
                     action = None
-                else:
-                    action = torch.randint(low=0, high = self.actions_num, size = (self.num_actors, 1), device=self._device) 
+                else: 
+                    action_mask = obs['action_mask']
+                    indexs = action_mask.nonzero()
+                    index = torch.randint(low=0, high = len(indexs), size = (1,), device=self._device) 
+                    action = indexs[index]
             else:
                 with torch.no_grad():
                     action = self.act(obs).unsqueeze(0)
@@ -474,6 +485,7 @@ class RainbowAgent():
                         'Metrics/step_episode': self.episode_num,
                         'Metrics/EpRet': self.current_rewards,
                         'Metrics/EpLen': self.current_lengths,
+                        'Metrics/EpEnvLen': infos['env_length'],
                         "Metrics/EpTime": self.current_ep_time,
                         "Metrics/EpProgress": infos['progress'],
                         "Metrics/EpRetAction": self.current_rewards_action,
@@ -525,10 +537,6 @@ class RainbowAgent():
         play_time = total_time - total_update_time
 
         return step_time, play_time, total_update_time, total_time, loss
-
-    def train_epoch(self):
-        # random_exploration = self.epoch_num < self.num_warmup_steps
-        return self.play_steps()
     
     def evaluate_epoch(self):
         total_time_start = time.time()
@@ -567,6 +575,7 @@ class RainbowAgent():
                     'Evaluate/step': self.evaluate_step_num,
                     'Evaluate/step_episode': self.evaluate_episode_num,
                     'Evaluate/EpRet': self.evaluate_current_rewards,
+                    'Evaluate/EpEnvLen': infos['env_length'],
                     'Evaluate/EpLen': self.evaluate_current_lengths,
                     "Evaluate/EpTime": self.evaluate_current_ep_time,
                     "Evaluate/EpProgress": infos['progress'],
@@ -603,16 +612,16 @@ class RainbowAgent():
             else:
                 step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch()
                 total_time += epoch_total_time
-                # self.step_num += self.num_steps_per_episode
+                # self.step_num += self.num_steps_per_epoch
 
-                fps_step = self.num_steps_per_episode / step_time
-                fps_step_inference = self.num_steps_per_episode / play_time
-                fps_total = self.num_steps_per_episode / epoch_total_time
+                fps_step = self.num_steps_per_epoch / step_time
+                fps_step_inference = self.num_steps_per_epoch / play_time
+                fps_total = self.num_steps_per_epoch / epoch_total_time
 
                 if self.use_wandb:
                     wandb.log({
                             "Train/step": self.step_num,
-                            "Train/num_episode": self.episode_num,
+                            "Train/train_epoch": self.epoch_num,
                             'Train/buffer_size': self.replay_buffer.transitions.index,
                         })  
                     if self.game_rewards.current_size > 0:
@@ -653,8 +662,8 @@ class RainbowAgent():
                     should_exit = False
 
                     if self.save_freq > 0:
-                        if self.episode_num % self.save_freq == 0:
-                            self.save(os.path.join(self.nn_dir, 'last_' + checkpoint_name))
+                        if self.epoch_num % self.save_freq == 0:
+                            self.save(os.path.join(self.nn_dir, checkpoint_name))
                                 # Save model parameters on current device (don't move model between devices)
 
                     if mean_rewards > self.last_mean_rewards and self.episode_num >= self.save_best_after:

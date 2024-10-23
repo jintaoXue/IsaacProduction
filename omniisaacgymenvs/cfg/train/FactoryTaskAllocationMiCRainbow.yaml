@@ -27,20 +27,20 @@ params:
     score_to_win: 20000
     # max_epochs: ${resolve_default:200,${....max_iterations}}
     save_best_after: 50
-    save_frequency: 1000
+    save_frequency: 500
     print_stats: True
     grad_norm: 1.0
     entropy_coef: 0.0
     truncate_grads: False
     e_clip: 0.2
-    horizon_length: 2500
+    horizon_length: 40
     minibatch_size: 4
     mini_epochs: 8
     critic_coef: 2
     clip_value: True
     seq_length: 4
     bounds_loss_coef: 0.0001
-    env_rule_based_exploration: True
+    # env_rule_based_exploration: True
     evaluate: ${....evaluate}
     load_dir: /FactoryTaskAllocationMiC2024-10-14_20-49-44/nn
     # load_dir: /FactoryTaskAllocationMiC2024-10-10_20-27-38/nn

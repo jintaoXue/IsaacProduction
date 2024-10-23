@@ -88,7 +88,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     break
                 if self._evaluate:
                     self.world.step(render=True)
-                self.world.step(render=True)
             
         return obs, self.rew_buf, self.reset_buf, self.extras
     
@@ -111,7 +110,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
 
         """Compute reward at current timestep."""
-        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.05
+        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.01
         progress = self.materials.progress()
         if is_last_step: 
             if task_finished:
@@ -125,10 +124,12 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 rew_task = (progress - self.materials.pre_progress)
 
         self.rew_buf[0] = self.reward_action + reward_time + rew_task
-        self.pre_progress_step = self.progress_buf[0]
+        self.pre_progress_step = self.progress_buf[0].clone()
         self.materials.pre_progress = progress
         self.extras['progress'] = progress
         self.extras['rew_action'] = self.reward_action
+        self.extras['env_length'] = self.progress_buf[0].clone()
+        # self.reward_test_list.append(self.rew_buf[0].clone())
         return
     
     def update_available_task(self):
@@ -780,6 +781,21 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                         assert self.station_state_outer_middle == 0
                         self.gripper_inner_task = 3 #place on outer station
                         self.materials.outer_cube_processing_index = pick_up_place_cube_index
+                    # if self.station_state_inner_middle == 0 and (self.station_state_outer_middle == 0 and self.gripper_outer_state == 0):
+                    #     no_load = self.materials.inner_hoop_processing_index < 0 and self.materials.outer_hoop_processing_index < 0
+                    #     if no_load or self.materials.outer_hoop_processing_index >= 0:
+                    #         self.gripper_inner_task = 3 #place on outer station
+                    #         self.materials.outer_cube_processing_index = pick_up_place_cube_index
+                    #     else:
+                    #         self.gripper_inner_task = 2 #place on inner station
+                    #         self.materials.inner_cube_processing_index = pick_up_place_cube_index
+                    # elif self.station_state_outer_middle == 0:
+                    #     self.gripper_inner_task = 3 #place on outer station
+                    #     self.materials.outer_cube_processing_index = pick_up_place_cube_index
+                    # else:
+                    #     assert self.station_state_inner_middle == 0
+                    #     self.gripper_inner_task = 2 #place on inner station
+                    #     self.materials.inner_cube_processing_index = pick_up_place_cube_index
             elif self.gripper_inner_task == 4: #pick_product_from_inner
                 target_pose = torch.tensor([[-2.55, -1, -0.8, 0, 0.045, -0.045, -0.045, -0.045, 0.045,  0.045]], device=self.cuda_device)
                 next_pos_inner, delta_pos, move_done = self.get_gripper_moving_pose(gripper_pose_inner[0], target_pose[0], 'pick')
