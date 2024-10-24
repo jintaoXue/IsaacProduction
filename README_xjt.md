@@ -166,8 +166,12 @@ placing cube时 选择inner还是outer的规则也要优化，优先选已经完
 957 inner length 870 outer length 
 max env step 也要改
 三段式exploration
-# ignore
 
+# 10.24
+可以检查一下random exploration的指标情况 有助于改善reward 函数
+
+
+# ignore
 __pycache___
 __pycache__/
 **/runs/

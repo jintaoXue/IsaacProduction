@@ -43,7 +43,7 @@ class RainbowAgent():
         self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
         self.demonstration_steps = config.get('demonstration_steps', int(2e3))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
-        self.max_env_steps = config.get("horizon_length", 30) # temporary, in future we will use other approach
+        self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
         # self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
@@ -473,7 +473,7 @@ class RainbowAgent():
             self.game_rewards.update(self.current_rewards[done_indices])
             self.game_lengths.update(self.current_lengths[done_indices])
 
-            no_timeouts = self.current_lengths != self.max_env_steps
+            no_timeouts = self.current_lengths <= self.max_env_steps
             dones = dones * no_timeouts
             not_dones = 1.0 - dones.float()
 
