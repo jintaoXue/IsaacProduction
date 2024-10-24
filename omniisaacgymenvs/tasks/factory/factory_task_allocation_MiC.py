@@ -93,17 +93,18 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
     
     def caculate_metric_action(self, actions):
         self.reward_action = None
+        reward = 0.7 
         task_id = actions[0] - 1
         task = self.task_manager.task_dic[task_id.item()]
         if task not in self.available_task_dic.keys():
-            self.reward_action = -1
+            self.reward_action = -reward
         elif task == 'none':
             if len(self.available_task_dic.keys()) > 1:
-                self.reward_action = -1
+                self.reward_action = -reward
             else:
-                self.reward_action = 0.
+                self.reward_action = 0.1
         else:
-            self.reward_action = 1.
+            self.reward_action = reward
         
     def calculate_metrics(self):
         task_finished = self.materials.done()

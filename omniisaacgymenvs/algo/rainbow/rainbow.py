@@ -40,10 +40,10 @@ class RainbowAgent():
         self.max_steps = config.get("max_steps", int(5e9))
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
-        self.num_warmup_steps = config.get('num_warmup_steps', int(13e3))
-        self.demonstration_steps = config.get('demonstration_steps', int(3e3))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
+        self.demonstration_steps = config.get('demonstration_steps', int(2e3))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
-        self.max_env_steps = config.get("horizon_length", 40) # temporary, in future we will use other approach
+        self.max_env_steps = config.get("horizon_length", 30) # temporary, in future we will use other approach
         # self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
@@ -550,7 +550,7 @@ class RainbowAgent():
                 action = self.act(obs).unsqueeze(0)
 
             step_start = time.time()
-            action = None
+            # action = None
             with torch.no_grad():
                 next_obs, rewards, dones, infos, action = self.env_step(action)
             # if self.reward_clip > 0:
@@ -626,8 +626,8 @@ class RainbowAgent():
                         })  
                     if self.game_rewards.current_size > 0:
                         wandb.log({
-                            'Metrics/Mrewards': self.game_rewards.get_mean(),
-                            'Metrics/MLen': self.game_lengths.get_mean(),
+                            'Train/Mrewards': self.game_rewards.get_mean(),
+                            'Train/MLen': self.game_lengths.get_mean(),
                         })  
                     # if self.step_num >= self.num_warmup_steps and loss is not None:
                     #     assert type(loss.mean().item()) == float, "not approprate loss"
