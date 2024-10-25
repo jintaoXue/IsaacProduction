@@ -170,7 +170,8 @@ max env step 也要改
 # 10.24
 可以检查一下random exploration的指标情况 有助于改善reward 函数
 
-
+# 10.25
+验证训练结果
 # ignore
 __pycache___
 __pycache__/
