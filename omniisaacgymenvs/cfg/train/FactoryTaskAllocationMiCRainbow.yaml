@@ -42,9 +42,13 @@ params:
     bounds_loss_coef: 0.0001
     # env_rule_based_exploration: True
     evaluate: ${....evaluate}
-    load_dir: /FactoryTaskAllocationMiC2024-10-23_21-50-02/nn
-    # load_dir: /FactoryTaskAllocationMiC2024-10-14_20-49-44/nn
-    # load_dir: /FactoryTaskAllocationMiC2024-10-10_20-27-38/nn
-    load_name: /FactoryTaskAllocationMiC_ep_5538_rew_14.695084.pth
-    # load_name: /last_FactoryTaskAllocationMiC_ep_2000_rew_17.879822.pth
-    # load_name: /last_FactoryTaskAllocationMiC_ep_2860_rew_24.038553.pth
+    # load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
+    # load_name: /FactoryTaskAllocationMiC_ep_11852_rew_4.8871512.pth
+
+    # load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
+    # load_name: /FactoryTaskAllocationMiC_ep_12919_rew_-3.2757943.pth    
+    
+    load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
+    load_name: /FactoryTaskAllocationMiC_ep_14079_rew_8.060657.pth
+   
+

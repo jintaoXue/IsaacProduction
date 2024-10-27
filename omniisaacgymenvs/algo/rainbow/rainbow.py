@@ -35,13 +35,14 @@ class RainbowAgent():
         self.discount = config['discount']
         self.norm_clip = config.get('norm_clip', 10)
         ###########for agent training
-        self.update_frequency = config.get('update_frequency', 4)
+        self.update_frequency = config.get('update_frequency', 100)
+        self.evaluate_interval = config.get('evaluate_interval', 50)
         self.target_update = config.get('target_update', int(1e2))
         self.max_steps = config.get("max_steps", int(5e9))
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
         self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
-        self.demonstration_steps = config.get('demonstration_steps', int(2e3))
+        self.demonstration_steps = config.get('demonstration_steps', int(1))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
         # self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
@@ -435,7 +436,7 @@ class RainbowAgent():
         for s in range(int(self.num_steps_per_epoch/self.num_actors)):
             obs : dict = self.obs
             random_exploration = self.step_num < self.num_warmup_steps
-            self.set_eval()
+            self.set_train()
             if self.step_num % self.update_frequency == 0:
                 self.reset_noise()
             if random_exploration:
@@ -489,7 +490,14 @@ class RainbowAgent():
                         "Metrics/EpTime": self.current_ep_time,
                         "Metrics/EpProgress": infos['progress'],
                         "Metrics/EpRetAction": self.current_rewards_action,
-                    })  
+                    })
+                next_obs = self.env_reset()   
+                if self.episode_num % self.evaluate_interval == 0:
+                    env_len, progress, ep_reward = self.evaluate_epoch()
+                    if progress == 1 and env_len < infos['max_env_len']:
+                        checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(env_len) + '_rew_' + "{:.2f}".format(ep_reward)
+                        self.save(os.path.join(self.nn_dir, checkpoint_name)) 
+
             self.current_rewards = self.current_rewards * not_dones
             self.current_lengths = self.current_lengths * not_dones
             self.current_ep_time = self.current_ep_time * not_dones
@@ -524,7 +532,7 @@ class RainbowAgent():
                                 "Train/loss": loss.mean().item(),
                             })
                         time_now = datetime.now().strftime("_%d-%H-%M-%S")   
-                        print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item()) 
+                        print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item())
 
             # Update target network
             if self.step_num % self.target_update == 0:
@@ -584,22 +592,22 @@ class RainbowAgent():
                 param_table = wandb.Table(columns=["action_list"], data=[[action_info_list]])
                 wandb.log({"Actions": param_table}) 
                 action_info_list = []
-
+                next_obs = self.env_reset() 
+                ep_reward = self.evaluate_current_rewards
             self.evaluate_current_rewards = self.evaluate_current_rewards * not_dones
             self.evaluate_current_lengths = self.evaluate_current_lengths * not_dones
             self.evaluate_current_ep_time = self.evaluate_current_ep_time * not_dones
             self.evaluate_current_rewards_action = self.evaluate_current_rewards_action * not_dones
-            if dones[0]:
-                self.evaluate_episode_num += 1    
-                break
-
             self.obs = next_obs.copy()
+            if dones[0]:
+                self.evaluate_episode_num += 1  
+                break
 
         total_time_end = time.time()
         total_time = total_time_end - total_time_start
 
-        return 
-
+        return infos['env_length'], infos['progress'], ep_reward
+    
     def train(self):
         self.init_tensors()
         total_time = 0
@@ -661,13 +669,13 @@ class RainbowAgent():
 
                     should_exit = False
 
-                    if self.save_freq > 0:
-                        if self.epoch_num % self.save_freq == 0:
-                            self.save(os.path.join(self.nn_dir, checkpoint_name))
+                    # if self.save_freq > 0:
+                    #     if self.epoch_num % self.save_freq == 0:
+                    #         self.save(os.path.join(self.nn_dir, checkpoint_name))
                                 # Save model parameters on current device (don't move model between devices)
 
                     if mean_rewards > self.last_mean_rewards and self.episode_num >= self.save_best_after:
-                        print('saving next best rewards: ', mean_rewards)
+                        # print('saving next best rewards: ', mean_rewards)
                         self.last_mean_rewards = mean_rewards
                         self.save(os.path.join(self.nn_dir, self.config['name']))
                         if self.last_mean_rewards > self.config.get('score_to_win', float('inf')):

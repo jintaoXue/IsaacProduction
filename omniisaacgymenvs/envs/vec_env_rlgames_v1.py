@@ -418,6 +418,7 @@ class VecEnvRLGames(VecEnvBase):
         print(f"[{now}] Running RL reset")
 
         self._task.reset()
+        self._task.reset_step()
         actions = torch.zeros((self.num_envs, self._task._dim_actions), device=self._task.rl_device)
         obs_dict, _, _, _, _ = self.step(actions)
 

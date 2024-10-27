@@ -93,7 +93,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
     
     def caculate_metric_action(self, actions):
         self.reward_action = None
-        reward = 0.7 
+        reward = 0.2
         task_id = actions[0] - 1
         task = self.task_manager.task_dic[task_id.item()]
         if task not in self.available_task_dic.keys():
@@ -111,7 +111,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
 
         """Compute reward at current timestep."""
-        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.01
+        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.006
         progress = self.materials.progress()
         if is_last_step: 
             if task_finished:
@@ -120,7 +120,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 rew_task = -1 + self.materials.progress()
         else:
             if task_finished:
-                rew_task = 1 
+                rew_task = 1.5 
             else:
                 rew_task = (progress - self.materials.pre_progress)
 
@@ -130,6 +130,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.extras['progress'] = progress
         self.extras['rew_action'] = self.reward_action
         self.extras['env_length'] = self.progress_buf[0].clone()
+        self.extras['max_env_len'] = self.max_episode_length - 1
         # self.reward_test_list.append(self.rew_buf[0].clone())
         return
     
