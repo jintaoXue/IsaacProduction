@@ -225,7 +225,7 @@ class RainbowAgent():
         wandb.define_metric("Evaluate/EpTime", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpProgress", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpRetAction", step_metric="Evaluate/step_episode")
-
+        self.evaluate_table = wandb.Table(columns=["env_length", "action_seq", "progress"])
         return
     
     # Resets noisy weights in all linear layers (of online net only)
@@ -588,9 +588,10 @@ class RainbowAgent():
                     "Evaluate/EpTime": self.evaluate_current_ep_time,
                     "Evaluate/EpProgress": infos['progress'],
                     "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
-                })    
-                param_table = wandb.Table(columns=["action_list"], data=[[action_info_list]])
-                wandb.log({"Actions": param_table}) 
+                })   
+                if infos['env_length'] < infos['max_env_len'] and infos['progress'] == 1:
+                    self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
+                    wandb.log({"Actions": self.evaluate_table}) 
                 action_info_list = []
                 next_obs = self.env_reset() 
                 ep_reward = self.evaluate_current_rewards
@@ -677,7 +678,7 @@ class RainbowAgent():
                     if mean_rewards > self.last_mean_rewards and self.episode_num >= self.save_best_after:
                         # print('saving next best rewards: ', mean_rewards)
                         self.last_mean_rewards = mean_rewards
-                        self.save(os.path.join(self.nn_dir, self.config['name']))
+                        # self.save(os.path.join(self.nn_dir, self.config['name']))
                         if self.last_mean_rewards > self.config.get('score_to_win', float('inf')):
                             print('Maximum reward achieved. Network won!')
                             # self.save(os.path.join(self.nn_dir, checkpoint_name))

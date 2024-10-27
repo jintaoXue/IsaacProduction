@@ -182,8 +182,8 @@ max env step 也要改
 ['bending_tube_preparing', 'hoop_preparing', 'collect_product', 'cutting_cube', 'bending_tube_loading_outer', 'hoop_loading_inner', 'bending_tube_loading_inner', 'hoop_loading_outer', 'cutting_cube', 'bending_tube_loading_inner', 'cutting_cube', 'hoop_loading_inner', 'bending_tube_loading_outer', 'bending_tube_preparing', 'hoop_loading_outer', 'cutting_cube', 'hoop_preparing', 'bending_tube_loading_inner', 'hoop_loading_inner', 'cutting_cube', 'placing_product', 'collect_product', 'placing_product']
 
 
-14079
- 
+14079 981
+ ['bending_tube_preparing', 'hoop_preparing', 'collect_product', 'cutting_cube', 'bending_tube_loading_outer', 'hoop_loading_outer', 'bending_tube_loading_inner', 'hoop_loading_inner', 'cutting_cube', 'bending_tube_loading_inner', 'cutting_cube', 'hoop_loading_inner', 'bending_tube_loading_outer', 'bending_tube_preparing', 'hoop_loading_outer', 'cutting_cube', 'hoop_preparing', 'bending_tube_loading_inner', 'hoop_loading_inner', 'cutting_cube', 'placing_product', 'collect_product', 'placing_product']
 # 10.27
 length 加 assert
 save model的方式要改一下 可以通过evaluate 的方式

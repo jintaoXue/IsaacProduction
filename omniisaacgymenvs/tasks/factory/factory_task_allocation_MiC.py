@@ -51,10 +51,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
     def pre_physics_step(self, actions):
         actions = self.post_task_manager_step(actions)
-        if self._evaluate:
-            task_id = actions[0] - 1
-            task = self.task_manager.task_dic[task_id.item()]
-            self.extras['action_info'] = task
+        task_id = actions[0] - 1
+        task = self.task_manager.task_dic[task_id.item()]
+        self.extras['action_info'] = task
         self.caculate_metric_action(actions)
         return actions
 
