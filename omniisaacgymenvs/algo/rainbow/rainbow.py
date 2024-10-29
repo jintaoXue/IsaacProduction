@@ -36,7 +36,7 @@ class RainbowAgent():
         self.norm_clip = config.get('norm_clip', 10)
         ###########for agent training
         self.update_frequency = config.get('update_frequency', 100)
-        self.evaluate_interval = config.get('evaluate_interval', 50)
+        self.evaluate_interval = config.get('evaluate_interval', 10)
         self.target_update = config.get('target_update', int(1e2))
         self.max_steps = config.get("max_steps", int(5e9))
         self.max_epochs = config.get("max_epochs", int(1e11))
@@ -493,11 +493,7 @@ class RainbowAgent():
                     })
                 next_obs = self.env_reset()   
                 if self.episode_num % self.evaluate_interval == 0:
-                    env_len, progress, ep_reward = self.evaluate_epoch()
-                    if progress == 1 and env_len < infos['max_env_len']:
-                        checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(env_len) + '_rew_' + "{:.2f}".format(ep_reward)
-                        self.save(os.path.join(self.nn_dir, checkpoint_name)) 
-
+                    self.evaluate_epoch()
             self.current_rewards = self.current_rewards * not_dones
             self.current_lengths = self.current_lengths * not_dones
             self.current_ep_time = self.current_ep_time * not_dones
@@ -592,9 +588,10 @@ class RainbowAgent():
                 if infos['env_length'] < infos['max_env_len'] and infos['progress'] == 1:
                     self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
                     wandb.log({"Actions": self.evaluate_table}) 
+                    checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
+                    self.save(os.path.join(self.nn_dir, checkpoint_name)) 
                 action_info_list = []
                 next_obs = self.env_reset() 
-                ep_reward = self.evaluate_current_rewards
             self.evaluate_current_rewards = self.evaluate_current_rewards * not_dones
             self.evaluate_current_lengths = self.evaluate_current_lengths * not_dones
             self.evaluate_current_ep_time = self.evaluate_current_ep_time * not_dones
@@ -606,8 +603,7 @@ class RainbowAgent():
 
         total_time_end = time.time()
         total_time = total_time_end - total_time_start
-
-        return infos['env_length'], infos['progress'], ep_reward
+        return 
     
     def train(self):
         self.init_tensors()
