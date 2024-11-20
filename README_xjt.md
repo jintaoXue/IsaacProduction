@@ -195,6 +195,10 @@ https://forums.developer.nvidia.com/t/isaac-sim-2022-2-is-no-longer-running/2392
 
 https://docs.omniverse.nvidia.com/dev-guide/latest/linux-troubleshooting.html#q11-getting-spam-of-failures-failed-to-create-change-watch-for-xxx-errno-28-no-space-left-on-device
 
+### rainbowmini 的loss很大
+纠正：1.改用softmax
+2.改用mse
+3.加clip
 
 idea: buffer
 demonstrarion: frequency

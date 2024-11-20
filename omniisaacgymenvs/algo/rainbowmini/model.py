@@ -72,7 +72,8 @@ class DQN(nn.Module):
     self.fc_h_a = NoisyLinear(self.fm.dim_output, config['hidden_size'], std_init=config['noisy_std'])
     self.fc_z_v = NoisyLinear(config['hidden_size'], 1, std_init=config['noisy_std'])
     self.fc_z_a = NoisyLinear(config['hidden_size'], action_space, std_init=config['noisy_std'])
-
+    self.Vmin = config.get('V_min', -20)
+    self.Vmax = config.get('V_max', 20)
   def forward(self, x, log=False):
     action_mask = x['action_mask']
     x = self.fe(x)
@@ -81,11 +82,12 @@ class DQN(nn.Module):
     a = self.fc_z_a(F.relu(self.fc_h_a(x)))  # Advantage stream
     q = v + a - a.mean(1, keepdim=True)  # Combine streams
     # q = torch.nn.functional.normalize(q, dim=1)
-    if log:  # Use log softmax for numerical stability
-      q = F.log_softmax(q, dim=1)  # Log probabilities with action over second dimension
-    else:
-      q = F.softmax(q, dim=1)  # Probabilities with action over second dimension
-    q = action_mask*q
+    assert log==False, "rainbowmini only support log False"
+    # if log:  # Use log softmax for numerical stability
+    #   q = F.log_softmax(q, dim=1)  # Log probabilities with action over second dimension
+    # else:
+    q = torch.clamp(q, min=self.Vmin, max=self.Vmax)
+    q = (action_mask-1)*(-self.Vmin) + q*action_mask
     return q
 
   def reset_noise(self):

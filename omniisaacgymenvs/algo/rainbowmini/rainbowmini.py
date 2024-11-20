@@ -63,6 +63,7 @@ class RainbowminiAgent():
             param.requires_grad = False
         #####
         self.optimiser = optim.Adam(self.online_net.parameters(), lr=config['learning_rate'], eps=config['adam_eps'])
+        self.loss_criterion = nn.MSELoss(reduction= 'none')
         self.use_wandb = config.get('wandb_activate', False)
         if self.use_wandb:
             self.init_wandb_logger()
@@ -326,18 +327,20 @@ class RainbowminiAgent():
         states = data.stack_from_array(states.squeeze(), device=self._device)
         next_states = data.stack_from_array(next_states.squeeze(), device=self._device)
         # Calculate current state probabilities (online network noise already sampled)
-        log_ps = self.online_net(states, log=True)  # Log probabilities log p(s_t, ·; θonline)
-        log_ps_a = log_ps[range(self.batch_size), actions]  # log p(s_t, a_t; θonline)
+        # log_ps = self.online_net(states, log=True)  # Log probabilities log p(s_t, ·; θonline)
+        # log_ps_a = log_ps[range(self.batch_size), actions]  # log p(s_t, a_t; θonline)
+        q = self.online_net(states, log=False)  # probabilities log p(s_t, ·; θonline)
+        q_a = q[range(self.batch_size), actions]  # p(s_t, a_t; θonline)
 
         with torch.no_grad():
             # Calculate nth next state probabilities
-            pns = self.online_net(next_states)  # Probabilities p(s_t+n, ·; θonline)
-            argmax_indices_ns = pns.argmax(1)  # Perform argmax action selection using online network: argmax_a[(z, p(s_t+n, a; θonline))]
+            qns = self.online_net(next_states)  # Probabilities p(s_t+n, ·; θonline)
+            argmax_indices_ns = qns.argmax(1)  # Perform argmax action selection using online network: argmax_a[(z, p(s_t+n, a; θonline))]
             self.target_net.reset_noise()  # Sample new target net noise
-            pns = self.target_net(next_states)  # Probabilities p(s_t+n, ·; θtarget)
-            pns_a = pns[range(self.batch_size), argmax_indices_ns]  # Double-Q probabilities p(s_t+n, argmax_a[(z, p(s_t+n, a; θonline))]; θtarget)
-
-        loss = -torch.sum(pns_a*log_ps_a, 0)  # Cross-entropy loss (minimises DKL(m||p(s_t, a_t)))
+            qns = self.target_net(next_states)  # Probabilities p(s_t+n, ·; θtarget)
+            qns_a = qns[range(self.batch_size), argmax_indices_ns]  # Double-Q probabilities p(s_t+n, argmax_a[(z, p(s_t+n, a; θonline))]; θtarget)
+            y = returns + self.discount*qns_a*nonterminals 
+        loss = self.loss_criterion(q_a ,y)
         self.online_net.zero_grad()
         (weights * loss).mean().backward()  # Backpropagate importance-weighted minibatch loss
         clip_grad_norm_(self.online_net.parameters(), self.norm_clip)  # Clip gradients by L2 norm
