@@ -528,7 +528,7 @@ class RainbowAgent():
                                 "Train/loss": loss.mean().item(),
                             })
                         time_now = datetime.now().strftime("_%d-%H-%M-%S")   
-                        print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item())
+                    print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item())
 
             # Update target network
             if self.step_num % self.target_update == 0:

@@ -35,12 +35,15 @@ class RainbowminiAgent():
         self.norm_clip = config.get('norm_clip', 10)
         ###########for agent training
         self.update_frequency = config.get('update_frequency', 100)
+        # self.update_frequency = config.get('update_frequency', 10)
         self.evaluate_interval = config.get('evaluate_interval', 10)
         self.target_update = config.get('target_update', int(1e2))
         self.max_steps = config.get("max_steps", int(5e9))
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
+        # self.batch_size = config.get('batch_size', 2)
         self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
+        # self.num_warmup_steps = config.get('num_warmup_steps', int(10))
         self.demonstration_steps = config.get('demonstration_steps', int(1))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
@@ -340,7 +343,7 @@ class RainbowminiAgent():
             qns = self.target_net(next_states)  # Probabilities p(s_t+n, ·; θtarget)
             qns_a = qns[range(self.batch_size), argmax_indices_ns]  # Double-Q probabilities p(s_t+n, argmax_a[(z, p(s_t+n, a; θonline))]; θtarget)
             y = returns + self.discount*qns_a*nonterminals 
-        loss = self.loss_criterion(q_a ,y)
+        loss = self.loss_criterion(q_a ,y).mean(dim=1)
         self.online_net.zero_grad()
         (weights * loss).mean().backward()  # Backpropagate importance-weighted minibatch loss
         clip_grad_norm_(self.online_net.parameters(), self.norm_clip)  # Clip gradients by L2 norm
@@ -512,7 +515,7 @@ class RainbowminiAgent():
                                 "Train/loss": loss.mean().item(),
                             })
                         time_now = datetime.now().strftime("_%d-%H-%M-%S")   
-                        print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item())
+                    print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item())
 
             # Update target network
             if self.step_num % self.target_update == 0:
