@@ -81,7 +81,7 @@ class DQN(nn.Module):
     a = self.fc_z_a(F.relu(self.fc_h_a(x)))  # Advantage stream
     q = v + a - a.mean(1, keepdim=True)  # Combine streams
     q = action_mask*q
-    q = torch.nn.functional.normalize(q, dim=1)
+    # q = torch.nn.functional.normalize(q, dim=1)
     if log:  # Use log softmax for numerical stability
       q = F.log_softmax(q, dim=1)  # Log probabilities with action over second dimension
     else:
