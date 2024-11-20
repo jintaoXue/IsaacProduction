@@ -187,6 +187,17 @@ max env step 也要改
 # 10.27
 length 加 assert
 save model的方式要改一下 可以通过evaluate 的方式
+
+
+### bug meet 
+Failed to create change watch
+https://forums.developer.nvidia.com/t/isaac-sim-2022-2-is-no-longer-running/239245
+
+https://docs.omniverse.nvidia.com/dev-guide/latest/linux-troubleshooting.html#q11-getting-spam-of-failures-failed-to-create-change-watch-for-xxx-errno-28-no-space-left-on-device
+
+
+idea: buffer
+demonstrarion: frequency
 # ignore
 __pycache___
 __pycache__/

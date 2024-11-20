@@ -11,14 +11,15 @@ from rl_games.common import vecenv
 from rl_games.algos_torch import torch_ext
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
-from omniisaacgymenvs.algo.rainbow.memory import ReplayMemory
-from omniisaacgymenvs.algo.rainbow.model import DQN
+from omniisaacgymenvs.algo.rainbowmini.memory import ReplayMemory
+from omniisaacgymenvs.algo.rainbowmini.model import DQN
 from tqdm import trange
 import time
 from omegaconf import DictConfig
 from omniisaacgymenvs.utils.data import data
 import wandb
-class RainbowAgent():
+
+class RainbowminiAgent():
     def __init__(self, base_name, params):
 
         self.config : DictConfig = params['config']
@@ -26,11 +27,9 @@ class RainbowAgent():
         config = self.config
         print(config)
         #######pramameters for model update and act
-        self.atoms = config['atoms']
         self.Vmin = config.get('V_min', -10)
         self.Vmax = config.get('V_max', 10)
-        self.support = torch.linspace(self.Vmin, self.Vmax, self.atoms).to(device=self._device)  # Support (range) of z
-        self.delta_z = (self.Vmax - self.Vmin) / (self.atoms - 1)
+
         self.n = config['multi_step']
         self.discount = config['discount']
         self.norm_clip = config.get('norm_clip', 10)
@@ -79,8 +78,7 @@ class RainbowAgent():
     def base_init(self, base_name):
 
         self.setdefault(self.config, key='device', default='cuda:0')
-        ########for replay buffer args initialize 
-        self.setdefault(self.config, key='atoms', default=51) 
+        ########for replay buffer args initialize
         self.setdefault(self.config, key='replay_buffer_size', default=int(1e7))
         self.setdefault(self.config, key='history_length', default=1)
         self.setdefault(self.config, key='discount', default=0.99)
@@ -235,7 +233,7 @@ class RainbowAgent():
     # Acts based on single state (no batch)
     def act(self, state):
         with torch.no_grad():
-            return (self.online_net(data.func(state, 'unsqueeze', 0)) * self.support).sum(2).argmax(1)
+            return (self.online_net(data.func(state, 'unsqueeze', 0))).argmax(1)
             # return (self.online_net(data.func(state, 'unsqueeze', 0)) * self.support).sum(2)
 
     # Acts with an ε-greedy policy (used for evaluation only)
@@ -334,29 +332,12 @@ class RainbowAgent():
         with torch.no_grad():
             # Calculate nth next state probabilities
             pns = self.online_net(next_states)  # Probabilities p(s_t+n, ·; θonline)
-            dns = self.support.expand_as(pns) * pns  # Distribution d_t+n = (z, p(s_t+n, ·; θonline))
-            argmax_indices_ns = dns.sum(2).argmax(1)  # Perform argmax action selection using online network: argmax_a[(z, p(s_t+n, a; θonline))]
+            argmax_indices_ns = pns.argmax(1)  # Perform argmax action selection using online network: argmax_a[(z, p(s_t+n, a; θonline))]
             self.target_net.reset_noise()  # Sample new target net noise
             pns = self.target_net(next_states)  # Probabilities p(s_t+n, ·; θtarget)
             pns_a = pns[range(self.batch_size), argmax_indices_ns]  # Double-Q probabilities p(s_t+n, argmax_a[(z, p(s_t+n, a; θonline))]; θtarget)
 
-            # Compute Tz (Bellman operator T applied to z)
-            Tz = returns.unsqueeze(1) + nonterminals * (self.discount ** self.n) * self.support.unsqueeze(0)  # Tz = R^n + (γ^n)z (accounting for terminal states)
-            Tz = Tz.clamp(min=self.Vmin, max=self.Vmax)  # Clamp between supported values
-            # Compute L2 projection of Tz onto fixed support z
-            b = (Tz - self.Vmin) / self.delta_z  # b = (Tz - Vmin) / Δz
-            l, u = b.floor().to(torch.int64), b.ceil().to(torch.int64)
-            # Fix disappearing probability mass when l = b = u (b is int)
-            l[(u > 0) * (l == u)] -= 1
-            u[(l < (self.atoms - 1)) * (l == u)] += 1
-
-            # Distribute probability of Tz
-            m = torch.zeros(self.batch_size, self.atoms, device=self._device)
-            offset = torch.linspace(0, ((self.batch_size - 1) * self.atoms), self.batch_size).unsqueeze(1).expand(self.batch_size, self.atoms).to(actions)
-            m.view(-1).index_add_(0, (l + offset).view(-1), (pns_a * (u.float() - b)).view(-1))  # m_l = m_l + p(s_t+n, a*)(u - b)
-            m.view(-1).index_add_(0, (u + offset).view(-1), (pns_a * (b - l.float())).view(-1))  # m_u = m_u + p(s_t+n, a*)(b - l)
-
-        loss = -torch.sum(m * log_ps_a, 1)  # Cross-entropy loss (minimises DKL(m||p(s_t, a_t)))
+        loss = -torch.sum(pns_a*log_ps_a, 0)  # Cross-entropy loss (minimises DKL(m||p(s_t, a_t)))
         self.online_net.zero_grad()
         (weights * loss).mean().backward()  # Backpropagate importance-weighted minibatch loss
         clip_grad_norm_(self.online_net.parameters(), self.norm_clip)  # Clip gradients by L2 norm

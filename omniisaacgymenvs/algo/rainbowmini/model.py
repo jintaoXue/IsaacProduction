@@ -65,14 +65,13 @@ class NoisyLinear(nn.Module):
 class DQN(nn.Module):
   def __init__(self, config, action_space):
     super(DQN, self).__init__()
-    self.atoms = config['atoms']
     self.action_space = action_space
     self.fe = FeatureExtractor(config, DimState())
     self.fm = FeatureMapper(self.fe.dim_feature, 1024)    
     self.fc_h_v = NoisyLinear(self.fm.dim_output, config['hidden_size'], std_init=config['noisy_std'])
     self.fc_h_a = NoisyLinear(self.fm.dim_output, config['hidden_size'], std_init=config['noisy_std'])
-    self.fc_z_v = NoisyLinear(config['hidden_size'], self.atoms, std_init=config['noisy_std'])
-    self.fc_z_a = NoisyLinear(config['hidden_size'], action_space * self.atoms, std_init=config['noisy_std'])
+    self.fc_z_v = NoisyLinear(config['hidden_size'], 1, std_init=config['noisy_std'])
+    self.fc_z_a = NoisyLinear(config['hidden_size'], action_space, std_init=config['noisy_std'])
 
   def forward(self, x, log=False):
     action_mask = x['action_mask']
@@ -80,17 +79,14 @@ class DQN(nn.Module):
     x = self.fm(x)
     v = self.fc_z_v(F.relu(self.fc_h_v(x)))  # Value stream
     a = self.fc_z_a(F.relu(self.fc_h_a(x)))  # Advantage stream
-    v, a = v.view(-1, 1, self.atoms), a.view(-1, self.action_space, self.atoms)
     q = v + a - a.mean(1, keepdim=True)  # Combine streams
-    action_mask = torch.unsqueeze(action_mask, -1).repeat(1,1,self.atoms)
-    prob = ((action_mask[:,:,[0]]-1)*-1)
     q = action_mask*q
-    q[:,:,[0]] += prob
+    q = torch.nn.functional.normalize(q, dim=1)
     if log:  # Use log softmax for numerical stability
-      q = F.log_softmax(q, dim=2)  # Log probabilities with action over second dimension
+      q = F.log_softmax(q, dim=1)  # Log probabilities with action over second dimension
     else:
-      q = F.softmax(q, dim=2)  # Probabilities with action over second dimension
-
+      q = F.softmax(q, dim=1)  # Probabilities with action over second dimension
+    
     return q
 
   def reset_noise(self):

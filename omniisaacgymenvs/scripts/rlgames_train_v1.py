@@ -44,7 +44,7 @@ from rl_games.torch_runner import Runner
 import setproctitle
 
 from omniisaacgymenvs.algo.rainbow import rainbow
-
+from omniisaacgymenvs.algo.rainbowmini import rainbowmini
 class RLGTrainer:
     def __init__(self, cfg, cfg_dict):
         self.cfg = cfg
@@ -67,6 +67,7 @@ class RLGTrainer:
         # create runner and set the settings
         runner = Runner(RLGPUAlgoObserver())
         runner.algo_factory.register_builder('rainbow', lambda **kwargs: rainbow.RainbowAgent(**kwargs))
+        runner.algo_factory.register_builder('rainbowmini', lambda **kwargs: rainbowmini.RainbowminiAgent(**kwargs))
         runner.load(self.rlg_config_dict)
         runner.reset()
 
