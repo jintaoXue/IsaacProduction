@@ -80,13 +80,12 @@ class DQN(nn.Module):
     v = self.fc_z_v(F.relu(self.fc_h_v(x)))  # Value stream
     a = self.fc_z_a(F.relu(self.fc_h_a(x)))  # Advantage stream
     q = v + a - a.mean(1, keepdim=True)  # Combine streams
-    q = action_mask*q
     # q = torch.nn.functional.normalize(q, dim=1)
     if log:  # Use log softmax for numerical stability
       q = F.log_softmax(q, dim=1)  # Log probabilities with action over second dimension
     else:
       q = F.softmax(q, dim=1)  # Probabilities with action over second dimension
-    
+    q = action_mask*q
     return q
 
   def reset_noise(self):
