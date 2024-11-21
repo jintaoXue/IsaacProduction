@@ -514,7 +514,7 @@ class RainbowminiAgent():
                                 'Train/step': self.step_num,
                                 "Train/loss": loss.mean().item(),
                             })
-                        time_now = datetime.now().strftime("_%d-%H-%M-%S")   
+                    time_now = datetime.now().strftime("_%d-%H-%M-%S")   
                     print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item())
 
             # Update target network
