@@ -420,6 +420,7 @@ class RainbowminiAgent():
         total_time = 0
         step_time = 0.0
         loss = None
+        # temporary_buffer = np.array([])
         for s in range(int(self.num_steps_per_epoch/self.num_actors)):
             obs : dict = self.obs
             random_exploration = self.step_num < self.num_warmup_steps

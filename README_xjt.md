@@ -202,6 +202,10 @@ https://docs.omniverse.nvidia.com/dev-guide/latest/linux-troubleshooting.html#q1
 
 idea: buffer
 demonstrarion: frequency
+
+
+###### 11.21 
+如果还是不行的话 就看看别人的loss function怎么做的，以及加上efficient buffer
 # ignore
 __pycache___
 __pycache__/

@@ -92,25 +92,25 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
     
     def caculate_metric_action(self, actions):
         self.reward_action = None
-        reward = 0.2
+        reward = 0.05
         task_id = actions[0] - 1
         task = self.task_manager.task_dic[task_id.item()]
         if task not in self.available_task_dic.keys():
-            self.reward_action = -reward
+            self.reward_action = -0.1
         elif task == 'none':
             if len(self.available_task_dic.keys()) > 1:
                 self.reward_action = -reward
             else:
-                self.reward_action = 0.1
+                self.reward_action = reward
         else:
-            self.reward_action = reward
+            self.reward_action = 0.1
         
     def calculate_metrics(self):
         task_finished = self.materials.done()
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
 
         """Compute reward at current timestep."""
-        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.006
+        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.005
         progress = self.materials.progress()
         if is_last_step: 
             if task_finished:
@@ -1808,7 +1808,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             elif _dis < dis:
                 key = _key
                 dis = _dis
-        assert dis > 3, 'error when get closest pose'
+        assert dis < 3, 'error when get closest pose'
         return key
 
     def get_observations(self) -> dict:
