@@ -523,7 +523,10 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                         s, g = world_pose_to_navigation_pose(current_pose), world_pose_to_navigation_pose(box_pose)
                         s_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=s)
                         g_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=g)
-                        self.task_manager.agvs.x_paths[idx], self.task_manager.agvs.y_paths[idx], self.task_manager.agvs.yaws[idx] = self.task_manager.agvs.routes_dic[s_str][g_str]
+                        if s_str == g_str:
+                            reaching_flag = True
+                        else:
+                            self.task_manager.agvs.x_paths[idx], self.task_manager.agvs.y_paths[idx], self.task_manager.agvs.yaws[idx] = self.task_manager.agvs.routes_dic[s_str][g_str]
                         # self.task_manager.agvs.x_paths[idx], self.task_manager.agvs.y_paths[idx], self.task_manager.agvs.yaws[idx] = self.path_planner(s.copy(), g.copy())
                 else:
                     target_position, target_orientation, reaching_flag = self.task_manager.agvs.step_next_pose(agv_idx = idx)
