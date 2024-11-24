@@ -1811,7 +1811,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             elif _dis < dis:
                 key = _key
                 dis = _dis
-        assert dis < 3, 'error when get closest pose'
+        assert dis < 3, 'error when get closest pose, distance is: {}'.format(dis)
         return key
 
     def get_observations(self) -> dict:
