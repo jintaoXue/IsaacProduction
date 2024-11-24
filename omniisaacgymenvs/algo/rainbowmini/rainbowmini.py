@@ -44,7 +44,7 @@ class RainbowminiAgent():
         # self.batch_size = config.get('batch_size', 2)
         self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
         # self.num_warmup_steps = config.get('num_warmup_steps', int(10))
-        self.demonstration_steps = config.get('demonstration_steps', int(1))
+        self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
         # self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
@@ -451,6 +451,13 @@ class RainbowminiAgent():
                 no_timeouts = self.current_lengths <= self.max_env_steps
                 dones = dones * no_timeouts
                 not_dones = 1.0 - dones.float()
+                obs_cpu = {}
+                for key, value in obs.items():
+                    obs_cpu[key] = value.cpu()
+                action_cpu = action.squeeze().cpu()
+                rewards_cpu = rewards.squeeze().cpu()
+                dones_cpu = dones.squeeze().cpu()
+                self.replay_buffer.append(obs_cpu, action_cpu, rewards_cpu+reward_extra, dones_cpu)
 
                 if dones[0]:
                     self.episode_num += 1
@@ -478,13 +485,7 @@ class RainbowminiAgent():
                 # rewards = self.rewards_shaper(rewards)
                 ####TODO refine replay buffer
                 # self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
-                obs_cpu = {}
-                for key, value in obs.items():
-                    obs_cpu[key] = value.cpu()
-                action_cpu = action.squeeze().cpu()
-                rewards_cpu = rewards.squeeze().cpu()
-                dones_cpu = dones.squeeze().cpu()
-                self.replay_buffer.append(obs_cpu, action_cpu, rewards_cpu+reward_extra, dones_cpu)
+
                 # self.obs = next_obs.copy()
 
                 update_time = 0
@@ -551,9 +552,6 @@ class RainbowminiAgent():
             dones = dones * no_timeouts
             not_dones = 1.0 - dones.float()
 
-            if dones[0]:
-                next_obs = self.env_reset()   
-
             self.temp_current_lengths = self.temp_current_lengths * not_dones
             # obs_copy = {}
             # infos_copy = {}
@@ -565,6 +563,8 @@ class RainbowminiAgent():
             # rewards_cpu = rewards.squeeze().cpu()
             # dones_cpu = dones.squeeze().cpu()
             temporary_buffer.append((copy.deepcopy(obs), copy.deepcopy(action), copy.deepcopy(rewards), copy.deepcopy(dones), copy.deepcopy(infos)))
+            if dones[0]:
+                next_obs = self.env_reset()   
             self.obs = next_obs.copy()
             reward_extra = 0.
             repeat_times = 1
@@ -609,22 +609,23 @@ class RainbowminiAgent():
             no_timeouts = self.evaluate_current_lengths != self.max_env_steps
             dones = dones * no_timeouts
             not_dones = 1.0 - dones.float()            
-            if dones[0] and self.use_wandb:
-                wandb.log({
-                    'Evaluate/step': self.evaluate_step_num,
-                    'Evaluate/step_episode': self.evaluate_episode_num,
-                    'Evaluate/EpRet': self.evaluate_current_rewards,
-                    'Evaluate/EpEnvLen': infos['env_length'],
-                    'Evaluate/EpLen': self.evaluate_current_lengths,
-                    "Evaluate/EpTime": self.evaluate_current_ep_time,
-                    "Evaluate/EpProgress": infos['progress'],
-                    "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
-                })   
-                if infos['env_length'] < infos['max_env_len'] and infos['progress'] == 1:
-                    self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
-                    wandb.log({"Actions": self.evaluate_table}) 
-                    checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
-                    self.save(os.path.join(self.nn_dir, checkpoint_name)) 
+            if dones[0]: 
+                if self.use_wandb:
+                    wandb.log({
+                        'Evaluate/step': self.evaluate_step_num,
+                        'Evaluate/step_episode': self.evaluate_episode_num,
+                        'Evaluate/EpRet': self.evaluate_current_rewards,
+                        'Evaluate/EpEnvLen': infos['env_length'],
+                        'Evaluate/EpLen': self.evaluate_current_lengths,
+                        "Evaluate/EpTime": self.evaluate_current_ep_time,
+                        "Evaluate/EpProgress": infos['progress'],
+                        "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
+                    })   
+                    if infos['env_length'] < infos['max_env_len'] and infos['progress'] == 1:
+                        self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
+                        wandb.log({"Actions": self.evaluate_table}) 
+                        checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
+                        self.save(os.path.join(self.nn_dir, checkpoint_name)) 
                 action_info_list = []
                 next_obs = self.env_reset() 
             self.evaluate_current_rewards = self.evaluate_current_rewards * not_dones

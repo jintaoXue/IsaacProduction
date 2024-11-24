@@ -110,7 +110,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
 
         """Compute reward at current timestep."""
-        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.005
+        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.0005
         progress = self.materials.progress()
         if is_last_step: 
             if task_finished:
@@ -187,7 +187,10 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         task_finished = self.materials.done()
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
         # If max episode length has been reached
-        self.reset_buf[0] = 1 if is_last_step or task_finished else self.reset_buf[0]
+        if is_last_step or task_finished :
+            self.reset_buf[0] = 1
+        else:
+            pass
 
     def post_material_step(self):
         #part of materials state decision is in consideration
