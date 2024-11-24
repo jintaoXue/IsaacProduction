@@ -18,7 +18,7 @@ import time
 from omegaconf import DictConfig
 from omniisaacgymenvs.utils.data import data
 import wandb
-
+import copy
 class RainbowminiAgent():
     def __init__(self, base_name, params):
 
@@ -264,6 +264,9 @@ class RainbowminiAgent():
         else:
             torch_dtype = torch.float32
         batch_size = self.num_agents * self.num_actors
+        self.temp_current_lengths = torch.zeros(batch_size, dtype=torch.long, device=self._device)
+        self.temp_dones = torch.zeros((batch_size,), dtype=torch.uint8, device=self._device)
+
 
         self.current_rewards = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
         self.current_rewards_action = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
@@ -411,22 +414,114 @@ class RainbowminiAgent():
         self.mean_rewards = self.last_mean_rewards = -1000000000
     
     def train_epoch(self):
-        # random_exploration = self.epoch_num < self.num_warmup_steps
-        return self.play_steps()
-    
-    def play_steps(self, random_exploration = False):
+        temporary_buffer, reward_extra, repeat_times = self.play_steps()
         total_time_start = time.time()
         total_update_time = 0
         total_time = 0
         step_time = 0.0
         loss = None
-        # temporary_buffer = np.array([])
-        for s in range(int(self.num_steps_per_epoch/self.num_actors)):
+        for j in range(repeat_times):
+            for i in range(len(temporary_buffer)):
+                random_exploration = self.step_num < self.num_warmup_steps
+                self.set_train()
+                if self.step_num % self.update_frequency == 0:
+                    self.reset_noise()
+                #debug TODO
+                # action = None
+                step_start = time.time()
+                obs, action, rewards, dones, infos = temporary_buffer[i]
+                # if self.reward_clip > 0:
+                #     reward = max(min(reward, self.reward_clip), -self.reward_clip)  # Clip rewards
+                step_end = time.time()
+                #TODO only support num_agents == 1
+                assert self.num_agents == 1, ('only support num_agents == 1')
+                self.step_num += self.num_actors * 1
+                self.current_rewards += rewards
+                self.current_rewards_action += infos["rew_action"]
+                self.current_lengths += 1
+                self.current_ep_time += (step_end - step_start)
+                total_time += (step_end - step_start)
+                step_time += (step_end - step_start)
+
+                all_done_indices = dones.nonzero(as_tuple=False)
+                done_indices = all_done_indices[::self.num_agents]
+                self.game_rewards.update(self.current_rewards[done_indices])
+                self.game_lengths.update(self.current_lengths[done_indices])
+
+                no_timeouts = self.current_lengths <= self.max_env_steps
+                dones = dones * no_timeouts
+                not_dones = 1.0 - dones.float()
+
+                if dones[0]:
+                    self.episode_num += 1
+                    if self.use_wandb:
+                        wandb.log({
+                            "Train/step": self.step_num,
+                            'Metrics/step_episode': self.episode_num,
+                            'Metrics/EpRet': self.current_rewards,
+                            'Metrics/EpLen': self.current_lengths,
+                            'Metrics/EpEnvLen': infos['env_length'],
+                            "Metrics/EpTime": self.current_ep_time,
+                            "Metrics/EpProgress": infos['progress'],
+                            "Metrics/EpRetAction": self.current_rewards_action,
+                        })
+                    # next_obs = self.env_reset()   
+                    if self.episode_num % self.evaluate_interval == 0:
+                        self.evaluate_epoch()
+                self.current_rewards = self.current_rewards * not_dones
+                self.current_lengths = self.current_lengths * not_dones
+                self.current_ep_time = self.current_ep_time * not_dones
+                self.current_rewards_action = self.current_rewards_action * not_dones
+                # if isinstance(next_obs, dict):    
+                #     next_obs_processed = next_obs['obs']
+
+                # rewards = self.rewards_shaper(rewards)
+                ####TODO refine replay buffer
+                # self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
+                obs_cpu = {}
+                for key, value in obs.items():
+                    obs_cpu[key] = value.cpu()
+                action_cpu = action.squeeze().cpu()
+                rewards_cpu = rewards.squeeze().cpu()
+                dones_cpu = dones.squeeze().cpu()
+                self.replay_buffer.append(obs_cpu, action_cpu, rewards_cpu+reward_extra, dones_cpu)
+                # self.obs = next_obs.copy()
+
+                update_time = 0
+                if not random_exploration:
+                    self.replay_buffer.priority_weight = min(self.replay_buffer.priority_weight + self.priority_weight_increase, 1)
+                    if self.step_num % self.update_frequency == 0:
+                        self.set_train()
+                        update_time_start = time.time()
+                        loss = self.update(self.epoch_num)
+                        update_time_end = time.time()
+                        update_time = update_time_end - update_time_start
+                        if self.use_wandb:
+                            wandb.log({
+                                    'Train/step': self.step_num,
+                                    "Train/loss": loss.mean().item(),
+                                })
+                        time_now = datetime.now().strftime("_%d-%H-%M-%S")   
+                        print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item())
+
+                # Update target network
+                if self.step_num % self.target_update == 0:
+                    self.update_target_net()
+
+                total_update_time += update_time
+
+            total_time_end = time.time()
+            total_time = total_time_end - total_time_start
+            play_time = total_time - total_update_time
+
+        return step_time, play_time, total_update_time, total_time, loss
+    
+    def play_steps(self):
+        temporary_buffer = []
+        while True:
             obs : dict = self.obs
             random_exploration = self.step_num < self.num_warmup_steps
             self.set_train()
-            if self.step_num % self.update_frequency == 0:
-                self.reset_noise()
             if random_exploration:
                 if self.step_num < self.demonstration_steps:
                     action = None
@@ -440,95 +535,47 @@ class RainbowminiAgent():
                     action = self.act(obs).unsqueeze(0)
             #debug TODO
             # action = None
-            step_start = time.time()
 
             with torch.no_grad():
                 next_obs, rewards, dones, infos, action = self.env_step(action)
             # if self.reward_clip > 0:
             #     reward = max(min(reward, self.reward_clip), -self.reward_clip)  # Clip rewards
-            step_end = time.time()
             #TODO only support num_agents == 1
             assert self.num_agents == 1, ('only support num_agents == 1')
-            self.step_num += self.num_actors * 1
-            self.current_rewards += rewards
-            self.current_rewards_action += infos["rew_action"]
-            self.current_lengths += 1
-            self.current_ep_time += (step_end - step_start)
-            total_time += (step_end - step_start)
-            step_time += (step_end - step_start)
+            self.temp_current_lengths += 1
 
             all_done_indices = dones.nonzero(as_tuple=False)
             done_indices = all_done_indices[::self.num_agents]
-            self.game_rewards.update(self.current_rewards[done_indices])
-            self.game_lengths.update(self.current_lengths[done_indices])
 
-            no_timeouts = self.current_lengths <= self.max_env_steps
+            no_timeouts = self.temp_current_lengths <= self.max_env_steps
             dones = dones * no_timeouts
             not_dones = 1.0 - dones.float()
 
             if dones[0]:
-                self.episode_num += 1
-                if self.use_wandb:
-                    wandb.log({
-                        "Train/step": self.step_num,
-                        'Metrics/step_episode': self.episode_num,
-                        'Metrics/EpRet': self.current_rewards,
-                        'Metrics/EpLen': self.current_lengths,
-                        'Metrics/EpEnvLen': infos['env_length'],
-                        "Metrics/EpTime": self.current_ep_time,
-                        "Metrics/EpProgress": infos['progress'],
-                        "Metrics/EpRetAction": self.current_rewards_action,
-                    })
                 next_obs = self.env_reset()   
-                if self.episode_num % self.evaluate_interval == 0:
-                    self.evaluate_epoch()
-            self.current_rewards = self.current_rewards * not_dones
-            self.current_lengths = self.current_lengths * not_dones
-            self.current_ep_time = self.current_ep_time * not_dones
-            self.current_rewards_action = self.current_rewards_action * not_dones
-            # if isinstance(next_obs, dict):    
-            #     next_obs_processed = next_obs['obs']
 
-            # rewards = self.rewards_shaper(rewards)
-            ####TODO refine replay buffer
-            # self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
-            obs_cpu = {}
-            for key, value in obs.items():
-                obs_cpu[key] = value.cpu()
-            action_cpu = action.squeeze().cpu()
-            rewards_cpu = rewards.squeeze().cpu()
-            dones_cpu = dones.squeeze().cpu()
-            self.replay_buffer.append(obs_cpu, action_cpu, rewards_cpu, dones_cpu)
+            self.temp_current_lengths = self.temp_current_lengths * not_dones
+            # obs_copy = {}
+            # infos_copy = {}
+            # for key, value in obs.items():
+            #     obs_copy[key] = value.copy()
+            # for key, value in infos.items():
+            #     infos_copy[key] = value.copy()
+            # action_cpu = action.squeeze().cpu()
+            # rewards_cpu = rewards.squeeze().cpu()
+            # dones_cpu = dones.squeeze().cpu()
+            temporary_buffer.append((copy.deepcopy(obs), copy.deepcopy(action), copy.deepcopy(rewards), copy.deepcopy(dones), copy.deepcopy(infos)))
             self.obs = next_obs.copy()
-
-            update_time = 0
-            if not random_exploration:
-                self.replay_buffer.priority_weight = min(self.replay_buffer.priority_weight + self.priority_weight_increase, 1)
-                if self.step_num % self.update_frequency == 0:
-                    self.set_train()
-                    update_time_start = time.time()
-                    loss = self.update(self.epoch_num)
-                    update_time_end = time.time()
-                    update_time = update_time_end - update_time_start
-                    if self.use_wandb:
-                        wandb.log({
-                                'Train/step': self.step_num,
-                                "Train/loss": loss.mean().item(),
-                            })
-                    time_now = datetime.now().strftime("_%d-%H-%M-%S")   
-                    print("time_now:{}".format(time_now) +" traning loss:", loss.mean().item())
-
-            # Update target network
-            if self.step_num % self.target_update == 0:
-                self.update_target_net()
-
-            total_update_time += update_time
-
-        total_time_end = time.time()
-        total_time = total_time_end - total_time_start
-        play_time = total_time - total_update_time
-
-        return step_time, play_time, total_update_time, total_time, loss
+            reward_extra = 0.
+            repeat_times = 1
+            if dones[0]:
+                if infos['env_length'] < infos['max_env_len'] and infos['progress'] == 1:
+                    reward_extra = 0.3
+                    repeat_time = 100
+                else:
+                    reward_extra = -0.05
+                break
+        return temporary_buffer, reward_extra, repeat_times
     
     def evaluate_epoch(self):
         total_time_start = time.time()
