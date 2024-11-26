@@ -42,7 +42,7 @@ class RainbowminiAgent():
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
-        self.num_warmup_steps = config.get('num_warmup_steps', int(20e3))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(20e4))
         # self.num_warmup_steps = config.get('num_warmup_steps', int(10))
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
@@ -436,7 +436,7 @@ class RainbowminiAgent():
                 #TODO only support num_agents == 1
                 assert self.num_agents == 1, ('only support num_agents == 1')
                 self.step_num += self.num_actors * 1
-                self.current_rewards += rewards
+                self.current_rewards += rewards+reward_extra
                 self.current_rewards_action += infos["rew_action"]
                 self.current_lengths += 1
                 self.current_ep_time += (step_end - step_start)
@@ -569,11 +569,13 @@ class RainbowminiAgent():
             reward_extra = 0.
             repeat_times = 1
             if dones[0]:
-                if infos['env_length'] < infos['max_env_len'] and infos['progress'] == 1:
-                    reward_extra = 0.3
-                    repeat_time = 100
+                _,_,_,_,_infos = temporary_buffer[-1]
+                if _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1 and _infos['task_finished']:
+                    reward_extra = 0.5*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
+                    print("reward_extra:{}, env_len:{}".format(reward_extra, _infos['env_length']))
+                    repeat_times = 30
                 else:
-                    reward_extra = -0.05
+                    reward_extra = -0.01
                 break
         return temporary_buffer, reward_extra, repeat_times
     
@@ -621,7 +623,7 @@ class RainbowminiAgent():
                         "Evaluate/EpProgress": infos['progress'],
                         "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
                     })   
-                    if infos['env_length'] < infos['max_env_len'] and infos['progress'] == 1:
+                    if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1 and infos['task_finished']:
                         self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
                         wandb.log({"Actions": self.evaluate_table}) 
                         checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())

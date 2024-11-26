@@ -92,16 +92,15 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
     
     def caculate_metric_action(self, actions):
         self.reward_action = None
-        reward = 0.05
         task_id = actions[0] - 1
         task = self.task_manager.task_dic[task_id.item()]
         if task not in self.available_task_dic.keys():
             self.reward_action = -0.1
         elif task == 'none':
             if len(self.available_task_dic.keys()) > 1:
-                self.reward_action = -reward
+                self.reward_action = -0.001
             else:
-                self.reward_action = reward
+                self.reward_action = 0.
         else:
             self.reward_action = 0.1
         
@@ -110,26 +109,29 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
 
         """Compute reward at current timestep."""
-        reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.0005
+        # reward_time = (self.progress_buf[0] - self.pre_progress_step)*-0.001
+        reward_time = 0.
         progress = self.materials.progress()
         if is_last_step: 
             if task_finished:
-                rew_task = 1
+                rew_task = 0.6
             else:
-                rew_task = -1 + self.materials.progress()
+                rew_task = -1.5 + self.materials.progress()
         else:
             if task_finished:
-                rew_task = 1.5 
+                rew_task = 1
             else:
-                rew_task = (progress - self.materials.pre_progress)
+                rew_task = (progress - self.materials.pre_progress)*0.2
 
-        self.rew_buf[0] = self.reward_action + reward_time + rew_task
+        # self.rew_buf[0] = self.reward_action + reward_time + rew_task
+        self.rew_buf[0] = 0
         self.pre_progress_step = self.progress_buf[0].clone()
         self.materials.pre_progress = progress
         self.extras['progress'] = progress
         self.extras['rew_action'] = self.reward_action
         self.extras['env_length'] = self.progress_buf[0].clone()
         self.extras['max_env_len'] = self.max_episode_length - 1
+        self.extras['task_finished'] = task_finished
         # self.reward_test_list.append(self.rew_buf[0].clone())
         return
     
@@ -1842,4 +1844,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         ####7.time_step
         # obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
         obs_dict['time_step'] = self.progress_buf[0].cpu()
+        ####8.worker state
+        ####9.agv state
         return obs_dict

@@ -18,6 +18,7 @@ import time
 from omegaconf import DictConfig
 from omniisaacgymenvs.utils.data import data
 import wandb
+import copy
 class RainbowAgent():
     def __init__(self, base_name, params):
 
@@ -513,7 +514,7 @@ class RainbowAgent():
             ####TODO refine replay buffer
             # self.replay_buffer.append(obs, action, torch.unsqueeze(rewards, 1), next_obs_processed, torch.unsqueeze(dones, 1))
 
-            self.obs = next_obs.copy()
+            self.obs = copy.deepcopy(next_obs)
 
             update_time = 0
             if not random_exploration:
@@ -588,7 +589,7 @@ class RainbowAgent():
                         "Evaluate/EpProgress": infos['progress'],
                         "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
                     })   
-                    if infos['env_length'] < infos['max_env_len'] and infos['progress'] == 1:
+                    if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1:
                         self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
                         wandb.log({"Actions": self.evaluate_table}) 
                         checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
