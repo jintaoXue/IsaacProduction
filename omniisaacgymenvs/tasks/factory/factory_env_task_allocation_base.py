@@ -611,7 +611,8 @@ class TransBoxs(object):
 
 
 class TaskManager(object):
-    def __init__(self, character_list, agv_list, box_list) -> None:
+    def __init__(self, character_list, agv_list, box_list, cuda_device) -> None:
+        self.cuda_device = cuda_device
         self.characters = Characters(character_list=character_list)
         self.agvs = Agvs(agv_list = agv_list)
         self.boxs = TransBoxs(box_list=box_list)
@@ -619,7 +620,7 @@ class TaskManager(object):
                           5:'bending_tube_loading_outer', 6:'cutting_cube', 7:'collect_product', 8:'placing_product'}
         self.task_in_set = set()
         self.task_in_dic = {}
-        self.task_mask = torch.zeros(len(self.task_dic))
+        self.task_mask = torch.zeros(len(self.task_dic), device=cuda_device)
         self.task_dic_inverse = {value: key for key, value in self.task_dic.items()}
         return
     
@@ -629,7 +630,7 @@ class TaskManager(object):
         self.boxs.reset()
         self.task_in_set = set()
         self.task_in_dic = {}
-        self.task_mask = torch.zeros(len(self.task_dic))
+        self.task_mask = torch.zeros(len(self.task_dic), device=self.cuda_device)
         self.task_mask[0] = 1
 
     def assign_task(self, task):
@@ -1083,8 +1084,8 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         scene.add(self.agv_2)
         agv_list = [self.agv_1, self.agv_2]
         # self.agvs = Agvs(agv_list)
-
-        self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list)
+        self.cuda_device = torch.device("cuda:0")
+        self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list, self.cuda_device)
         '''Ending: for humans workers (characters) and robots (agv+boxs)'''
         # from omniisaacgymenvs.robots.omni_anim_people.scripts.character_behavior import CharacterBehavior
         # from pxr import Sdf
@@ -1107,7 +1108,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         # matrix = get_world_transform_matrix(prim)
         # translate = matrix.ExtractTranslation()
         # rotation: Gf.Rotation = matrix.ExtractRotation()
-        self.cuda_device = torch.device("cuda:0")
+        
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
 
@@ -1289,13 +1290,13 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             with open(os.path.expanduser(self.cfg_env.env.route_character_file_path), 'rb') as f:
                 dic = pickle.load(f)
                 if sampling_flag:
-                    self.task_manager.characters.routes_dic = self.routes_down_sampling(dic)
+                    self.task_manager.characters.routes_dic = self.routes_down_sampling(dic, to_cuda=False)
                 else:
                     self.task_manager.characters.routes_dic = dic
             with open(os.path.expanduser(self.cfg_env.env.route_agv_file_path), 'rb') as f:
                 dic = pickle.load(f)
                 if sampling_flag:
-                    self.task_manager.agvs.routes_dic = self.routes_down_sampling(dic)
+                    self.task_manager.agvs.routes_dic = self.routes_down_sampling(dic, to_cuda=False)
                 else:
                     self.task_manager.agvs.routes_dic = dic
         else:
@@ -1307,22 +1308,26 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             self.task_manager.agvs.routes_dic = self.generate_routes(self.task_manager.agvs.poses_dic, os.path.expanduser(self.cfg_env.env.route_agv_file_path), have_problem_routes_agv)
 
 
-    def routes_down_sampling(self, routes_dic): 
-        min_len = 2e32
-        max_len = -1
-        def down_sampling_helper(route):
+    def routes_down_sampling(self, routes_dic, to_cuda): 
+        # min_len = 2e32
+        # max_len = -1
+        def down_sampling_helper(route, to_cuda, cuda_device):
             interval = 5
             x,y,yaw = route
             x = [x[0]] + x[1:-1][::interval] + [x[-1]]
             y = [y[0]] + y[1:-1][::interval] + [y[-1]]
             yaw = [yaw[0]] + yaw[1:-1][::interval] + [yaw[-1]]
+            if to_cuda:
+                x = torch.tensor(x, device=cuda_device)
+                y = torch.tensor(y, device=cuda_device)
+                yaw = torch.tensor(yaw, device=cuda_device)
             return x,y,yaw
         for (key, route_dic) in routes_dic.items():
             for (_key, route) in route_dic.items():
-                route_dic[_key] = down_sampling_helper(route)
-                x = route_dic[_key][0]
-                min_len = min(min_len, len(x))
-                max_len = max(max_len, len(x))
+                route_dic[_key] = down_sampling_helper(route, to_cuda, self.cuda_device)
+                # x = route_dic[_key][0]
+                # min_len = min(min_len, len(x))
+                # max_len = max(max_len, len(x))
             routes_dic[key] = route_dic
         return routes_dic
     def generate_routes(self, pose_dic : dict, file_path, have_problem_routes: dict):

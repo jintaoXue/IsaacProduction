@@ -203,6 +203,10 @@ https://docs.omniverse.nvidia.com/dev-guide/latest/linux-troubleshooting.html#q1
 idea: buffer
 demonstrarion: frequency
 
+##### 11.28 mini 
+改了网络输出和结构
+mse loss 好像有问题
+后续可以吧route全部存在cuda里面加速
 
 ### 需要变换实验setting，甚至修改state 信息得包含worker agv的信息
 

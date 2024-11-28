@@ -119,6 +119,7 @@ class FeatureExtractor(nn.Module):
         self.cutting_machine_state_embedding = nn.LSTM(dimstate.cutting_machine_state, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
         self.is_full_products_embedding = nn.LSTM(dimstate.is_full_products, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
         self.produce_product_req_embedding = nn.LSTM(dimstate.produce_product_req, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
+        self.time_step_embedding = nn.LSTM(dimstate.time_step, hidden_size, self.num_lstm_layers, bidirectional=self.bi, batch_first=True)
 
         self.dim_feature = hidden_size if not self.bi else hidden_size*2
         self.type_embedding = VectorizedEmbedding(self.dim_feature)
@@ -138,6 +139,7 @@ class FeatureExtractor(nn.Module):
         cutting_machine_state_embedding, _ = self.cutting_machine_state_embedding(state['cutting_machine_state'])
         is_full_products_embedding, _ = self.is_full_products_embedding(state['is_full_products'])
         produce_product_req_embedding, _ = self.produce_product_req_embedding(state['produce_product_req'])
+        time_step_embedding, _ = self.time_step_embedding(state['time_step'])
         type_embedding = self.type_embedding(state)
 
         ###########################################################################################
@@ -146,7 +148,7 @@ class FeatureExtractor(nn.Module):
         all_embs = torch.cat([action_mask_embedding.unsqueeze(1), state_depot_hoop_embedding.unsqueeze(1), have_raw_hoops_embedding.unsqueeze(1), state_depot_bending_tube_embedding.unsqueeze(1), 
                               have_raw_bending_tube_embedding.unsqueeze(1), station_state_inner_left_embedding.unsqueeze(1), station_state_inner_right_embedding.unsqueeze(1), 
                               station_state_outer_left_embedding.unsqueeze(1), station_state_outer_right_embedding.unsqueeze(1), cutting_machine_state_embedding.unsqueeze(1), 
-                              is_full_products_embedding.unsqueeze(1), produce_product_req_embedding.unsqueeze(1)], dim=1)
+                              is_full_products_embedding.unsqueeze(1), produce_product_req_embedding.unsqueeze(1), time_step_embedding.unsqueeze(1)], dim=1)
         type_embedding = self.type_embedding(state)
         outputs, attns = self.global_head(all_embs, type_embedding)
         # self.attention = attns.detach().clone().cpu()
@@ -175,6 +177,7 @@ class VectorizedEmbedding(nn.Module):
             'cutting_machine_state': 9,
             'is_full_products': 10,
             'produce_product_req': 11,
+            'time_step':12,
         }
         self.dim_embedding = dim_embedding
         self.embedding = nn.Embedding(len(self.state_types), dim_embedding)
@@ -218,6 +221,7 @@ class VectorizedEmbedding(nn.Module):
             indices[:, 9].fill_(self.state_types["cutting_machine_state"])
             indices[:, 10].fill_(self.state_types["is_full_products"])
             indices[:, 11].fill_(self.state_types["produce_product_req"])
+            indices[:, 12].fill_(self.state_types["time_step"])
 
         return self.embedding.forward(indices)
     

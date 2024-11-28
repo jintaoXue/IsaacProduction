@@ -43,7 +43,7 @@ class RainbowminiAgent():
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
         self.num_warmup_steps = config.get('num_warmup_steps', int(10e4))
-        # self.num_warmup_steps = config.get('num_warmup_steps', int(10))
+        # self.num_warmup_steps = config.get('num_warmup_steps', int(1000))
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
@@ -345,8 +345,8 @@ class RainbowminiAgent():
             self.target_net.reset_noise()  # Sample new target net noise
             qns = self.target_net(next_states)  # Probabilities p(s_t+n, ·; θtarget)
             qns_a = qns[range(self.batch_size), argmax_indices_ns]  # Double-Q probabilities p(s_t+n, argmax_a[(z, p(s_t+n, a; θonline))]; θtarget)
-            y = returns + self.discount*qns_a*nonterminals 
-        loss = self.loss_criterion(q_a ,y).mean(dim=1)
+            y = returns + self.discount*qns_a*nonterminals.squeeze() 
+        loss = self.loss_criterion(q_a ,y).mean(dim=0)
         self.online_net.zero_grad()
         (weights * loss).mean().backward()  # Backpropagate importance-weighted minibatch loss
         clip_grad_norm_(self.online_net.parameters(), self.norm_clip)  # Clip gradients by L2 norm
@@ -574,7 +574,10 @@ class RainbowminiAgent():
                     reward_extra = 0.5*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
                     repeat_times = 10
                 else:
-                    reward_extra = -0.1 
+                    if len(temporary_buffer) < 100:
+                        reward_extra = -0.05
+                    else:
+                        reward_extra = -0.001
                 print("reward_extra:{}, env_len:{}".format(reward_extra, _infos['env_length']))
                 break
         return temporary_buffer, reward_extra, repeat_times

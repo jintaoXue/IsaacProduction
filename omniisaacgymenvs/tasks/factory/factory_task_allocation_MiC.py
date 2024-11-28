@@ -87,7 +87,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     break
                 if self._evaluate:
                     self.world.step(render=True)
-            
+                # self.world.step(render=True)
         return obs, self.rew_buf, self.reset_buf, self.extras
     
     def caculate_metric_action(self, actions):
@@ -137,7 +137,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
     
     def update_available_task(self):
         self.available_task_dic = {'none':-1}
-        task_mask = torch.zeros(len(self.task_manager.task_dic))
+        task_mask = torch.zeros(len(self.task_manager.task_dic), device=self.cuda_device)
         task_mask[0] = 1
         if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
             self.available_task_dic['hoop_preparing'] = 0
@@ -583,7 +583,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 
         elif state == 3: #finished carrying box to the target position and waiting 
             target_position, target_orientation = current_pose
-
+        #to avoid the object fall underground
+        target_position[:,-1] = 0.1
         agv.set_world_poses(positions=target_position, orientations=target_orientation)  
         agv.set_velocities(torch.zeros((1,6), device=self.cuda_device))  
 
@@ -617,7 +618,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         elif state == 2: #moving
             #todo
             target_position, target_orientation = self.task_manager.agvs.list[corresp_agv_idx].get_world_poses()
-        
+        #to avoid the object fall underground
         target_position[0][-1] = 0
         box.set_world_poses(positions=target_position, orientations=target_orientation)
         box.set_velocities(torch.zeros((1,6), device=self.cuda_device))  
@@ -1826,24 +1827,25 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         # obs_dict['tasks_state'] = self.task_manager.task_in_vector
         obs_dict['action_mask'] = self.task_manager.task_mask
         ####2.hoop
-        obs_dict['state_depot_hoop'] = torch.tensor([self.state_depot_hoop], dtype=torch.float32)
-        obs_dict['have_raw_hoops'] = torch.tensor([float(self.materials.hoop_states.count(0) > 0)])
+        obs_dict['state_depot_hoop'] = torch.tensor([self.state_depot_hoop], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['have_raw_hoops'] = torch.tensor([float(self.materials.hoop_states.count(0) > 0)], device = self.cuda_device)
         ####3.bending_tube
-        obs_dict['state_depot_bending_tube'] = torch.tensor([self.state_depot_bending_tube], dtype=torch.float32)
-        obs_dict['have_raw_bending_tube'] = torch.tensor([float(self.materials.bending_tube_states.count(0) > 0)])
+        obs_dict['state_depot_bending_tube'] = torch.tensor([self.state_depot_bending_tube], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['have_raw_bending_tube'] = torch.tensor([float(self.materials.bending_tube_states.count(0) > 0)], device = self.cuda_device)
         ####4.station state
-        obs_dict['station_state_inner_left'] = torch.tensor([self.station_state_inner_left], dtype=torch.float32)
-        obs_dict['station_state_inner_right'] = torch.tensor([self.station_state_inner_right], dtype=torch.float32)
-        obs_dict['station_state_outer_left'] = torch.tensor([self.station_state_outer_left], dtype=torch.float32)
-        obs_dict['station_state_outer_right'] = torch.tensor([self.station_state_outer_right], dtype=torch.float32)
+        obs_dict['station_state_inner_left'] = torch.tensor([self.station_state_inner_left], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['station_state_inner_right'] = torch.tensor([self.station_state_inner_right], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['station_state_outer_left'] = torch.tensor([self.station_state_outer_left], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['station_state_outer_right'] = torch.tensor([self.station_state_outer_right], dtype=torch.float32, device = self.cuda_device)
         ####5.cutting_machine
-        obs_dict['cutting_machine_state'] = torch.tensor([self.cutting_machine_state], dtype=torch.float32)
+        obs_dict['cutting_machine_state'] = torch.tensor([self.cutting_machine_state], dtype=torch.float32, device = self.cuda_device)
         ####6.products
-        obs_dict['is_full_products'] = torch.tensor([float(self.task_manager.boxs.is_full_products())], dtype=torch.float32)
-        obs_dict['produce_product_req'] = torch.tensor([float(self.materials.produce_product_req())], dtype=torch.float32)
+        obs_dict['is_full_products'] = torch.tensor([float(self.task_manager.boxs.is_full_products())], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['produce_product_req'] = torch.tensor([float(self.materials.produce_product_req())], dtype=torch.float32, device = self.cuda_device)
         ####7.time_step
         # obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
-        obs_dict['time_step'] = self.progress_buf[0].cpu()
+        obs_dict['time_step'] = torch.tensor([self.progress_buf[0].cpu()/2000], dtype=torch.float32, device = self.cuda_device)
+        # (self.progress_buf[0].cpu()/2000).unsqueeze(0)
         ####8.worker state
         ####9.agv state
         return obs_dict
