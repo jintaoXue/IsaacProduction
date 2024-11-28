@@ -1845,6 +1845,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         ####7.time_step
         # obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
         obs_dict['time_step'] = torch.tensor([self.progress_buf[0].cpu()/2000], dtype=torch.float32, device = self.cuda_device)
+        ####8.worker
+        #pose_dic
+        ####9.agv
         # (self.progress_buf[0].cpu()/2000).unsqueeze(0)
         ####8.worker state
         ####9.agv state
