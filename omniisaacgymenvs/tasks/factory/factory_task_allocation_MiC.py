@@ -1824,27 +1824,24 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         # obs_dict['tasks_state'] = self.task_manager.task_in_vector
         obs_dict['action_mask'] = self.task_manager.task_mask
         ####2.hoop
-        obs_dict['state_depot_hoop'] = torch.tensor([self.state_depot_hoop], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['have_raw_hoops'] = torch.tensor([float(self.materials.hoop_states.count(0) > 0)], device = self.cuda_device)
+        obs_dict['state_depot_hoop'] = torch.tensor([self.state_depot_hoop], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['have_raw_hoops'] = torch.tensor([self.materials.hoop_states.count(0) > 0], dtype=torch.int32, device = self.cuda_device)
         ####3.bending_tube
-        obs_dict['state_depot_bending_tube'] = torch.tensor([self.state_depot_bending_tube], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['have_raw_bending_tube'] = torch.tensor([float(self.materials.bending_tube_states.count(0) > 0)], device = self.cuda_device)
+        obs_dict['state_depot_bending_tube'] = torch.tensor([self.state_depot_bending_tube], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['have_raw_bending_tube'] = torch.tensor([self.materials.bending_tube_states.count(0) > 0], dtype=torch.int32, device = self.cuda_device)
         ####4.station state
-        obs_dict['station_state_inner_left'] = torch.tensor([self.station_state_inner_left+1], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['station_state_inner_right'] = torch.tensor([self.station_state_inner_right+1], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['station_state_outer_left'] = torch.tensor([self.station_state_outer_left+1], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['station_state_outer_right'] = torch.tensor([self.station_state_outer_right+1], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['station_state_inner_left'] = torch.tensor([self.station_state_inner_left+1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['station_state_inner_right'] = torch.tensor([self.station_state_inner_right+1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['station_state_outer_left'] = torch.tensor([self.station_state_outer_left+1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['station_state_outer_right'] = torch.tensor([self.station_state_outer_right+1], dtype=torch.int32, device = self.cuda_device)
         ####5.cutting_machine
-        obs_dict['cutting_machine_state'] = torch.tensor([self.cutting_machine_state], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['cutting_machine_state'] = torch.tensor([self.cutting_machine_state], dtype=torch.int32, device = self.cuda_device)
         ####6.products
-        obs_dict['is_full_products'] = torch.tensor([float(self.task_manager.boxs.is_full_products())], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['produce_product_req'] = torch.tensor([float(self.materials.produce_product_req())], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['is_full_products'] = torch.tensor([self.task_manager.boxs.is_full_products()], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['produce_product_req'] = torch.tensor([self.materials.produce_product_req()], dtype=torch.int32, device = self.cuda_device)
         ####7.time_step
         # obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
         obs_dict['time_step'] = torch.tensor([self.progress_buf[0].cpu()/2000], dtype=torch.float32, device = self.cuda_device)
-        ####8.worker
-        #pose_dic
-        ####9.agv
         # (self.progress_buf[0].cpu()/2000).unsqueeze(0)
         ####10.progress
         obs_dict['progress'] = torch.tensor([self.materials.progress()], dtype=torch.float32, device = self.cuda_device)
@@ -1853,47 +1850,48 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         wp_0 = world_pose_to_navigation_pose(worker_0_position)
         wp_0_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp_0, in_dis=1000.)
         wp_0_num = self.task_manager.characters.poses_dic2num[wp_0_str]
-        obs_dict['worker_pose_0'] = torch.tensor([wp_0_num], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['worker_state_0'] = torch.tensor([self.task_manager.characters.states[0]], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['worker_task_0'] = torch.tensor([self.task_manager.characters.tasks[0]], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['worker_pose_0'] = torch.tensor([wp_0_num], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['worker_state_0'] = torch.tensor([self.task_manager.characters.states[0]], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['worker_task_0'] = torch.tensor([self.task_manager.characters.tasks[0]], dtype=torch.int32, device = self.cuda_device)
 
         worker_1_position = self.task_manager.characters.list[1].get_world_poses()
         wp_1 = world_pose_to_navigation_pose(worker_1_position)
         wp_1_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp_1, in_dis=1000.)
         wp_1_num = self.task_manager.characters.poses_dic2num[wp_1_str]
-        obs_dict['worker_pose_1'] = torch.tensor([wp_1_num], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['worker_state_1'] = torch.tensor([self.task_manager.characters.states[1]], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['worker_task_1'] = torch.tensor([self.task_manager.characters.tasks[1]], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['worker_pose_1'] = torch.tensor([wp_1_num], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['worker_state_1'] = torch.tensor([self.task_manager.characters.states[1]], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['worker_task_1'] = torch.tensor([self.task_manager.characters.tasks[1]], dtype=torch.int32, device = self.cuda_device)
         ####9.agv state
         agv_0_position = self.task_manager.agvs.list[0].get_world_poses()
         agvp_0 = world_pose_to_navigation_pose(agv_0_position)
         agvp_str_0 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=agvp_0, in_dis=1000.)
         agvp_0_num = self.task_manager.agvs.poses_dic2num[agvp_str_0]
-        obs_dict['agv_pose_0'] = torch.tensor([agvp_0_num], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['agv_state_0'] = torch.tensor([self.task_manager.agvs.states[0]], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['agv_task_0'] = torch.tensor([self.task_manager.agvs.tasks[0]], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['agv_pose_0'] = torch.tensor([agvp_0_num], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['agv_state_0'] = torch.tensor([self.task_manager.agvs.states[0]], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['agv_task_0'] = torch.tensor([self.task_manager.agvs.tasks[0]], dtype=torch.int32, device = self.cuda_device)
 
         agv_1_position = self.task_manager.agvs.list[1].get_world_poses()
         agvp_1 = world_pose_to_navigation_pose(agv_1_position)
         agvp_str_1 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=agvp_1, in_dis=1000.)
         agvp_1_num = self.task_manager.agvs.poses_dic2num[agvp_str_1]
-        obs_dict['agv_pose_1'] = torch.tensor([agvp_1_num], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['agv_state_1'] = torch.tensor([self.task_manager.agvs.states[1]], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['agv_task_1'] = torch.tensor([self.task_manager.agvs.tasks[1]], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['agv_pose_1'] = torch.tensor([agvp_1_num], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['agv_state_1'] = torch.tensor([self.task_manager.agvs.states[1]], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['agv_task_1'] = torch.tensor([self.task_manager.agvs.tasks[1]], dtype=torch.int32, device = self.cuda_device)
         ####10.box state
         box_0_position = self.task_manager.boxs.list[0].get_world_poses()
         boxp_0 = world_pose_to_navigation_pose(box_0_position)
         boxp_str_0 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=boxp_0, in_dis=1000.)
         boxp_0_num = self.task_manager.agvs.poses_dic2num[boxp_str_0]
-        obs_dict['box_pose_0'] = torch.tensor([boxp_0_num], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['box_state_0'] = torch.tensor([self.task_manager.boxs.states[0]], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['box_task_0'] = torch.tensor([self.task_manager.boxs.tasks[0]], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['box_pose_0'] = torch.tensor([boxp_0_num], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['box_state_0'] = torch.tensor([self.task_manager.boxs.states[0]], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['box_task_0'] = torch.tensor([self.task_manager.boxs.tasks[0]], dtype=torch.int32, device = self.cuda_device)
 
         box_1_position = self.task_manager.boxs.list[1].get_world_poses()
         boxp_1 = world_pose_to_navigation_pose(box_1_position)
         boxp_str_1 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=boxp_1, in_dis=1000.)
         boxp_1_num = self.task_manager.agvs.poses_dic2num[boxp_str_1]
-        obs_dict['box_pose_1'] = torch.tensor([boxp_1_num], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['box_state_1'] = torch.tensor([self.task_manager.boxs.states[1]], dtype=torch.float32, device = self.cuda_device)
-        obs_dict['box_task_1'] = torch.tensor([self.task_manager.boxs.tasks[1]], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['box_pose_1'] = torch.tensor([boxp_1_num], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['box_state_1'] = torch.tensor([self.task_manager.boxs.states[1]], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['box_task_1'] = torch.tensor([self.task_manager.boxs.tasks[1]], dtype=torch.int32, device = self.cuda_device)
+
         return obs_dict

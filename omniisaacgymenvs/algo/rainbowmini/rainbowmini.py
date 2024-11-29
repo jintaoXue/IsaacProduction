@@ -42,8 +42,8 @@ class RainbowminiAgent():
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
-        # self.num_warmup_steps = config.get('num_warmup_steps', int(10e4))
-        self.num_warmup_steps = config.get('num_warmup_steps', int(512))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(10e4))
+        # self.num_warmup_steps = config.get('num_warmup_steps', int(512))
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach

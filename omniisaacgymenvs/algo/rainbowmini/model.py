@@ -10,42 +10,42 @@ from dataclasses import dataclass
 class DimState :
     action_mask: int = 10
 
-    state_depot_hoop: int = 1
+    # state_depot_hoop: int = 1
     types_state_depot_hoop: int = 3
 
-    have_raw_hoops: int = 1
+    # have_raw_hoops: int = 1
     types_have_raw_hoops: int = 2
 
-    state_depot_bending_tube: int = 1
+    # state_depot_bending_tube: int = 1
     types_state_depot_bending_tube: int = 3
 
-    have_raw_bending_tube: int = 1
+    # have_raw_bending_tube: int = 1
     types_have_raw_bending_tube: int = 2
 
-    station_state_inner_left: int = 1
+    # station_state_inner_left: int = 1
     types_station_state_inner_left: int = 8
 
-    station_state_inner_right: int = 1
+    # station_state_inner_right: int = 1
     types_station_state_inner_right: int = 6
 
-    station_state_outer_left: int = 1
+    # station_state_outer_left: int = 1
     types_station_state_outer_left: int = 8
 
-    station_state_outer_right: int = 1
+    # station_state_outer_right: int = 1
     types_station_state_outer_right: int = 6
 
-    cutting_machine_state: int = 1
+    # cutting_machine_state: int = 1
     types_cutting_machine_state: int = 3
 
-    is_full_products: int = 1
+    # is_full_products: int = 1
     types_is_full_products: int = 2
 
-    produce_product_req: int = 1
+    # produce_product_req: int = 1
     types_produce_product_req: int = 2
 
     time_step: int = 1
     progress: int = 1
-    types_worker_state: int = 5
+    types_worker_state: int = 7
     types_worker_task: int = 11
     types_worker_pose: int = 12
     types_agv_state: int = 4
@@ -135,6 +135,7 @@ class FeatureExtractorV1(nn.Module):
         # self.method_name = config.method_name
         # self.model_dir = config.model_dir
         # self.model_num = int(config.model_num)
+        self.dim_state = dimstate
         self.device = cfg['device']
         self.dtype = torch.float32
         hidden_size = cfg['hidden_size']
@@ -175,6 +176,61 @@ class FeatureExtractorV1(nn.Module):
         self.dim_feature = hidden_size
 
     def forward(self, state, **kwargs):
+        
+        # assert (torch.where(state['state_depot_hoop']>=0, True, False).all() and torch.where(state['state_depot_hoop']<self.dim_state.types_state_depot_hoop, True, False).all()),'0'
+        # assert  (torch.where(state['have_raw_hoops']>=0, True, False).all() and torch.where(state['have_raw_hoops']<self.dim_state.types_have_raw_hoops, True, False).all()),'1'
+        # assert  (torch.where(state['state_depot_bending_tube']>=0, True, False).all() and torch.where(state['state_depot_bending_tube']<self.dim_state.types_state_depot_bending_tube, True, False).all()),'2'
+        # assert  (torch.where(state['have_raw_bending_tube']>=0, True, False).all() and torch.where(state['have_raw_bending_tube']<self.dim_state.types_have_raw_bending_tube, True, False).all()),'3'
+        # if not (torch.where(state['station_state_inner_left']>=0, True, False).all() and torch.where(state['station_state_inner_left']<self.dim_state.types_station_state_inner_left, True, False).all()):
+        #   print(5)
+        # if not (torch.where(state['station_state_inner_right']>=0, True, False).all() and torch.where(state['station_state_inner_right']<self.dim_state.types_station_state_inner_right, True, False).all()):
+        #   print(6)
+        # if not (torch.where(state['station_state_outer_left']>=0, True, False).all() and torch.where(state['station_state_outer_left']<self.dim_state.types_station_state_outer_left, True, False).all()):
+        #   print(7)
+        # if not (torch.where(state['station_state_outer_right']>=0, True, False).all() and torch.where(state['station_state_outer_right']<self.dim_state.types_station_state_outer_right, True, False).all()):
+        #   print(8)
+        # if not (torch.where(state['cutting_machine_state']>=0, True, False).all() and torch.where(state['cutting_machine_state']<self.dim_state.types_cutting_machine_state, True, False).all()):
+        #   print(9)
+        # if not (torch.where(state['is_full_products']>=0, True, False).all() and torch.where(state['is_full_products']<self.dim_state.types_is_full_products, True, False).all()):
+        #   print(10)
+        # if not (torch.where(state['produce_product_req']>=0, True, False).all() and torch.where(state['produce_product_req']<self.dim_state.types_produce_product_req, True, False).all()):
+        #   print(11)
+        # if not (torch.where(state['worker_state_0']>=0, True, False).all() and torch.where(state['worker_state_0']<self.dim_state.types_worker_state, True, False).all()):
+        #   print(12)
+        # if not (torch.where(state['worker_state_1']>=0, True, False).all() and torch.where(state['worker_state_1']<self.dim_state.types_worker_state, True, False).all()):
+        #   print(13)
+        # if not (torch.where(state['worker_task_0']>=0, True, False).all() and torch.where(state['worker_task_0']<self.dim_state.types_worker_task, True, False).all()):
+        #   print(14)
+        # if not (torch.where(state['worker_task_1']>=0, True, False).all() and torch.where(state['worker_task_1']<self.dim_state.types_worker_task, True, False).all()):
+        #   print(15)
+        # if not (torch.where(state['worker_pose_0']>=0, True, False).all() and torch.where(state['worker_pose_0']<self.dim_state.types_worker_pose, True, False).all()):
+        #   print(16)
+        # if not (torch.where(state['worker_pose_1']>=0, True, False).all() and torch.where(state['worker_pose_1']<self.dim_state.types_worker_pose, True, False).all()):
+        #   print(17)
+        # if not (torch.where(state['agv_state_0']>=0, True, False).all() and torch.where(state['agv_state_0']<self.dim_state.types_agv_state, True, False).all()):
+        #   print(18)
+        # if not (torch.where(state['agv_state_1']>=0, True, False).all() and torch.where(state['agv_state_1']<self.dim_state.types_agv_state, True, False).all()):
+        #   print(19)
+        # if not (torch.where(state['agv_task_0']>=0, True, False).all() and torch.where(state['agv_task_0']<self.dim_state.types_agv_task, True, False).all()):
+        #   print(20)
+        # if not (torch.where(state['agv_task_1']>=0, True, False).all() and torch.where(state['agv_task_1']<self.dim_state.types_agv_task, True, False).all()):
+        #   print(21)
+        # if not (torch.where(state['agv_pose_0']>=0, True, False).all() and torch.where(state['agv_pose_0']<self.dim_state.types_agv_pose, True, False).all()):
+        #   print(22)
+        # if not (torch.where(state['agv_pose_1']>=0, True, False).all() and torch.where(state['agv_pose_1']<self.dim_state.types_agv_pose, True, False).all()):
+        #   print(23)
+        # if not (torch.where(state['box_state_0']>=0, True, False).all() and torch.where(state['box_state_0']<self.dim_state.types_box_state, True, False).all()):
+        #   print(24)
+        # if not (torch.where(state['box_state_1']>=0, True, False).all() and torch.where(state['box_state_1']<self.dim_state.types_box_state, True, False).all()):
+        #   print(25)
+        # if not (torch.where(state['box_task_0']>=0, True, False).all() and torch.where(state['box_task_0']<self.dim_state.types_box_task, True, False).all()):
+        #   print(26)
+        # if not (torch.where(state['box_task_1']>=0, True, False).all() and torch.where(state['box_task_1']<self.dim_state.types_box_task, True, False).all()):
+        #   print(27)
+        # if not (torch.where(state['box_pose_0']>=0, True, False).all() and torch.where(state['box_pose_0']<self.dim_state.types_agv_pose, True, False).all()):
+        #   print(28)
+        # if not (torch.where(state['box_pose_1']>=0, True, False).all() and torch.where(state['box_pose_1']<self.dim_state.types_agv_pose, True, False).all()):
+        #   print(29)
 
         action_mask_embedding = self.action_mask_embedding(state['action_mask'])
         state_depot_hoop_embedding= self.state_depot_hoop_embedding(state['state_depot_hoop'])
@@ -190,39 +246,40 @@ class FeatureExtractorV1(nn.Module):
         produce_product_req_embedding = self.produce_product_req_embedding(state['produce_product_req'])
         time_step_embedding = self.time_step_embedding(state['time_step'])
         progress = self.progress_emb(state['progress'])
+
         worker_state_0 = self.worker_state_embd(state['worker_state_0'])
         worker_state_1 = self.worker_state_embd(state['worker_state_1'])
         worker_task_0 = self.worker_task_embd(state['worker_task_0'])
         worker_task_1 = self.worker_task_embd(state['worker_task_1'])
-        worker_pose_0 = self.worker_task_embd(state['worker_pose_0'])
-        worker_pose_1 = self.worker_task_embd(state['worker_pose_1'])
+        worker_pose_0 = self.worker_pose_embd(state['worker_pose_0'])
+        worker_pose_1 = self.worker_pose_embd(state['worker_pose_1'])
 
-        agv_state_0 = self.agv_task_embd(state['agv_state_0'])
-        agv_state_1 = self.agv_task_embd(state['agv_state_1'])
+        agv_state_0 = self.agv_state_embd(state['agv_state_0'])
+        agv_state_1 = self.agv_state_embd(state['agv_state_1'])
         agv_task_0 = self.agv_task_embd(state['agv_task_0'])
         agv_task_1 = self.agv_task_embd(state['agv_task_1'])
-        agv_pose_0 = self.agv_task_embd(state['agv_pose_0'])
-        agv_pose_1 = self.agv_task_embd(state['agv_pose_1'])
+        agv_pose_0 = self.agv_pose_embd(state['agv_pose_0'])
+        agv_pose_1 = self.agv_pose_embd(state['agv_pose_1'])
 
-        box_state_0 = self.box_task_embd(state['box_state_0'])
-        box_state_1 = self.box_task_embd(state['box_state_1'])
+        box_state_0 = self.box_state_embd(state['box_state_0'])
+        box_state_1 = self.box_state_embd(state['box_state_1'])
         box_task_0 = self.box_task_embd(state['box_task_0'])
         box_task_1 = self.box_task_embd(state['box_task_1'])
-        box_pose_0 = self.box_task_embd(state['box_pose_0'])
-        box_pose_1 = self.box_task_embd(state['box_pose_1'])
+        box_pose_0 = self.agv_pose_embd(state['box_pose_0'])
+        box_pose_1 = self.agv_pose_embd(state['box_pose_1'])
 
         type_embedding = self.type_embedding(state)
 
         ###########################################################################################
         ###########################################################################################
 
-        all_embs = torch.cat([action_mask_embedding.unsqueeze(1), state_depot_hoop_embedding.unsqueeze(1), have_raw_hoops_embedding.unsqueeze(1), state_depot_bending_tube_embedding.unsqueeze(1), 
-                              have_raw_bending_tube_embedding.unsqueeze(1), station_state_inner_left_embedding.unsqueeze(1), station_state_inner_right_embedding.unsqueeze(1), 
-                              station_state_outer_left_embedding.unsqueeze(1), station_state_outer_right_embedding.unsqueeze(1), cutting_machine_state_embedding.unsqueeze(1), 
-                              is_full_products_embedding.unsqueeze(1), produce_product_req_embedding.unsqueeze(1), time_step_embedding.unsqueeze(1), progress.unsqueeze(1), 
-                              worker_state_0.unsqueeze(1), worker_task_0.unsqueeze(1), worker_pose_0.unsqueeze(1), worker_state_1.unsqueeze(1), worker_task_1.unsqueeze(1), worker_pose_1.unsqueeze(1), 
-                              agv_state_0.unsqueeze(1), agv_task_0.unsqueeze(1), agv_pose_0.unsqueeze(1), agv_state_1.unsqueeze(1), agv_task_1.unsqueeze(1), agv_pose_1.unsqueeze(1),
-                              box_state_0.unsqueeze(1), box_task_0.unsqueeze(1), box_pose_0.unsqueeze(1), box_state_1.unsqueeze(1), box_task_1.unsqueeze(1), box_pose_1.unsqueeze(1)], dim=1)
+        all_embs = torch.cat([action_mask_embedding.unsqueeze(1), state_depot_hoop_embedding, have_raw_hoops_embedding, state_depot_bending_tube_embedding, 
+                              have_raw_bending_tube_embedding, station_state_inner_left_embedding, station_state_inner_right_embedding, 
+                              station_state_outer_left_embedding, station_state_outer_right_embedding, cutting_machine_state_embedding, 
+                              is_full_products_embedding, produce_product_req_embedding, time_step_embedding.unsqueeze(1), progress.unsqueeze(1), 
+                              worker_state_0, worker_task_0, worker_pose_0, worker_state_1, worker_task_1, worker_pose_1, 
+                              agv_state_0, agv_task_0, agv_pose_0, agv_state_1, agv_task_1, agv_pose_1,
+                              box_state_0, box_task_0, box_pose_0, box_state_1, box_task_1, box_pose_1], dim=1)
         type_embedding = self.type_embedding(state)
         outputs, attns = self.global_head(all_embs, type_embedding)
         # self.attention = attns.detach().clone().cpu()
