@@ -7,7 +7,15 @@ import torch
 blank_state = {'action_mask': torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]), 'state_depot_hoop': torch.tensor([0.]), 'have_raw_hoops': torch.tensor([0.]), 
  'state_depot_bending_tube': torch.tensor([0.]), 'have_raw_bending_tube': torch.tensor([0.]), 'station_state_inner_left': torch.tensor([0.]), 
  'station_state_inner_right': torch.tensor([0.]), 'station_state_outer_left': torch.tensor([0.]), 'station_state_outer_right': torch.tensor([0.]), 
- 'cutting_machine_state': torch.tensor([0.]), 'is_full_products': torch.tensor([0.]), 'produce_product_req': torch.tensor([0.]), 'time_step': torch.tensor([0.])}
+ 'cutting_machine_state': torch.tensor([0.]), 'is_full_products': torch.tensor([0.]), 'produce_product_req': torch.tensor([0.]), 'time_step': torch.tensor([0.]),
+ 'progress': torch.tensor([0.]),
+ 'worker_pose_0':torch.tensor([0.]), 'worker_state_0':torch.tensor([0.]), 'worker_task_0':torch.tensor([0.]),
+ 'worker_pose_1':torch.tensor([0.]), 'worker_state_1':torch.tensor([0.]), 'worker_task_1':torch.tensor([0.]),
+ 'agv_pose_0':torch.tensor([0.]), 'agv_state_0':torch.tensor([0.]), 'agv_task_0':torch.tensor([0.]),
+ 'agv_pose_1':torch.tensor([0.]), 'agv_state_1':torch.tensor([0.]), 'agv_task_1':torch.tensor([0.]),
+ 'box_pose_0':torch.tensor([0.]), 'box_state_0':torch.tensor([0.]), 'box_task_0':torch.tensor([0.]),
+ 'box_pose_1':torch.tensor([0.]), 'box_state_1':torch.tensor([0.]), 'box_task_1':torch.tensor([0.]),
+ }
 
 Transition_dtype = np.dtype([('timestep', np.int32), ('state', dict), ('action', np.int32), ('reward', np.float32), ('nonterminal', np.bool_)])
 blank_trans = (0, blank_state, torch.zeros((1), dtype=torch.int64), 0.0, False)

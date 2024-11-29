@@ -241,6 +241,12 @@ class Characters(object):
                         'hoop_loading_outer':[-16.26241, 6.0, np.deg2rad(180)], 'bending_tube_loading_outer': [-29.06123, 6.3725, np.deg2rad(0)],
                         'cutting_cube':[-29.83212, -1.54882, np.deg2rad(0)], 'placing_product':[-40.47391, 12.91755, np.deg2rad(0)],
                         'initial_pose_0':[-11.5768, 6.48821, 0.0], 'initial_pose_1':[-30.516169, 7.5748153, 0.0]}
+        self.poses_dic2num = {"put_hoop_into_box": 0 , "put_bending_tube_into_box": 1, 
+                "put_hoop_on_table": 2, "put_bending_tube_on_table":3,
+                'hoop_loading_inner':4,'bending_tube_loading_inner':5,
+                'hoop_loading_outer':6, 'bending_tube_loading_outer': 7,
+                'cutting_cube':8, 'placing_product':9,
+                'initial_pose_0':10, 'initial_pose_1':11}
         self.initial_pose_list = []
         for obj in self.list:
             self.initial_pose_list.append(obj.get_world_poses())
@@ -388,6 +394,12 @@ class Agvs(object):
                         'collect_product':[-21.76757, 10.78427, np.deg2rad(0)],'placing_product':[-38.54638, 12.40097, np.deg2rad(0)], 
                         'initial_pose_0':[-4.8783107, 8.017096, 0.0], 'initial_pose_1': [-4.8726454, 11.656976, 0.0],
                         'initial_box_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_box_pose_1': [-1.7894887, 11.822739, 0.0]}
+        self.poses_dic2num = {
+            "carry_box_to_hoop": 0 , "carry_box_to_bending_tube": 1, 
+            "carry_box_to_hoop_table": 2, "carry_box_to_bending_tube_table":3,
+            'collect_product':4,'placing_product':5,
+            'initial_pose_0':6, 'initial_pose_1':7,
+            'initial_box_pose_0':8, 'initial_box_pose_1':9}
         self.initial_pose_list = []
         for obj in self.list:
             self.initial_pose_list.append(obj.get_world_poses())
@@ -512,7 +524,7 @@ class TransBoxs(object):
         self.sub_task_dic = {0:"free", 1:"waiting_agv", 2:"moving_with_box", 3: "collect_product"}
         self.task_range = {'hoop_preparing', 'bending_tube_preparing', 'collect_product','placing_product'}
 
-        self.poses_dic = {'initial_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_pose_1': [-1.7894887, 11.822739, 0.0]}
+        self.poses_dic = {'initial_box_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_box_pose_1': [-1.7894887, 11.822739, 0.0]}
         self.initial_pose_list = []
         for obj in self.list:
             self.initial_pose_list.append(obj.get_world_poses())
@@ -1311,25 +1323,34 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
     def routes_down_sampling(self, routes_dic, to_cuda): 
         # min_len = 2e32
         # max_len = -1
-        def down_sampling_helper(route, to_cuda, cuda_device):
-            interval = 5
-            x,y,yaw = route
-            x = [x[0]] + x[1:-1][::interval] + [x[-1]]
-            y = [y[0]] + y[1:-1][::interval] + [y[-1]]
-            yaw = [yaw[0]] + yaw[1:-1][::interval] + [yaw[-1]]
-            if to_cuda:
-                x = torch.tensor(x, device=cuda_device)
-                y = torch.tensor(y, device=cuda_device)
-                yaw = torch.tensor(yaw, device=cuda_device)
-            return x,y,yaw
+        # self.max_x = -100
+        # self.min_x = 100
+        # self.max_y = -100
+        # self.min_y = 100
         for (key, route_dic) in routes_dic.items():
             for (_key, route) in route_dic.items():
-                route_dic[_key] = down_sampling_helper(route, to_cuda, self.cuda_device)
+                route_dic[_key] = self.down_sampling_helper(route, to_cuda, self.cuda_device)
                 # x = route_dic[_key][0]
                 # min_len = min(min_len, len(x))
                 # max_len = max(max_len, len(x))
             routes_dic[key] = route_dic
         return routes_dic
+    
+    def down_sampling_helper(self, route, to_cuda, cuda_device):
+        interval = 5
+        x,y,yaw = route
+        x = [x[0]] + x[1:-1][::interval] + [x[-1]]
+        y = [y[0]] + y[1:-1][::interval] + [y[-1]]
+        yaw = [yaw[0]] + yaw[1:-1][::interval] + [yaw[-1]]
+        if to_cuda:
+            x = torch.tensor(x, device=cuda_device)
+            y = torch.tensor(y, device=cuda_device)
+            yaw = torch.tensor(yaw, device=cuda_device)
+        # self.max_x = max(self.max_x, max(x))
+        # self.max_y = max(self.max_x, max(x))
+        # self.min_x = max(self.max_x, max(x))
+        # self.min_y = max(self.max_x, max(x))
+        return x,y,yaw
     def generate_routes(self, pose_dic : dict, file_path, have_problem_routes: dict):
         path = os.path.expanduser(file_path)
         routes_dic = {}

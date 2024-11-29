@@ -9,18 +9,50 @@ from dataclasses import dataclass
 @dataclass
 class DimState :
     action_mask: int = 10
+
     state_depot_hoop: int = 1
+    types_state_depot_hoop: int = 3
+
     have_raw_hoops: int = 1
+    types_have_raw_hoops: int = 2
+
     state_depot_bending_tube: int = 1
+    types_state_depot_bending_tube: int = 3
+
     have_raw_bending_tube: int = 1
+    types_have_raw_bending_tube: int = 2
+
     station_state_inner_left: int = 1
+    types_station_state_inner_left: int = 8
+
     station_state_inner_right: int = 1
+    types_station_state_inner_right: int = 6
+
     station_state_outer_left: int = 1
+    types_station_state_outer_left: int = 8
+
     station_state_outer_right: int = 1
+    types_station_state_outer_right: int = 6
+
     cutting_machine_state: int = 1
+    types_cutting_machine_state: int = 3
+
     is_full_products: int = 1
+    types_is_full_products: int = 2
+
     produce_product_req: int = 1
+    types_produce_product_req: int = 2
+
     time_step: int = 1
+    progress: int = 1
+    types_worker_state: int = 5
+    types_worker_task: int = 11
+    types_worker_pose: int = 12
+    types_agv_state: int = 4
+    types_agv_task: int = 7
+    types_agv_pose: int = 10
+    types_box_state: int = 3
+    types_box_task: int = 4
 
 # Factorised NoisyLinear layer with bias
 class NoisyLinear(nn.Module):
@@ -66,7 +98,7 @@ class DQN(nn.Module):
   def __init__(self, config, action_space):
     super(DQN, self).__init__()
     self.action_space = action_space
-    self.fe = FeatureExtractor(config, DimState())
+    self.fe = FeatureExtractorV1(config, DimState())
     self.fm = FeatureMapper(self.fe.dim_feature, 1024)    
     self.fc_h_v = NoisyLinear(self.fm.dim_output, config['hidden_size'], std_init=config['noisy_std'])
     self.fc_h_a = NoisyLinear(self.fm.dim_output, config['hidden_size'], std_init=config['noisy_std'])
@@ -95,7 +127,110 @@ class DQN(nn.Module):
       if 'fc' in name:
         module.reset_noise()
 
-class FeatureExtractor(nn.Module):
+
+class FeatureExtractorV1(nn.Module):
+    def __init__(self, cfg, dimstate : DimState):
+        super().__init__()
+        # self.model_id = model_id
+        # self.method_name = config.method_name
+        # self.model_dir = config.model_dir
+        # self.model_num = int(config.model_num)
+        self.device = cfg['device']
+        self.dtype = torch.float32
+        hidden_size = cfg['hidden_size']
+
+        self.action_mask_embedding= nn.Sequential(
+            nn.Linear(dimstate.action_mask, hidden_size), nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+        )
+        self.state_depot_hoop_embedding = nn.Embedding(dimstate.types_state_depot_hoop, hidden_size)
+        self.have_raw_hoops_embedding = nn.Embedding(dimstate.types_have_raw_hoops, hidden_size)
+        self.state_depot_bending_tube_embedding= nn.Embedding(dimstate.types_state_depot_bending_tube, hidden_size)
+        self.have_raw_bending_tube_embedding = nn.Embedding(dimstate.types_have_raw_bending_tube, hidden_size)
+        self.station_state_inner_left_embedding = nn.Embedding(dimstate.types_station_state_inner_left, hidden_size)
+        self.station_state_inner_right_embedding = nn.Embedding(dimstate.types_station_state_inner_right, hidden_size)
+        self.station_state_outer_left_embedding = nn.Embedding(dimstate.types_station_state_outer_left, hidden_size)
+        self.station_state_outer_right_embedding = nn.Embedding(dimstate.types_station_state_outer_right, hidden_size)
+        self.cutting_machine_state_embedding = nn.Embedding(dimstate.types_cutting_machine_state, hidden_size)
+        self.is_full_products_embedding = nn.Embedding(dimstate.types_is_full_products, hidden_size)
+        self.produce_product_req_embedding = nn.Embedding(dimstate.types_produce_product_req, hidden_size)
+        self.time_step_embedding = nn.Sequential(
+            nn.Linear(dimstate.time_step, hidden_size), nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+        )
+        self.progress_emb = nn.Sequential(
+            nn.Linear(dimstate.progress, hidden_size), nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+        )
+        self.worker_state_embd = nn.Embedding(dimstate.types_worker_state, hidden_size)
+        self.worker_task_embd = nn.Embedding(dimstate.types_worker_task, hidden_size)
+        self.worker_pose_embd = nn.Embedding(dimstate.types_worker_pose, hidden_size)
+        self.agv_state_embd = nn.Embedding(dimstate.types_agv_state, hidden_size)
+        self.agv_task_embd = nn.Embedding(dimstate.types_agv_task, hidden_size)
+        self.agv_pose_embd = nn.Embedding(dimstate.types_agv_pose, hidden_size)
+        self.box_state_embd = nn.Embedding(dimstate.types_box_state, hidden_size)
+        self.box_task_embd = nn.Embedding(dimstate.types_box_task, hidden_size)
+        self.type_embedding = VectorizedEmbedding(hidden_size)
+        self.global_head = MultiheadAttentionGlobalHead(hidden_size, nhead=4, dropout=0.1)
+        self.dim_feature = hidden_size
+
+    def forward(self, state, **kwargs):
+
+        action_mask_embedding = self.action_mask_embedding(state['action_mask'])
+        state_depot_hoop_embedding= self.state_depot_hoop_embedding(state['state_depot_hoop'])
+        have_raw_hoops_embedding= self.have_raw_hoops_embedding(state['have_raw_hoops'])
+        state_depot_bending_tube_embedding= self.state_depot_bending_tube_embedding(state['state_depot_bending_tube'])
+        have_raw_bending_tube_embedding = self.have_raw_bending_tube_embedding(state['have_raw_bending_tube'])
+        station_state_inner_left_embedding = self.station_state_inner_left_embedding(state['station_state_inner_left'])
+        station_state_inner_right_embedding = self.station_state_inner_right_embedding(state['station_state_inner_right'])
+        station_state_outer_left_embedding = self.station_state_outer_left_embedding(state['station_state_outer_left'])
+        station_state_outer_right_embedding = self.station_state_outer_right_embedding(state['station_state_outer_right'])
+        cutting_machine_state_embedding = self.cutting_machine_state_embedding(state['cutting_machine_state'])
+        is_full_products_embedding = self.is_full_products_embedding(state['is_full_products'])
+        produce_product_req_embedding = self.produce_product_req_embedding(state['produce_product_req'])
+        time_step_embedding = self.time_step_embedding(state['time_step'])
+        progress = self.progress_emb(state['progress'])
+        worker_state_0 = self.worker_state_embd(state['worker_state_0'])
+        worker_state_1 = self.worker_state_embd(state['worker_state_1'])
+        worker_task_0 = self.worker_task_embd(state['worker_task_0'])
+        worker_task_1 = self.worker_task_embd(state['worker_task_1'])
+        worker_pose_0 = self.worker_task_embd(state['worker_pose_0'])
+        worker_pose_1 = self.worker_task_embd(state['worker_pose_1'])
+
+        agv_state_0 = self.agv_task_embd(state['agv_state_0'])
+        agv_state_1 = self.agv_task_embd(state['agv_state_1'])
+        agv_task_0 = self.agv_task_embd(state['agv_task_0'])
+        agv_task_1 = self.agv_task_embd(state['agv_task_1'])
+        agv_pose_0 = self.agv_task_embd(state['agv_pose_0'])
+        agv_pose_1 = self.agv_task_embd(state['agv_pose_1'])
+
+        box_state_0 = self.box_task_embd(state['box_state_0'])
+        box_state_1 = self.box_task_embd(state['box_state_1'])
+        box_task_0 = self.box_task_embd(state['box_task_0'])
+        box_task_1 = self.box_task_embd(state['box_task_1'])
+        box_pose_0 = self.box_task_embd(state['box_pose_0'])
+        box_pose_1 = self.box_task_embd(state['box_pose_1'])
+
+        type_embedding = self.type_embedding(state)
+
+        ###########################################################################################
+        ###########################################################################################
+
+        all_embs = torch.cat([action_mask_embedding.unsqueeze(1), state_depot_hoop_embedding.unsqueeze(1), have_raw_hoops_embedding.unsqueeze(1), state_depot_bending_tube_embedding.unsqueeze(1), 
+                              have_raw_bending_tube_embedding.unsqueeze(1), station_state_inner_left_embedding.unsqueeze(1), station_state_inner_right_embedding.unsqueeze(1), 
+                              station_state_outer_left_embedding.unsqueeze(1), station_state_outer_right_embedding.unsqueeze(1), cutting_machine_state_embedding.unsqueeze(1), 
+                              is_full_products_embedding.unsqueeze(1), produce_product_req_embedding.unsqueeze(1), time_step_embedding.unsqueeze(1), progress.unsqueeze(1), 
+                              worker_state_0.unsqueeze(1), worker_task_0.unsqueeze(1), worker_pose_0.unsqueeze(1), worker_state_1.unsqueeze(1), worker_task_1.unsqueeze(1), worker_pose_1.unsqueeze(1), 
+                              agv_state_0.unsqueeze(1), agv_task_0.unsqueeze(1), agv_pose_0.unsqueeze(1), agv_state_1.unsqueeze(1), agv_task_1.unsqueeze(1), agv_pose_1.unsqueeze(1),
+                              box_state_0.unsqueeze(1), box_task_0.unsqueeze(1), box_pose_0.unsqueeze(1), box_state_1.unsqueeze(1), box_task_1.unsqueeze(1), box_pose_1.unsqueeze(1)], dim=1)
+        type_embedding = self.type_embedding(state)
+        outputs, attns = self.global_head(all_embs, type_embedding)
+        # self.attention = attns.detach().clone().cpu()
+        return outputs
+
+
+
+class FeatureExtractorV2(nn.Module):
     def __init__(self, cfg, dimstate : DimState):
         super().__init__()
         # self.model_id = model_id
@@ -153,7 +288,7 @@ class FeatureExtractor(nn.Module):
         outputs, attns = self.global_head(all_embs, type_embedding)
         # self.attention = attns.detach().clone().cpu()
         return outputs
-    
+
 
 
 class VectorizedEmbedding(nn.Module):
@@ -178,6 +313,30 @@ class VectorizedEmbedding(nn.Module):
             'is_full_products': 10,
             'produce_product_req': 11,
             'time_step':12,
+            'progress':13,
+            'worker_state_0':14,
+            'worker_task_0':15, 
+            'worker_pose_0':16,
+
+            'worker_state_1':17,
+            'worker_task_1':18,
+            'worker_pose_1':19,
+
+            'agv_state_0':20,
+            'agv_task_0':21,  
+            'agv_pose_0':22,
+
+            'agv_state_1':23,
+            'agv_task_1':24,
+            'agv_pose_1':25,
+
+            'box_state_0':26,
+            'box_task_0':27,
+            'box_pose_0':28,
+
+            'box_state_1':29,
+            'box_task_1':30,
+            'box_pose_1':31,
         }
         self.dim_embedding = dim_embedding
         self.embedding = nn.Embedding(len(self.state_types), dim_embedding)
@@ -222,6 +381,25 @@ class VectorizedEmbedding(nn.Module):
             indices[:, 10].fill_(self.state_types["is_full_products"])
             indices[:, 11].fill_(self.state_types["produce_product_req"])
             indices[:, 12].fill_(self.state_types["time_step"])
+            indices[:, 13].fill_(self.state_types["progress"])
+            indices[:, 14].fill_(self.state_types["worker_state_0"])
+            indices[:, 15].fill_(self.state_types["worker_task_0"])
+            indices[:, 16].fill_(self.state_types["worker_pose_0"])
+            indices[:, 17].fill_(self.state_types["worker_state_1"])
+            indices[:, 18].fill_(self.state_types["worker_task_1"])
+            indices[:, 19].fill_(self.state_types["worker_pose_1"])
+            indices[:, 20].fill_(self.state_types["agv_state_0"])
+            indices[:, 21].fill_(self.state_types["agv_task_0"])
+            indices[:, 22].fill_(self.state_types["agv_pose_0"])
+            indices[:, 23].fill_(self.state_types["agv_state_1"])
+            indices[:, 24].fill_(self.state_types["agv_task_1"])
+            indices[:, 25].fill_(self.state_types["agv_pose_1"])
+            indices[:, 26].fill_(self.state_types["box_state_0"])
+            indices[:, 27].fill_(self.state_types["box_task_0"])
+            indices[:, 28].fill_(self.state_types["box_pose_0"])
+            indices[:, 29].fill_(self.state_types["box_state_1"])
+            indices[:, 30].fill_(self.state_types["box_task_1"])
+            indices[:, 31].fill_(self.state_types["box_pose_1"])
 
         return self.embedding.forward(indices)
     
