@@ -214,6 +214,11 @@ ablation study 可以加一个history state
 log 显示上可以加一个进度条
 ###### 11.21 
 如果还是不行的话 就看看别人的loss function怎么做的，以及加上efficient buffer
+
+
+#### 11.28
+对于worker agv的状态表示不够， 以及可以通过route map增加随机性
+
 # ignore
 __pycache___
 __pycache__/
