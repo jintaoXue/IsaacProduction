@@ -54,6 +54,8 @@ class DimState :
     types_box_state: int = 3
     types_box_task: int = 4
 
+    src_seq_len: int = 32
+
 # Factorised NoisyLinear layer with bias
 class NoisyLinear(nn.Module):
   def __init__(self, in_features, out_features, std_init=0.5):
@@ -814,6 +816,7 @@ class DQNTrans(nn.Module):
     self.fc_z_a = NoisyLinear(hidden_size, action_space, std_init=config['noisy_std'])
     self.Vmin = config.get('V_min', -20)
     self.Vmax = config.get('V_max', 20)
+    
   def forward(self, x, log=False):
     action_mask = x['action_mask']
     x = self.transformer(x)

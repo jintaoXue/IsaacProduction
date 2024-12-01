@@ -12,7 +12,7 @@ from rl_games.algos_torch import torch_ext
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 from omniisaacgymenvs.algo.rainbowmini.memory import ReplayMemory
-from omniisaacgymenvs.algo.rainbowmini.model import DQN
+from omniisaacgymenvs.algo.rainbowmini.model import DQN, DQNTrans
 from tqdm import trange
 import time
 from omegaconf import DictConfig
@@ -43,7 +43,7 @@ class RainbowminiAgent():
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
         self.num_warmup_steps = config.get('num_warmup_steps', int(10e4))
-        # self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
@@ -54,12 +54,14 @@ class RainbowminiAgent():
         self.priority_weight_increase = (1 - config['priority_weight']) / (self.max_steps - self.num_warmup_steps)
         self.replay_buffer = ReplayMemory(config, config["replay_buffer_size"])
         ####### net
-        self.online_net = DQN(config, self.actions_num).to(device=self._device)
+        # self.online_net = DQN(config, self.actions_num).to(device=self._device)
+        self.online_net = DQNTrans(config, self.actions_num).to(device=self._device)
         if self._evaluate:
             weights = torch.load(self.train_dir + self._load_dir + self._load_name, weights_only=True)
             self.online_net.load_state_dict(weights['net'])
         self.online_net.train()
-        self.target_net = DQN(config, self.actions_num).to(device=self._device)
+        # self.target_net = DQN(config, self.actions_num).to(device=self._device)
+        self.target_net = DQNTrans(config, self.actions_num).to(device=self._device)
         self.update_target_net()
         self.target_net.train()
         for param in self.target_net.parameters():
