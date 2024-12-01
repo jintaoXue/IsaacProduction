@@ -172,6 +172,7 @@ class FeatureExtractorV1(nn.Module):
         self.box_state_embd = nn.Embedding(dimstate.types_box_state, hidden_size)
         self.box_task_embd = nn.Embedding(dimstate.types_box_task, hidden_size)
         self.type_embedding = VectorizedEmbedding(hidden_size)
+        
         self.global_head = MultiheadAttentionGlobalHead(hidden_size, nhead=4, dropout=0.1)
         self.dim_feature = hidden_size
 

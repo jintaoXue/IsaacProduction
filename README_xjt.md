@@ -218,6 +218,7 @@ log 显示上可以加一个进度条
 
 #### 11.28
 对于worker agv的状态表示不够， 以及可以通过route map增加随机性
+终端log、tansformer、数量变化（env_length这个setting可能也需要变化）
 
 # ignore
 __pycache___

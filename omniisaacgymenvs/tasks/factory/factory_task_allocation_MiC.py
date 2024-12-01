@@ -252,7 +252,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 elif task == 'placing_product':
                     self.task_manager.task_clearing(task='collect_product')
                     self.task_manager.assign_task(task='placing_product')
-                    self.task_manager.boxs.product_collecting_idx = -1
+                    self.task_manager.boxs.product_collecting_idx = -1 #collecting box
                 else:
                     self.task_manager.assign_task(task)
                     if task == 'hoop_loading_inner':
@@ -753,10 +753,12 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             #gripper is free and empty todo
             self.gripper_inner_task = 0
             # stations_are_full = self.station_state_inner_middle and self.station_state_outer_middle #only state == 0 means free, -1 and >= 0 means full
-            if self.station_state_inner_middle == 9 and 'collect_product' in self.task_manager.task_in_dic and self.task_manager.boxs.product_collecting_idx >= 0: #welded product
+            if self.station_state_inner_middle == 9 and 'collect_product' in self.task_manager.task_in_dic and self.task_manager.boxs.product_collecting_idx >= 0 \
+                and self.task_manager.boxs.counts[self.task_manager.boxs.product_collecting_idx]<self.task_manager.boxs.CAPACITY: #welded product
                 self.gripper_inner_task = 4
                 self.gripper_inner_state = 1
-            elif self.station_state_outer_middle == 9 and  'collect_product' in self.task_manager.task_in_dic and self.task_manager.boxs.product_collecting_idx >= 0:
+            elif self.station_state_outer_middle == 9 and  'collect_product' in self.task_manager.task_in_dic and self.task_manager.boxs.product_collecting_idx >= 0 \
+                and self.task_manager.boxs.counts[self.task_manager.boxs.product_collecting_idx]<self.task_manager.boxs.CAPACITY:
                 self.gripper_inner_task = 5
                 self.gripper_inner_state = 1
             elif (pick_up_place_cube_index>=0): #pick cut cube by cutting machine
