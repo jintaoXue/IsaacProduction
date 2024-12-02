@@ -45,6 +45,9 @@ class DimState :
 
     time_step: int = 1
     progress: int = 1
+    #raw_product_embd
+    types_raw_product_embd: int = 20
+
     types_worker_state: int = 7
     types_worker_task: int = 11
     types_worker_pose: int = 12
@@ -53,8 +56,10 @@ class DimState :
     types_agv_pose: int = 10
     types_box_state: int = 3
     types_box_task: int = 4
-
-    src_seq_len: int = 32
+    
+    #(worker+agv+box)*(state+task+pose)*(max_num=3)
+    max_num_entity: int = 3
+    src_seq_len: int = 15 + 3*3*max_num_entity
 
 # Factorised NoisyLinear layer with bias
 class NoisyLinear(nn.Module):
@@ -519,7 +524,7 @@ class FeatureEmbeddingBlock(nn.Module):
     self.cutting_machine_state_embedding = nn.Embedding(dimstate.types_cutting_machine_state, hidden_size)
     self.is_full_products_embedding = nn.Embedding(dimstate.types_is_full_products, hidden_size)
     self.produce_product_req_embedding = nn.Embedding(dimstate.types_produce_product_req, hidden_size)
-
+    self.raw_product_embd= nn.Embedding(dimstate.types_raw_product_embd, hidden_size)
     self.worker_state_embd = nn.Embedding(dimstate.types_worker_state, hidden_size)
     self.worker_task_embd = nn.Embedding(dimstate.types_worker_task, hidden_size)
     self.worker_pose_embd = nn.Embedding(dimstate.types_worker_pose, hidden_size)
@@ -547,24 +552,20 @@ class FeatureEmbeddingBlock(nn.Module):
     cutting_machine_state_embedding = self.cutting_machine_state_embedding(state['cutting_machine_state'])
     is_full_products_embedding = self.is_full_products_embedding(state['is_full_products'])
     produce_product_req_embedding = self.produce_product_req_embedding(state['produce_product_req'])
-    worker_state_0 = self.worker_state_embd(state['worker_state_0'])
-    worker_state_1 = self.worker_state_embd(state['worker_state_1'])
-    worker_task_0 = self.worker_task_embd(state['worker_task_0'])
-    worker_task_1 = self.worker_task_embd(state['worker_task_1'])
-    worker_pose_0 = self.worker_pose_embd(state['worker_pose_0'])
-    worker_pose_1 = self.worker_pose_embd(state['worker_pose_1'])
-    agv_state_0 = self.agv_state_embd(state['agv_state_0'])
-    agv_state_1 = self.agv_state_embd(state['agv_state_1'])
-    agv_task_0 = self.agv_task_embd(state['agv_task_0'])
-    agv_task_1 = self.agv_task_embd(state['agv_task_1'])
-    agv_pose_0 = self.agv_pose_embd(state['agv_pose_0'])
-    agv_pose_1 = self.agv_pose_embd(state['agv_pose_1'])
-    box_state_0 = self.box_state_embd(state['box_state_0'])
-    box_state_1 = self.box_state_embd(state['box_state_1'])
-    box_task_0 = self.box_task_embd(state['box_task_0'])
-    box_task_1 = self.box_task_embd(state['box_task_1'])
-    box_pose_0 = self.agv_pose_embd(state['box_pose_0'])
-    box_pose_1 = self.agv_pose_embd(state['box_pose_1'])
+    raw_product_embd = self.raw_product_embd(state['raw_products'])
+    
+    worker_state = self.worker_state_embd(state['worker_state']).squeeze(2) 
+    worker_task = self.worker_task_embd(state['worker_task']).squeeze(2) 
+    worker_pose = self.worker_pose_embd(state['worker_pose']).squeeze(2) 
+
+    agv_state = self.agv_state_embd(state['agv_state']).squeeze(2) 
+    agv_task = self.agv_task_embd(state['agv_task']).squeeze(2) 
+    agv_pose = self.agv_pose_embd(state['agv_pose']).squeeze(2) 
+
+    box_state = self.box_state_embd(state['box_state']).squeeze(2) 
+    box_task = self.box_task_embd(state['box_task']).squeeze(2) 
+    box_pose = self.agv_pose_embd(state['box_pose']).squeeze(2) 
+
 
     ###########################################################################################
     ###########################################################################################
@@ -572,12 +573,12 @@ class FeatureEmbeddingBlock(nn.Module):
     all_embs = torch.cat([action_mask_embedding.unsqueeze(1), state_depot_hoop_embedding, have_raw_hoops_embedding, state_depot_bending_tube_embedding, 
                           have_raw_bending_tube_embedding, station_state_inner_left_embedding, station_state_inner_right_embedding, 
                           station_state_outer_left_embedding, station_state_outer_right_embedding, cutting_machine_state_embedding, 
-                          is_full_products_embedding, produce_product_req_embedding, time_step_embedding.unsqueeze(1), progress.unsqueeze(1), 
-                          worker_state_0, worker_task_0, worker_pose_0, worker_state_1, worker_task_1, worker_pose_1, 
-                          agv_state_0, agv_task_0, agv_pose_0, agv_state_1, agv_task_1, agv_pose_1,
-                          box_state_0, box_task_0, box_pose_0, box_state_1, box_task_1, box_pose_1], dim=1)
+                          is_full_products_embedding, produce_product_req_embedding, raw_product_embd, time_step_embedding.unsqueeze(1), progress.unsqueeze(1), 
+                          worker_state, worker_task, worker_pose, 
+                          agv_state, agv_task, agv_pose, 
+                          box_state, box_task, box_pose,], dim=1)
 
-    return all_embs* math.sqrt(self.hidden_size)
+    return all_embs*math.sqrt(self.hidden_size)
 
 class LayerNormalization(nn.Module):
 
@@ -756,8 +757,8 @@ class Transformer(nn.Module):
         return self.projection_layer(x)
     
     def forward(self, state):
-        src = self.encode(state, None)
-        tgt = self.decode(src, None, state['action_mask'], None)
+        src = self.encode(state, state['token_mask'])
+        tgt = self.decode(src, state['token_mask'], state['action_mask'], None)
         return self.projection_layer(tgt)
     
 

@@ -414,8 +414,8 @@ class VecEnvRLGames(VecEnvBase):
 
     def reset(self, seed=None, options=None):
         """Resets the task and applies default zero actions to recompute observations and states."""
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"[{now}] Running RL reset")
+        # now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # print(f"[{now}] Running RL reset")
 
         self._task.reset()
         self._task.reset_step()

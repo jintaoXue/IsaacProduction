@@ -223,8 +223,7 @@ class Materials(object):
 class Characters(object):
 
     def __init__(self, character_list) -> None:
-        self.num = len(character_list)
-        self.list = character_list
+        self.character_list = character_list
         self.state_character_dic = {0:"free", 1:"approaching", 2:"waiting_box", 3:"putting_in_box", 4:"putting_on_table", 5:"loading", 6:"cutting_machine"}
         self.task_range = {'hoop_preparing', 'bending_tube_preparing', 'hoop_loading_inner', 'bending_tube_loading_inner', 'hoop_loading_outer', 'bending_tube_loading_outer', "cutting_cube", 
                            'placing_product'}
@@ -241,30 +240,26 @@ class Characters(object):
                         'hoop_loading_outer':[-16.26241, 6.0, np.deg2rad(180)], 'bending_tube_loading_outer': [-29.06123, 6.3725, np.deg2rad(0)],
                         'cutting_cube':[-29.83212, -1.54882, np.deg2rad(0)], 'placing_product':[-40.47391, 12.91755, np.deg2rad(0)],
                         'initial_pose_0':[-11.5768, 6.48821, 0.0], 'initial_pose_1':[-30.516169, 7.5748153, 0.0]}
+        
         self.poses_dic2num = {"put_hoop_into_box": 0 , "put_bending_tube_into_box": 1, 
                 "put_hoop_on_table": 2, "put_bending_tube_on_table":3,
                 'hoop_loading_inner':4,'bending_tube_loading_inner':5,
                 'hoop_loading_outer':6, 'bending_tube_loading_outer': 7,
                 'cutting_cube':8, 'placing_product':9,
                 'initial_pose_0':10, 'initial_pose_1':11}
-        self.initial_pose_list = []
-        for obj in self.list:
-            self.initial_pose_list.append(obj.get_world_poses())
+        
+        # self.initial_pose_list = []
+        # for obj in self.list:
+        #     self.initial_pose_list.append(obj.get_world_poses())
+
         # for idx, charc in enumerate(self.list):
         #     xy_yaw = world_pose_to_navigation_pose(charc.get_world_poses())
         #     # self.initial_xy_yaw.append(xy_yaw)
         #     self.poses_dic[f'initial_pose_{idx}'] = xy_yaw
         self.routes_dic = None
-
-        self.states = [0]*self.num
-        self.tasks = [0]*self.num
         # self.corresp_agv_idxs = [-1]*self.num
         # self.corresp_box_idxs = [-1]*self.num
         # self.corresp_agvs_idxs = [-1]*self.num
-        self.x_paths = [[] for i in range(len(character_list))]
-        self.y_paths = [[] for i in range(len(character_list))]
-        self.yaws = [[] for i in range(len(character_list))]
-        self.path_idxs = [0 for i in range(len(character_list))]
 
         self.picking_pose_hoop = [1.28376, 6.48821, np.deg2rad(0)] 
         self.picking_pose_bending_tube = [1.28376, 13.12021, np.deg2rad(0)] 
@@ -282,13 +277,28 @@ class Characters(object):
         
         return
     
-    def reset(self):
-        for i in range(0, self.num):
-            self.list[i].set_world_poses(self.initial_pose_list[i][0], self.initial_pose_list[i][1])
+    def reset(self, acti_num_charc = None):
+        if not acti_num_charc:
+            acti_num_charc = np.random.randint(2, 3)
+        self.acti_num_charc = acti_num_charc
+        self.states = [0]*acti_num_charc
+        self.tasks = [0]*acti_num_charc
+        self.list = self.character_list[:acti_num_charc]
+        self.x_paths = [[] for i in range(acti_num_charc)]
+        self.y_paths = [[] for i in range(acti_num_charc)]
+        self.yaws = [[] for i in range(acti_num_charc)]
+        self.path_idxs = [0 for i in range(acti_num_charc)]
+
+        random = np.random.choice(len(self.poses_dic), acti_num_charc, replace=False)
+        pose_list = list(self.poses_dic.values())
+        for i in range(0, acti_num_charc):
+            position = pose_list[random[i]][:2]+[0.0415]
+            self.list[i].set_world_poses(torch.tensor([position]), torch.tensor([[1., 0., 0., 0.]]))
             self.list[i].set_velocities(torch.zeros((1,6)))
             self.reset_idx(i)
             self.reset_path(i)
-        self.loading_operation_time_steps = [0 for i in range(self.num)]
+        self.loading_operation_time_steps = [0 for i in range(acti_num_charc)]
+
 
     def reset_idx(self, idx):
         if idx < 0 :
@@ -318,7 +328,7 @@ class Characters(object):
         elif high_level_task == 'bending_tube_loading_outer':
             self.tasks[idx] = 8
         elif high_level_task == 'cutting_cube':
-            #todo
+            #TODO
             for _idx in range(0, len(self.list)):
                 xyz, _ = self.list[_idx].get_world_poses()
                 idx = -1
@@ -381,8 +391,7 @@ class Characters(object):
 class Agvs(object):
 
     def __init__(self, agv_list) -> None:
-        self.list = agv_list
-        self.num = len(agv_list)
+        self.agv_list = agv_list
         self.state_dic = {0:"free", 1:"moving_to_box", 2:"carrying_box", 3:"waiting"}
         self.sub_task_dic = {0:"free", 1:"carry_box_to_hoop", 2:"carry_box_to_bending_tube", 3:"carry_box_to_hoop_table", 4:"carry_box_to_bending_tube_table", 5:'collect_product', 6:'placing_product'}
         self.task_range = {'hoop_preparing', 'bending_tube_preparing', 'collect_product','placing_product'}
@@ -400,25 +409,17 @@ class Agvs(object):
             'collect_product':4,'placing_product':5,
             'initial_pose_0':6, 'initial_pose_1':7,
             'initial_box_pose_0':8, 'initial_box_pose_1':9}
-        self.initial_pose_list = []
-        for obj in self.list:
-            self.initial_pose_list.append(obj.get_world_poses())
+        # self.initial_pose_list = []
+        # for obj in self.list:
+        #     self.initial_pose_list.append(obj.get_world_poses())
         # self.initial_xy_yaw = []
         # for idx, agv in enumerate(self.list):
         #     xy_yaw = world_pose_to_navigation_pose(agv.get_world_poses())
         #     # self.initial_xy_yaw.append(xy_yaw)
         #     self.poses_dic[f'initial_pose_{idx}'] = xy_yaw
         self.routes_dic = None
-
-        self.states = [0]*self.num
-        self.tasks = [0]*self.num
         # self.corresp_charac_idxs = [-1]*self.num
         # self.corresp_box_idxs = [-1]*self.num
-
-        self.x_paths = [[] for i in range(len(agv_list))]
-        self.y_paths = [[] for i in range(len(agv_list))]
-        self.yaws = [[] for i in range(len(agv_list))]
-        self.path_idxs = [0 for i in range(len(agv_list))]
 
         self.picking_pose_hoop = [-0.654, 8.0171, np.deg2rad(0)]  #
         self.picking_pose_bending_tube = [-0.654, 11.62488, np.deg2rad(0)]
@@ -428,13 +429,27 @@ class Agvs(object):
         self.placing_product_pose = [-38.54638, 12.40097, np.deg2rad(0)]
         return
     
-    def reset(self):
-        for i in range(0, self.num):
-            self.list[i].set_world_poses(self.initial_pose_list[i][0], self.initial_pose_list[i][1])
+    def reset(self, acti_num_agv=None):
+        if not acti_num_agv:
+            acti_num_agv = np.random.randint(2, 3)
+        self.acti_num_agv = acti_num_agv
+        self.states = [0]*acti_num_agv
+        self.tasks = [0]*acti_num_agv
+        self.list = self.agv_list[:acti_num_agv]
+        self.x_paths = [[] for i in range(acti_num_agv)]
+        self.y_paths = [[] for i in range(acti_num_agv)]
+        self.yaws = [[] for i in range(acti_num_agv)]
+        self.path_idxs = [0 for i in range(acti_num_agv)]
+        random = np.random.choice(len(self.poses_dic), acti_num_agv, replace=False)
+        pose_list = list(self.poses_dic.values())
+        
+        for i in range(0, acti_num_agv):
+            position = pose_list[random[i]][:2]+[0.1]
+            self.list[i].set_world_poses(torch.tensor([position]), torch.tensor([[1., 0., 0., 0.]]))
             self.list[i].set_velocities(torch.zeros((1,6)))
             self.reset_idx(i)
             self.reset_path(i)
-    
+
     def reset_idx(self, idx):
         if idx < 0 :
             return
@@ -443,9 +458,11 @@ class Agvs(object):
 
     def assign_task(self, high_level_task, box_idx, box_xyz):
         #todo  
-        if high_level_task not in self.task_range:
+        if high_level_task not in self.task_range or box_idx == -2:
             return -2
-        idx = self.find_available_agv(box_idx, box_xyz)
+        if box_xyz is None:
+            return -1
+        idx = self.find_available_agv(box_idx, box_xyz[0])
         if idx == -1:
             return idx
         if high_level_task == 'hoop_preparing':
@@ -461,16 +478,17 @@ class Agvs(object):
         return idx
     
     def find_available_agv(self, box_idx, box_xyz):
+        available = [a*b for a,b in zip(self.states,self.tasks)]
         if box_idx == -1: 
             try:
-                return self.tasks.index(0)
+                return available.index(0)
             except: 
                 return -1
         else:
             min_dis_idx = -1
             pre_dis = torch.inf
             for agv_idx in range(0, len(self.list)):
-                if self.tasks[agv_idx] == 0:
+                if available[agv_idx] == 0:
                     agv_xyz, _ = self.list[agv_idx].get_world_poses()
                     dis = torch.norm(agv_xyz[0] - box_xyz)
                     if dis.cpu() < pre_dis:
@@ -518,45 +536,53 @@ class Agvs(object):
 class TransBoxs(object):
 
     def __init__(self, box_list) -> None:
-        self.list = box_list
-        self.num = len(box_list)
+        self.box_list = box_list
         self.state_dic = {0:"free", 1:"waiting", 2:"moving"}
         self.sub_task_dic = {0:"free", 1:"waiting_agv", 2:"moving_with_box", 3: "collect_product"}
         self.task_range = {'hoop_preparing', 'bending_tube_preparing', 'collect_product','placing_product'}
 
-        self.poses_dic = {'initial_box_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_box_pose_1': [-1.7894887, 11.822739, 0.0]}
-        self.initial_pose_list = []
-        for obj in self.list:
-            self.initial_pose_list.append(obj.get_world_poses())
+        # self.poses_dic = {'initial_box_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_box_pose_1': [-1.7894887, 11.822739, 0.0]}
+        self.poses_dic = {"carry_box_to_hoop": [-0.654, 8.0171, np.deg2rad(0)] , "carry_box_to_bending_tube": [-0.654, 11.62488, np.deg2rad(0)], 
+                "carry_box_to_hoop_table": [-11.69736, 5.71486, np.deg2rad(0)], "carry_box_to_bending_tube_table":[-33.55065, 5.71486, np.deg2rad(-90)] ,
+                'collect_product':[-21.76757, 10.78427, np.deg2rad(0)],'placing_product':[-38.54638, 12.40097, np.deg2rad(0)], 
+                'initial_pose_0':[-4.8783107, 8.017096, 0.0], 'initial_pose_1': [-4.8726454, 11.656976, 0.0],
+                'initial_box_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_box_pose_1': [-1.7894887, 11.822739, 0.0]}
+        
+        self.poses_dic2num = {
+            "carry_box_to_hoop": 0 , "carry_box_to_bending_tube": 1, 
+            "carry_box_to_hoop_table": 2, "carry_box_to_bending_tube_table":3,
+            'collect_product':4,'placing_product':5,
+            'initial_pose_0':6, 'initial_pose_1':7,
+            'initial_box_pose_0':8, 'initial_box_pose_1':9}
+        # self.initial_pose_list = []
+        # for obj in self.list:
+        #     self.initial_pose_list.append(obj.get_world_poses())
 
         self.CAPACITY = 4
         self.reset()
         return
     
-    def reset(self):
-        for i in range(0, self.num):
-            self.list[i].set_world_poses(self.initial_pose_list[i][0], self.initial_pose_list[i][1])
-            self.list[i].set_velocities(torch.zeros((1,6)))
-        # for idx, box in enumerate(self.list):
-        #     xy_yaw = world_pose_to_navigation_pose(box.get_world_poses())
-        #     # self.initial_xy_yaw.append(xy_yaw)
-        #     self.poses_dic[f'initial_pose_{idx}'] = xy_yaw
-        self.states = [0]*self.num
-        self.tasks = [0]*self.num
-        self.high_level_tasks = ['']*self.num
-        # self.corresp_agv_idxs = [-1]*self.num
-        # self.corresp_charac_idxs = [-1]*self.num
-
-        # self.picking_pose_hoop = [-0.09067, 6.48821, np.deg2rad(180)]
-        # self.picking_pose_bending_tube = [-0.09067, 13.12021, np.deg2rad(0)]
-
-        self.hoop_idx_list =[[] for i in range(self.num)]
-        self.bending_tube_idx_sets = [set() for i in range(self.num)]
-        self.product_idx_list = [[] for i in range(self.num)]
-        
-        self.counts = [0 for i in range(self.num)]
-
+    def reset(self, acti_num_box=None):
+        if not acti_num_box:
+            acti_num_box = np.random.randint(2, 3)
+        self.acti_num_box = acti_num_box
+        self.list = self.box_list[:acti_num_box]
+        self.states = [0]*acti_num_box
+        self.tasks = [0]*acti_num_box
+        self.high_level_tasks = ['']*acti_num_box
+        self.hoop_idx_list =[[] for i in range(acti_num_box)]
+        self.bending_tube_idx_sets = [set() for i in range(acti_num_box)]
+        self.product_idx_list = [[] for i in range(acti_num_box)]
+        self.counts = [0 for i in range(acti_num_box)]
         self.product_collecting_idx = -1
+
+        random = np.random.choice(len(self.poses_dic), acti_num_box, replace=False)
+        pose_list = list(self.poses_dic.values())
+        for i in range(0, acti_num_box):
+            position = pose_list[random[i]][:2]+[0.0]
+            self.list[i].set_world_poses(torch.tensor([position]), torch.tensor([[1., 0., 0., 0.]]))
+            self.list[i].set_velocities(torch.zeros((1,6)))
+            self.reset_idx(i)
 
 
     def reset_idx(self, idx):
@@ -574,13 +600,15 @@ class TransBoxs(object):
             return -2
         
         if high_level_task == 'placing_product':
-            idx = self.find_carrying_products_box_idx()
-            if idx >=0 :
-                self.high_level_tasks[idx] = high_level_task
-                self.tasks[idx] = 1 
-                return idx
-            else:
-                return -1 
+            # idx = self.find_carrying_products_box_idx()
+            # if idx >=0 :
+            #     self.high_level_tasks[idx] = high_level_task
+            #     self.tasks[idx] = 1 
+            #     return idx
+            # else:
+            #     return -1 
+            assert self.product_collecting_idx>=0, "placing product task wrong"
+            return self.product_collecting_idx
         
         idx = self.find_available_box()
         if idx == -1:
@@ -597,8 +625,9 @@ class TransBoxs(object):
             return idx
 
     def find_available_box(self):
+        available = [a*b for a,b in zip(self.states,self.tasks)]
         try:
-            return self.tasks.index(0)
+            return available.index(0)
         except: 
             return -1
         
@@ -637,9 +666,11 @@ class TaskManager(object):
         return
     
     def reset(self):
-        self.characters.reset()
-        self.agvs.reset()
-        self.boxs.reset()
+        activate_num =  np.random.randint(2, 3)
+        activate_char_num = None
+        self.characters.reset(activate_char_num)
+        self.agvs.reset(activate_num)
+        self.boxs.reset(activate_num)
         self.task_in_set = set()
         self.task_in_dic = {}
         self.task_mask = torch.zeros(len(self.task_dic), device=self.cuda_device)
@@ -649,8 +680,11 @@ class TaskManager(object):
         
         charac_idx = self.characters.assign_task(task)
         box_idx = self.boxs.assign_task(task)
-        box_xyz, _ = self.boxs.list[box_idx].get_world_poses()
-        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz[0])
+        if box_idx >= 0:
+            box_xyz, _ = self.boxs.list[box_idx].get_world_poses()
+        else:
+            box_xyz = None
+        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz)
         
         lacking_resource = False
         if charac_idx == -1 or agv_idx == -1 or box_idx == -1:
@@ -1123,7 +1157,9 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
-
+        '''max_env_length_dic'''
+        self.max_env_length_dic = [[1132],[],[]]
+        # num worker:1, num agv&box:1, env_length:1132
         return
     
     def reset_machine_state(self):
@@ -1211,8 +1247,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         '''progress step'''
         self.pre_progress_step = 0
         self.available_task_dic = {'none': -1}
-        '''reward_test'''
-        # self.reward_test_list = []
+
         return
     
     def post_next_group_to_be_processed_step(self):

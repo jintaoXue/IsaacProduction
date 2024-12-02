@@ -87,7 +87,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     break
                 if self._evaluate:
                     self.world.step(render=True)
-                # self.world.step(render=True)
+                self.world.step(render=True)
         return obs, self.rew_buf, self.reset_buf, self.extras
     
     def caculate_metric_action(self, actions):
@@ -132,38 +132,50 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         # self.reward_test_list.append(self.rew_buf[0].clone())
         return
     
+    def check_task_lacking_entity(self):
+        worker = [a*b for a,b in zip(self.task_manager.characters.states,self.task_manager.characters.tasks)].count(0)
+        agv = [a*b for a,b in zip(self.task_manager.agvs.states,self.task_manager.agvs.tasks)].count(0)
+        box = [a*b for a,b in zip(self.task_manager.boxs.states,self.task_manager.boxs.tasks)].count(0)
+        return worker>0, agv>0, box>0
+    
     def update_available_task(self):
         self.available_task_dic = {'none':-1}
         task_mask = torch.zeros(len(self.task_manager.task_dic), device=self.cuda_device)
         task_mask[0] = 1
-        if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
+        worker, agv, box = self.check_task_lacking_entity()
+        have_wab = worker and agv and box
+        have_w = worker
+        have_ab = agv and box
+        if have_wab and self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
             self.available_task_dic['hoop_preparing'] = 0
             task_mask[1] = 1
-        if self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(0) > 0:
+        if have_wab and self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(0) > 0:
             self.available_task_dic['bending_tube_preparing'] = 1
             task_mask[2] = 1
-        if self.station_state_inner_left == 0 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
+        if have_w and self.station_state_inner_left == 0 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
             self.available_task_dic['hoop_loading_inner'] = 2
             task_mask[3] = 1
-        if self.station_state_inner_right == 0 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
+        if have_w and self.station_state_inner_right == 0 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
             self.available_task_dic['bending_tube_loading_inner'] = 3
             task_mask[4] = 1
-        if self.station_state_outer_left == 0 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
+        if have_w and self.station_state_outer_left == 0 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
             self.available_task_dic['hoop_loading_outer'] = 4
             task_mask[5] = 1
-        if self.station_state_outer_right == 0 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
+        if have_w and self.station_state_outer_right == 0 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
             self.available_task_dic['bending_tube_loading_outer'] = 5
             task_mask[6] = 1
-        if self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
+        if have_w and self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
             self.available_task_dic['cutting_cube'] = 6
             task_mask[7] = 1
-        if (self.materials.produce_product_req() == True) and 'collect_product' not in self.task_manager.task_in_dic.keys():
+        if have_ab and (self.materials.produce_product_req() == True) and 'collect_product' not in self.task_manager.task_in_dic.keys():
             self.available_task_dic['collect_product'] = 7
             task_mask[8] = 1
-        if 'collect_product' in self.task_manager.task_in_dic.keys() and 'placing_product' not in self.task_manager.task_in_dic.keys() and \
-            (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
+        if have_w and 'collect_product' in self.task_manager.task_in_dic.keys() and self.task_manager.boxs.product_collecting_idx >=0 and 'placing_product' not in self.task_manager.task_in_dic.keys()\
+            and self.gripper_inner_task not in range (4, 8):
+            # (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
             self.available_task_dic['placing_product'] = 8
             task_mask[9] = 1
+
         # self.available_task_dic['none'] = -1
         self.task_manager.task_mask = task_mask
         return
@@ -185,9 +197,12 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         """Assign environments for reset if successful or failed."""
         task_finished = self.materials.done()
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
+        #TODO for debug
+        is_last_step = False
         # If max episode length has been reached
         if is_last_step or task_finished :
             self.reset_buf[0] = 1
+            print("num worker:{}, num agv&box:{}, env_length:{}".format(self.task_manager.characters.acti_num_charc, self.task_manager.agvs.acti_num_agv, self.progress_buf[0]))
         else:
             pass
 
@@ -273,46 +288,50 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                         self.materials.outer_bending_tube_loading_index = _index
         else:
             #use rule-based agent
-            if self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
+            worker, agv, box = self.check_task_lacking_entity()
+            have_wab = worker and agv and box
+            have_w = worker
+            have_ab = agv and box
+            if have_wab and self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
                 if self.task_manager.assign_task(task = 'hoop_preparing'):
                     self.state_depot_hoop = 1
                     task_id = 0
-            elif self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(0) > 0:
+            elif have_wab and self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(0) > 0:
                 if self.task_manager.assign_task(task = 'bending_tube_preparing'):
                     self.state_depot_bending_tube = 1
                     task_id = 1
-            elif self.station_state_inner_left == 0 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
+            elif have_w and self.station_state_inner_left == 0 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
                 self.task_manager.assign_task(task='hoop_loading_inner')
                 task_id = 2
                 hoop_index = self.materials.find_next_raw_hoop_index()
                 self.materials.hoop_states[hoop_index] = 3
                 self.materials.inner_hoop_processing_index = hoop_index
-            elif self.station_state_inner_right == 0 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
+            elif have_w and self.station_state_inner_right == 0 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
                 self.task_manager.assign_task(task='bending_tube_loading_inner')
                 task_id = 3
                 _index = self.materials.find_next_raw_bending_tube_index()
                 self.materials.bending_tube_states[_index] = 3
                 self.materials.inner_bending_tube_loading_index = _index
-            elif self.station_state_outer_left == 0 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
+            elif have_w and self.station_state_outer_left == 0 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
                 self.task_manager.assign_task(task='hoop_loading_outer')
                 task_id = 4
                 hoop_index = self.materials.find_next_raw_hoop_index()
                 self.materials.hoop_states[hoop_index] = 3
                 self.materials.outer_hoop_processing_index = hoop_index
-            elif self.station_state_outer_right == 0 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
+            elif have_w and self.station_state_outer_right == 0 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
                 self.task_manager.assign_task(task='bending_tube_loading_outer')
                 task_id = 5
                 _index = self.materials.find_next_raw_bending_tube_index()
                 self.materials.bending_tube_states[_index] = 3
                 self.materials.outer_bending_tube_loading_index = _index
-            elif self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
+            elif have_w and self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
                 self.task_manager.assign_task(task='cutting_cube') 
                 task_id = 6
-            elif (self.materials.produce_product_req() == True) and 'collect_product' not in self.task_manager.task_in_dic.keys():
+            elif have_ab and (self.materials.produce_product_req() == True) and 'collect_product' not in self.task_manager.task_in_dic.keys():
                 self.task_manager.assign_task(task='collect_product')
                 task_id = 7
-            elif 'collect_product' in self.task_manager.task_in_dic.keys() and 'placing_product' not in self.task_manager.task_in_dic.keys() and \
-                (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
+            elif have_w and 'collect_product' in self.task_manager.task_in_dic.keys() and self.task_manager.boxs.product_collecting_idx >=0 and 'placing_product' not in self.task_manager.task_in_dic.keys()\
+                and self.gripper_inner_task not in range (4, 8):
                 task_id = 8
                 self.task_manager.task_clearing(task='collect_product')
                 self.task_manager.assign_task(task='placing_product')
@@ -324,11 +343,11 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
         self.task_manager.step()
         
-        for charac_idx in range(0, self.task_manager.characters.num):
+        for charac_idx in range(0, self.task_manager.characters.acti_num_charc):
             self.post_character_step(charac_idx)
-        for agv_idx in range(0, self.task_manager.agvs.num):
+        for agv_idx in range(0, self.task_manager.agvs.acti_num_agv):
             self.post_agv_step(agv_idx)
-        for box_idx in range(0, self.task_manager.boxs.num):
+        for box_idx in range(0, self.task_manager.boxs.acti_num_box):
             self.post_trans_box_step(box_idx)
         
         return actions
@@ -451,7 +470,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     self.materials.bending_tube_states[bending_tube_idx] = 2
                     self.depot_bending_tube_set.add(bending_tube_idx)
                 elif task == 10:
-                    product_index = self.task_manager.boxs.product_idx_list[corresp_agv_idx].pop()
+                    product_index = self.task_manager.boxs.product_idx_list[corresp_box_idx].pop()
                     self.materials.product_states[product_index] = 2
                     self.depot_product_set.add(product_index)
             else:
@@ -754,10 +773,12 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             self.gripper_inner_task = 0
             # stations_are_full = self.station_state_inner_middle and self.station_state_outer_middle #only state == 0 means free, -1 and >= 0 means full
             if self.station_state_inner_middle == 9 and 'collect_product' in self.task_manager.task_in_dic and self.task_manager.boxs.product_collecting_idx >= 0 \
+                and self.task_manager.boxs.states[self.task_manager.boxs.product_collecting_idx] == 1 \
                 and self.task_manager.boxs.counts[self.task_manager.boxs.product_collecting_idx]<self.task_manager.boxs.CAPACITY: #welded product
                 self.gripper_inner_task = 4
                 self.gripper_inner_state = 1
             elif self.station_state_outer_middle == 9 and  'collect_product' in self.task_manager.task_in_dic and self.task_manager.boxs.product_collecting_idx >= 0 \
+                and self.task_manager.boxs.states[self.task_manager.boxs.product_collecting_idx] == 1 \
                 and self.task_manager.boxs.counts[self.task_manager.boxs.product_collecting_idx]<self.task_manager.boxs.CAPACITY:
                 self.gripper_inner_task = 5
                 self.gripper_inner_state = 1
@@ -1806,7 +1827,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.obj_11_welding_1.set_joint_positions(next_pose)
         self.obj_11_welding_1.set_joint_velocities(torch.zeros(1, device=self.cuda_device))
     
-    def find_closest_pose(self, pose_dic, ego_pose, in_dis=3):
+    def find_closest_pose(self, pose_dic, ego_pose, in_dis=50):
         dis = np.inf
         key = None
         for _key, val in pose_dic.items():
@@ -1845,55 +1866,108 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         # obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
         obs_dict['time_step'] = torch.tensor([self.progress_buf[0].cpu()/2000], dtype=torch.float32, device = self.cuda_device)
         # (self.progress_buf[0].cpu()/2000).unsqueeze(0)
+        
         ####10.progress
         obs_dict['progress'] = torch.tensor([self.materials.progress()], dtype=torch.float32, device = self.cuda_device)
-        ####8.worker state
-        worker_0_position = self.task_manager.characters.list[0].get_world_poses()
-        wp_0 = world_pose_to_navigation_pose(worker_0_position)
-        wp_0_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp_0, in_dis=1000.)
-        wp_0_num = self.task_manager.characters.poses_dic2num[wp_0_str]
-        obs_dict['worker_pose_0'] = torch.tensor([wp_0_num], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['worker_state_0'] = torch.tensor([self.task_manager.characters.states[0]], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['worker_task_0'] = torch.tensor([self.task_manager.characters.tasks[0]], dtype=torch.int32, device = self.cuda_device)
+        ####11.raw products left, max is 20
+        obs_dict['raw_products'] = torch.tensor([self.materials.product_states.count(0)], dtype=torch.int32, device = self.cuda_device)
 
-        worker_1_position = self.task_manager.characters.list[1].get_world_poses()
-        wp_1 = world_pose_to_navigation_pose(worker_1_position)
-        wp_1_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp_1, in_dis=1000.)
-        wp_1_num = self.task_manager.characters.poses_dic2num[wp_1_str]
-        obs_dict['worker_pose_1'] = torch.tensor([wp_1_num], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['worker_state_1'] = torch.tensor([self.task_manager.characters.states[1]], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['worker_task_1'] = torch.tensor([self.task_manager.characters.tasks[1]], dtype=torch.int32, device = self.cuda_device)
-        ####9.agv state
-        agv_0_position = self.task_manager.agvs.list[0].get_world_poses()
-        agvp_0 = world_pose_to_navigation_pose(agv_0_position)
-        agvp_str_0 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=agvp_0, in_dis=1000.)
-        agvp_0_num = self.task_manager.agvs.poses_dic2num[agvp_str_0]
-        obs_dict['agv_pose_0'] = torch.tensor([agvp_0_num], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['agv_state_0'] = torch.tensor([self.task_manager.agvs.states[0]], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['agv_task_0'] = torch.tensor([self.task_manager.agvs.tasks[0]], dtype=torch.int32, device = self.cuda_device)
+        ####8.worker agv box state TODO
+        max_num = 3
+        obs_dict['worker_pose'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['worker_state'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['worker_task'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        worker_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        for i in range(max_num):
+            if i < len(self.task_manager.characters.list):
+                worker_mask[i] = 1
+                worker_position = self.task_manager.characters.list[i].get_world_poses()
+                wp = world_pose_to_navigation_pose(worker_position)
+                wp_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp, in_dis=1000.)
+                wp_num = self.task_manager.characters.poses_dic2num[wp_str]
+                obs_dict['worker_pose'][i] = wp_num
+                obs_dict['worker_state'][i] = self.task_manager.characters.states[i]
+                obs_dict['worker_task'][i] = self.task_manager.characters.tasks[i]
+        
+        obs_dict['agv_pose'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['agv_state'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['agv_task'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        agv_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        for i in range(max_num):
+            if i < len(self.task_manager.agvs.list):
+                agv_mask[i] = 1
+                position = self.task_manager.agvs.list[i].get_world_poses()
+                p = world_pose_to_navigation_pose(position)
+                p_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=p, in_dis=1000.)
+                p_num = self.task_manager.agvs.poses_dic2num[p_str]
+                obs_dict['agv_pose'][i] = p_num
+                obs_dict['agv_state'][i] = self.task_manager.agvs.states[i]
+                obs_dict['agv_task'][i] = self.task_manager.agvs.tasks[i]
 
-        agv_1_position = self.task_manager.agvs.list[1].get_world_poses()
-        agvp_1 = world_pose_to_navigation_pose(agv_1_position)
-        agvp_str_1 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=agvp_1, in_dis=1000.)
-        agvp_1_num = self.task_manager.agvs.poses_dic2num[agvp_str_1]
-        obs_dict['agv_pose_1'] = torch.tensor([agvp_1_num], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['agv_state_1'] = torch.tensor([self.task_manager.agvs.states[1]], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['agv_task_1'] = torch.tensor([self.task_manager.agvs.tasks[1]], dtype=torch.int32, device = self.cuda_device)
-        ####10.box state
-        box_0_position = self.task_manager.boxs.list[0].get_world_poses()
-        boxp_0 = world_pose_to_navigation_pose(box_0_position)
-        boxp_str_0 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=boxp_0, in_dis=1000.)
-        boxp_0_num = self.task_manager.agvs.poses_dic2num[boxp_str_0]
-        obs_dict['box_pose_0'] = torch.tensor([boxp_0_num], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['box_state_0'] = torch.tensor([self.task_manager.boxs.states[0]], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['box_task_0'] = torch.tensor([self.task_manager.boxs.tasks[0]], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['box_pose'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['box_state'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        obs_dict['box_task'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
+        box_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        for i in range(max_num):
+            if i < len(self.task_manager.boxs.list):
+                box_mask[i] = 1
+                position = self.task_manager.boxs.list[i].get_world_poses()
+                p = world_pose_to_navigation_pose(position)
+                p_str = self.find_closest_pose(pose_dic=self.task_manager.boxs.poses_dic, ego_pose=p, in_dis=1000.)
+                p_num = self.task_manager.boxs.poses_dic2num[p_str]
+                obs_dict['box_pose'][i] = p_num
+                obs_dict['box_state'][i] = self.task_manager.boxs.states[i]
+                obs_dict['box_task'][i] = self.task_manager.boxs.tasks[i]
 
-        box_1_position = self.task_manager.boxs.list[1].get_world_poses()
-        boxp_1 = world_pose_to_navigation_pose(box_1_position)
-        boxp_str_1 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=boxp_1, in_dis=1000.)
-        boxp_1_num = self.task_manager.agvs.poses_dic2num[boxp_str_1]
-        obs_dict['box_pose_1'] = torch.tensor([boxp_1_num], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['box_state_1'] = torch.tensor([self.task_manager.boxs.states[1]], dtype=torch.int32, device = self.cuda_device)
-        obs_dict['box_task_1'] = torch.tensor([self.task_manager.boxs.tasks[1]], dtype=torch.int32, device = self.cuda_device)
+        other_token_mask = torch.ones([15], dtype=bool, device = self.cuda_device)
+        obs_dict['token_mask'] = torch.concatenate([other_token_mask, worker_mask.repeat(3), agv_mask.repeat(3), box_mask.repeat(3)])
+
+        # worker_0_position = self.task_manager.characters.list[0].get_world_poses()
+        # wp_0 = world_pose_to_navigation_pose(worker_0_position)
+        # wp_0_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp_0, in_dis=1000.)
+        # wp_0_num = self.task_manager.characters.poses_dic2num[wp_0_str]
+        # obs_dict['worker_pose_0'] = torch.tensor([wp_0_num], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['worker_state_0'] = torch.tensor([self.task_manager.characters.states[0]], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['worker_task_0'] = torch.tensor([self.task_manager.characters.tasks[0]], dtype=torch.int32, device = self.cuda_device)
+        # worker_1_position = self.task_manager.characters.list[1].get_world_poses()
+        # wp_1 = world_pose_to_navigation_pose(worker_1_position)
+        # wp_1_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp_1, in_dis=1000.)
+        # wp_1_num = self.task_manager.characters.poses_dic2num[wp_1_str]
+        # obs_dict['worker_pose_1'] = torch.tensor([wp_1_num], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['worker_state_1'] = torch.tensor([self.task_manager.characters.states[1]], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['worker_task_1'] = torch.tensor([self.task_manager.characters.tasks[1]], dtype=torch.int32, device = self.cuda_device)
+
+        # ####9.agv state
+        # agv_0_position = self.task_manager.agvs.list[0].get_world_poses()
+        # agvp_0 = world_pose_to_navigation_pose(agv_0_position)
+        # agvp_str_0 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=agvp_0, in_dis=1000.)
+        # agvp_0_num = self.task_manager.agvs.poses_dic2num[agvp_str_0]
+        # obs_dict['agv_pose_0'] = torch.tensor([agvp_0_num], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['agv_state_0'] = torch.tensor([self.task_manager.agvs.states[0]], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['agv_task_0'] = torch.tensor([self.task_manager.agvs.tasks[0]], dtype=torch.int32, device = self.cuda_device)
+
+        # agv_1_position = self.task_manager.agvs.list[1].get_world_poses()
+        # agvp_1 = world_pose_to_navigation_pose(agv_1_position)
+        # agvp_str_1 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=agvp_1, in_dis=1000.)
+        # agvp_1_num = self.task_manager.agvs.poses_dic2num[agvp_str_1]
+        # obs_dict['agv_pose_1'] = torch.tensor([agvp_1_num], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['agv_state_1'] = torch.tensor([self.task_manager.agvs.states[1]], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['agv_task_1'] = torch.tensor([self.task_manager.agvs.tasks[1]], dtype=torch.int32, device = self.cuda_device)
+        # ####10.box state
+        # box_0_position = self.task_manager.boxs.list[0].get_world_poses()
+        # boxp_0 = world_pose_to_navigation_pose(box_0_position)
+        # boxp_str_0 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=boxp_0, in_dis=1000.)
+        # boxp_0_num = self.task_manager.agvs.poses_dic2num[boxp_str_0]
+        # obs_dict['box_pose_0'] = torch.tensor([boxp_0_num], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['box_state_0'] = torch.tensor([self.task_manager.boxs.states[0]], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['box_task_0'] = torch.tensor([self.task_manager.boxs.tasks[0]], dtype=torch.int32, device = self.cuda_device)
+
+        # box_1_position = self.task_manager.boxs.list[1].get_world_poses()
+        # boxp_1 = world_pose_to_navigation_pose(box_1_position)
+        # boxp_str_1 = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=boxp_1, in_dis=1000.)
+        # boxp_1_num = self.task_manager.agvs.poses_dic2num[boxp_str_1]
+        # obs_dict['box_pose_1'] = torch.tensor([boxp_1_num], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['box_state_1'] = torch.tensor([self.task_manager.boxs.states[1]], dtype=torch.int32, device = self.cuda_device)
+        # obs_dict['box_task_1'] = torch.tensor([self.task_manager.boxs.tasks[1]], dtype=torch.int32, device = self.cuda_device)
 
         return obs_dict

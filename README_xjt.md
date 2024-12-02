@@ -215,10 +215,12 @@ log 显示上可以加一个进度条
 ###### 11.21 
 如果还是不行的话 就看看别人的loss function怎么做的，以及加上efficient buffer
 
-
 #### 11.28
 对于worker agv的状态表示不够， 以及可以通过route map增加随机性
 终端log、tansformer、数量变化（env_length这个setting可能也需要变化）
+
+num worker:1, num agv&box:1, env_length:1132
+
 
 # ignore
 __pycache___
