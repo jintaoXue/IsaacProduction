@@ -138,49 +138,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         box = [a*b for a,b in zip(self.task_manager.boxs.states,self.task_manager.boxs.tasks)].count(0)
         return worker>0, agv>0, box>0
     
-    def update_available_task(self):
-        self.available_task_dic = {'none':-1}
-        task_mask = torch.zeros(len(self.task_manager.task_dic), device=self.cuda_device)
-        task_mask[0] = 1
-        worker, agv, box = self.check_task_lacking_entity()
-        have_wab = worker and agv and box
-        have_w = worker
-        have_ab = agv and box
-        if have_wab and self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
-            self.available_task_dic['hoop_preparing'] = 0
-            task_mask[1] = 1
-        if have_wab and self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(0) > 0:
-            self.available_task_dic['bending_tube_preparing'] = 1
-            task_mask[2] = 1
-        if have_w and self.station_state_inner_left == 0 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
-            self.available_task_dic['hoop_loading_inner'] = 2
-            task_mask[3] = 1
-        if have_w and self.station_state_inner_right == 0 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
-            self.available_task_dic['bending_tube_loading_inner'] = 3
-            task_mask[4] = 1
-        if have_w and self.station_state_outer_left == 0 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
-            self.available_task_dic['hoop_loading_outer'] = 4
-            task_mask[5] = 1
-        if have_w and self.station_state_outer_right == 0 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
-            self.available_task_dic['bending_tube_loading_outer'] = 5
-            task_mask[6] = 1
-        if have_w and self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
-            self.available_task_dic['cutting_cube'] = 6
-            task_mask[7] = 1
-        if have_ab and (self.materials.produce_product_req() == True) and 'collect_product' not in self.task_manager.task_in_dic.keys():
-            self.available_task_dic['collect_product'] = 7
-            task_mask[8] = 1
-        if have_w and 'collect_product' in self.task_manager.task_in_dic.keys() and self.task_manager.boxs.product_collecting_idx >=0 and \
-                len(self.task_manager.boxs.product_idx_list[self.task_manager.boxs.product_collecting_idx])>0 and \
-                'placing_product' not in self.task_manager.task_in_dic.keys() and self.gripper_inner_task not in range (4, 8):
-            # (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
-            self.available_task_dic['placing_product'] = 8
-            task_mask[9] = 1
-
-        # self.available_task_dic['none'] = -1
-        self.task_manager.task_mask = task_mask
-        return
-    
     def reset_step(self):
         if self.reset_buf[0] == 1:
             self._reset_buffers(env_ids=0)
@@ -244,6 +201,50 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 position, orientaion = self.materials.cube_list[idx].get_world_poses()
                 # self.materials.cube_list[idx].set_world_poses(position, orientaion)
                 self.materials.cube_list[idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))
+
+
+    def update_available_task(self):
+        self.available_task_dic = {'none':-1}
+        task_mask = torch.zeros(len(self.task_manager.task_dic), device=self.cuda_device)
+        task_mask[0] = 1
+        worker, agv, box = self.check_task_lacking_entity()
+        have_wab = worker and agv and box
+        have_w = worker
+        have_ab = agv and box
+        if have_wab and self.state_depot_hoop == 0 and 'hoop_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(0) > 0:
+            self.available_task_dic['hoop_preparing'] = 0
+            task_mask[1] = 1
+        if have_wab and self.state_depot_bending_tube == 0 and 'bending_tube_preparing' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(0) > 0:
+            self.available_task_dic['bending_tube_preparing'] = 1
+            task_mask[2] = 1
+        if have_w and self.station_state_inner_left == 0 and 'hoop_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
+            self.available_task_dic['hoop_loading_inner'] = 2
+            task_mask[3] = 1
+        if have_w and self.station_state_inner_right == 0 and 'bending_tube_loading_inner' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
+            self.available_task_dic['bending_tube_loading_inner'] = 3
+            task_mask[4] = 1
+        if have_w and self.station_state_outer_left == 0 and 'hoop_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.hoop_states.count(2)>0: #loading
+            self.available_task_dic['hoop_loading_outer'] = 4
+            task_mask[5] = 1
+        if have_w and self.station_state_outer_right == 0 and 'bending_tube_loading_outer' not in self.task_manager.task_in_dic.keys() and self.materials.bending_tube_states.count(2)>0: 
+            self.available_task_dic['bending_tube_loading_outer'] = 5
+            task_mask[6] = 1
+        if have_w and self.cutting_machine_state == 1 and 'cutting_cube' not in self.task_manager.task_in_dic.keys(): #cuttting cube
+            self.available_task_dic['cutting_cube'] = 6
+            task_mask[7] = 1
+        if have_ab and (self.materials.produce_product_req() == True) and 'collect_product' not in self.task_manager.task_in_dic.keys():
+            self.available_task_dic['collect_product'] = 7
+            task_mask[8] = 1
+        if have_w and 'collect_product' in self.task_manager.task_in_dic.keys() and self.task_manager.boxs.product_collecting_idx >=0 and \
+                len(self.task_manager.boxs.product_idx_list[self.task_manager.boxs.product_collecting_idx])>0 and \
+                'placing_product' not in self.task_manager.task_in_dic.keys() and self.gripper_inner_task not in range (4, 8):
+            # (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
+            self.available_task_dic['placing_product'] = 8
+            task_mask[9] = 1
+
+        # self.available_task_dic['none'] = -1
+        self.task_manager.task_mask = task_mask
+        return
 
     def post_task_manager_step(self, actions):
         #TODO only support single action, not actions

@@ -229,11 +229,17 @@ num worker:1, num agv&box:1, env_length:1012
 num worker:1, num agv&box:1, env_length:1034
 num worker:1, num agv&box:2, env_length:1149
 num worker:1, num agv&box:2, env_length:1110
-num worker:2, num agv&box:2, env_length:789
+num worker:1, num agv&box:3, env_length:1148
+
 num worker:2, num agv&box:1, env_length:756
 num worker:2, num agv&box:1, env_length:751
+num worker:2, num agv&box:2, env_length:789
+num worker:2, num agv&box:3, env_length:900
+
 num worker:3, num agv&box:3, env_length:872
 num worker:3, num agv&box:3, env_length:871
+
+rainbow 的action = None 要改，Evaluate epoch 需要取消注释
 
 # ignore
 __pycache___

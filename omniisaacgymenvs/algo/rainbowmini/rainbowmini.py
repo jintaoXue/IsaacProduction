@@ -476,7 +476,10 @@ class RainbowminiAgent():
                         })
                     # next_obs = self.env_reset()   
                     if self.episode_num % self.evaluate_interval == 0:
-                        self.evaluate_epoch()
+                        #TODO debug
+                        pass
+                        # self.evaluate_epoch()
+
                 self.current_rewards = self.current_rewards * not_dones
                 self.current_lengths = self.current_lengths * not_dones
                 self.current_ep_time = self.current_ep_time * not_dones

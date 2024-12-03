@@ -1180,15 +1180,6 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.reset_machine_state()
         '''max_env_length_dic'''
         self.max_env_length_dic = [[1052],[1149],[]]
-        # num worker:1, num agv&box:1, env_length:1012
-        # num worker:1, num agv&box:1, env_length:1034
-        # num worker:1, num agv&box:2, env_length:1149
-        # num worker:1, num agv&box:2, env_length:1110
-        # num worker:2, num agv&box:2, env_length:789
-        # num worker:2, num agv&box:1, env_length:756
-        # num worker:2, num agv&box:1, env_length:751
-        # num worker:3, num agv&box:3, env_length:872
-        # num worker:3, num agv&box:3, env_length:871
         return
     
     def reset_machine_state(self):
