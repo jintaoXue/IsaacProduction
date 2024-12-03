@@ -87,7 +87,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     break
                 if self._evaluate:
                     self.world.step(render=True)
-                self.world.step(render=True)
+                # self.world.step(render=True)
         return obs, self.rew_buf, self.reset_buf, self.extras
     
     def caculate_metric_action(self, actions):
@@ -127,7 +127,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.extras['progress'] = progress
         self.extras['rew_action'] = self.reward_action
         self.extras['env_length'] = self.progress_buf[0].clone()
-        self.extras['max_env_len'] = self.max_episode_length - 1
+        self.extras['max_env_len'] = self.max_episode_length
         self.extras['task_finished'] = task_finished
         # self.reward_test_list.append(self.rew_buf[0].clone())
         return
@@ -149,6 +149,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.task_manager.reset()
         self.materials.reset()
         self.reset_machine_state()
+        self.max_episode_length = self.max_env_length_dic[self.task_manager.characters.acti_num_charc-1]
         return 
     
     def reset_update(self):
@@ -156,7 +157,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         task_finished = self.materials.done()
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
         #TODO for debug
-        is_last_step = False
+        # is_last_step = False
         # If max episode length has been reached
         if is_last_step or task_finished :
             self.reset_buf[0] = 1
@@ -1871,7 +1872,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         obs_dict['produce_product_req'] = torch.tensor([self.materials.produce_product_req()], dtype=torch.int32, device = self.cuda_device)
         ####7.time_step
         # obs_dict['time_step'] = self.progress_buf[0].cpu()/(self.max_episode_length - 1)
-        obs_dict['time_step'] = torch.tensor([self.progress_buf[0].cpu()/2000], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['time_step'] = torch.tensor([self.progress_buf[0].cpu()/1500], dtype=torch.float32, device = self.cuda_device)
+        obs_dict['max_env_len'] = torch.tensor([self.max_episode_length/1500], dtype=torch.float32, device = self.cuda_device)
         # (self.progress_buf[0].cpu()/2000).unsqueeze(0)
         
         ####10.progress
@@ -1881,12 +1883,16 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
         ####8.worker agv box state TODO
         max_num = 3
+        agv_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        worker_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        box_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        
         obs_dict['worker_pose'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
         obs_dict['worker_state'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
         obs_dict['worker_task'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
-        worker_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        
         for i in range(max_num):
-            if i < len(self.task_manager.characters.list):
+            if i < self.task_manager.characters.acti_num_charc:
                 worker_mask[i] = 1
                 worker_position = self.task_manager.characters.list[i].get_world_poses()
                 wp = world_pose_to_navigation_pose(worker_position)
@@ -1899,9 +1905,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         obs_dict['agv_pose'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
         obs_dict['agv_state'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
         obs_dict['agv_task'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
-        agv_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        
         for i in range(max_num):
-            if i < len(self.task_manager.agvs.list):
+            if i < self.task_manager.agvs.acti_num_agv:
                 agv_mask[i] = 1
                 position = self.task_manager.agvs.list[i].get_world_poses()
                 p = world_pose_to_navigation_pose(position)
@@ -1914,9 +1920,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         obs_dict['box_pose'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
         obs_dict['box_state'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
         obs_dict['box_task'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
-        box_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
+        
         for i in range(max_num):
-            if i < len(self.task_manager.boxs.list):
+            if i < self.task_manager.boxs.acti_num_box:
                 box_mask[i] = 1
                 position = self.task_manager.boxs.list[i].get_world_poses()
                 p = world_pose_to_navigation_pose(position)
@@ -1926,7 +1932,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 obs_dict['box_state'][i] = self.task_manager.boxs.states[i]
                 obs_dict['box_task'][i] = self.task_manager.boxs.tasks[i]
 
-        other_token_mask = torch.ones([15], dtype=bool, device = self.cuda_device)
+        other_token_mask = torch.ones([16], dtype=bool, device = self.cuda_device)
         obs_dict['token_mask'] = torch.concatenate([other_token_mask, worker_mask.repeat(3), agv_mask.repeat(3), box_mask.repeat(3)])
 
         # worker_0_position = self.task_manager.characters.list[0].get_world_poses()

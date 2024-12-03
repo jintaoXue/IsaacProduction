@@ -45,6 +45,7 @@ class DimState :
 
     time_step: int = 1
     progress: int = 1
+    max_env_len: int = 1
     #raw_product_embd
     types_raw_product_embd: int = 20
 
@@ -59,7 +60,7 @@ class DimState :
     
     #(worker+agv+box)*(state+task+pose)*(max_num=3)
     max_num_entity: int = 3
-    src_seq_len: int = 15 + 3*3*max_num_entity
+    src_seq_len: int = 16 + 3*3*max_num_entity
 
 # Factorised NoisyLinear layer with bias
 class NoisyLinear(nn.Module):
@@ -509,6 +510,10 @@ class FeatureEmbeddingBlock(nn.Module):
         nn.Linear(dimstate.time_step, hidden_size), nn.ReLU(),
         nn.Linear(hidden_size, hidden_size),
     )
+    self.max_env_len_ebd = nn.Sequential(
+        nn.Linear(dimstate.max_env_len, hidden_size), nn.ReLU(),
+        nn.Linear(hidden_size, hidden_size),
+    )
     self.progress_emb = nn.Sequential(
         nn.Linear(dimstate.progress, hidden_size), nn.ReLU(),
         nn.Linear(hidden_size, hidden_size),
@@ -539,7 +544,7 @@ class FeatureEmbeddingBlock(nn.Module):
     action_mask_embedding = self.action_mask_embedding(state['action_mask'])
     time_step_embedding = self.time_step_embedding(state['time_step'])
     progress = self.progress_emb(state['progress'])
-
+    max_env_len_ebd = self.max_env_len_ebd(state['max_env_len'])
     #operation: * math.sqrt(self.hidden_size) according to the paper attention is all you need
     state_depot_hoop_embedding= self.state_depot_hoop_embedding(state['state_depot_hoop'])
     have_raw_hoops_embedding= self.have_raw_hoops_embedding(state['have_raw_hoops'])
@@ -573,12 +578,13 @@ class FeatureEmbeddingBlock(nn.Module):
     all_embs = torch.cat([action_mask_embedding.unsqueeze(1), state_depot_hoop_embedding, have_raw_hoops_embedding, state_depot_bending_tube_embedding, 
                           have_raw_bending_tube_embedding, station_state_inner_left_embedding, station_state_inner_right_embedding, 
                           station_state_outer_left_embedding, station_state_outer_right_embedding, cutting_machine_state_embedding, 
-                          is_full_products_embedding, produce_product_req_embedding, raw_product_embd, time_step_embedding.unsqueeze(1), progress.unsqueeze(1), 
+                          is_full_products_embedding, produce_product_req_embedding, raw_product_embd, max_env_len_ebd.unsqueeze(1), time_step_embedding.unsqueeze(1), progress.unsqueeze(1), 
                           worker_state, worker_task, worker_pose, 
                           agv_state, agv_task, agv_pose, 
                           box_state, box_task, box_pose,], dim=1)
-
-    return all_embs*math.sqrt(self.hidden_size)
+    mask = state['token_mask'].unsqueeze(-1).repeat(1,1,self.hidden_size)
+    
+    return all_embs*mask*math.sqrt(self.hidden_size)
 
 class LayerNormalization(nn.Module):
 
@@ -665,6 +671,7 @@ class MultiheadAttentionBlock(nn.Module):
 
     def forward(self, q, k, v, mask):
         outputs, attns = self.encoder(q, k, v, mask)
+        # outputs, attns = self.encoder(q.transpose(0,1), k.transpose(0,1), v.transpose(0,1), key_padding_mask = mask)
         return outputs
     
 class EncoderBlock(nn.Module):
@@ -757,8 +764,8 @@ class Transformer(nn.Module):
         return self.projection_layer(x)
     
     def forward(self, state):
-        src = self.encode(state, state['token_mask'])
-        tgt = self.decode(src, state['token_mask'], state['action_mask'], None)
+        src = self.encode(state, None)
+        tgt = self.decode(src, None, state['action_mask'], None)
         return self.projection_layer(tgt)
     
 

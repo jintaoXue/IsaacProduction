@@ -42,7 +42,7 @@ class RainbowminiAgent():
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
-        self.num_warmup_steps = config.get('num_warmup_steps', int(2e4))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(5e4))
         # self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
@@ -477,8 +477,8 @@ class RainbowminiAgent():
                     # next_obs = self.env_reset()   
                     if self.episode_num % self.evaluate_interval == 0:
                         #TODO debug
-                        pass
-                        # self.evaluate_epoch()
+                        # pass
+                        self.evaluate_epoch()
 
                 self.current_rewards = self.current_rewards * not_dones
                 self.current_lengths = self.current_lengths * not_dones
@@ -540,7 +540,7 @@ class RainbowminiAgent():
                 with torch.no_grad():
                     action = self.act(obs).unsqueeze(0)
             #debug TODO
-            action = None
+            # action = None
 
             with torch.no_grad():
                 next_obs, rewards, dones, infos, action = self.env_step(action)
@@ -577,13 +577,13 @@ class RainbowminiAgent():
                 _,_,_,_,_infos = temporary_buffer[-1]
                 if _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1 and _infos['task_finished']:
                     reward_extra = 0.5*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
-                    repeat_times = 10
+                    repeat_times = 4
                 else:
                     if len(temporary_buffer) < 100:
                         reward_extra = -0.05
                     else:
                         reward_extra = -0.001
-                print("reward_extra:{}, env_len:{}".format(reward_extra, _infos['env_length']))
+                # print("reward_extra:{}, env_len:{}".format(reward_extra, _infos['env_length']))
                 break
         return temporary_buffer, reward_extra, repeat_times
     

@@ -669,9 +669,9 @@ class TaskManager(object):
         return
     
     def reset(self):
-        activate_num =  np.random.randint(2, 3)
-        activate_char_num = None
-        self.characters.reset(activate_char_num)
+        activate_num =  np.random.randint(1, 4)
+        acti_num_charc = np.random.randint(1, 4)
+        self.characters.reset(acti_num_charc)
         self.agvs.reset(activate_num)
         self.boxs.reset(activate_num)
         self.task_in_set = set()
@@ -1179,7 +1179,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
         '''max_env_length_dic'''
-        self.max_env_length_dic = [[1052],[1149],[]]
+        self.max_env_length_dic = [1200, 900, 900]
         return
     
     def reset_machine_state(self):

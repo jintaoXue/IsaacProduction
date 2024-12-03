@@ -226,20 +226,74 @@ facing bugs, environment simulation
 ## 12.3
 num worker:1, num agv&box:1, env_length:1132
 num worker:1, num agv&box:1, env_length:1012
+num worker:1, num agv&box:1, env_length:1029
 num worker:1, num agv&box:1, env_length:1034
+
 num worker:1, num agv&box:2, env_length:1149
 num worker:1, num agv&box:2, env_length:1110
+num worker:1, num agv&box:2, env_length:1148
+num worker:1, num agv&box:2, env_length:1129
+
 num worker:1, num agv&box:3, env_length:1148
+num worker:1, num agv&box:3, env_length:1138
+num worker:1, num agv&box:3, env_length:1148
+num worker:1, num agv&box:3, env_length:1127
 
 num worker:2, num agv&box:1, env_length:756
+num worker:2, num agv&box:1, env_length:767
 num worker:2, num agv&box:1, env_length:751
+
 num worker:2, num agv&box:2, env_length:789
+num worker:2, num agv&box:2, env_length:799
+num worker:2, num agv&box:2, env_length:800
+num worker:2, num agv&box:2, env_length:795
+
+num worker:2, num agv&box:3, env_length:909
 num worker:2, num agv&box:3, env_length:900
+
+num worker:3, num agv&box:1, env_length:752
+num worker:3, num agv&box:1, env_length:767
+num worker:3, num agv&box:1, env_length:750
+num worker:3, num agv&box:1, env_length:758
+
+num worker:3, num agv&box:2, env_length:843
+num worker:3, num agv&box:2, env_length:695
+num worker:3, num agv&box:2, env_length:855
+num worker:3, num agv&box:2, env_length:699
 
 num worker:3, num agv&box:3, env_length:872
 num worker:3, num agv&box:3, env_length:871
+num worker:3, num agv&box:3, env_length:709
+num worker:3, num agv&box:3, env_length:838
+num worker:3, num agv&box:3, env_length:677
+num worker:3, num agv&box:3, env_length:673
+num worker:3, num agv&box:3, env_length:694
+num worker:3, num agv&box:3, env_length:1024
+num worker:3, num agv&box:3, env_length:852
+
+
+
+num worker:3, num agv&box:3, env_length:694
+num worker:3, num agv&box:1, env_length:750
+num worker:1, num agv&box:2, env_length:1129
+num worker:3, num agv&box:3, env_length:1024
+num worker:3, num agv&box:3, env_length:852
+
+
+
+
 
 rainbow 的action = None 要改，Evaluate epoch 需要取消注释
+
+
+
+# 注
+每一次修改关于observation的变量
+1. env的task length 
+2. model里的dim_state和网络结构
+3. memory要改
+4. reset_update函数要改
+
 
 # ignore
 __pycache___
