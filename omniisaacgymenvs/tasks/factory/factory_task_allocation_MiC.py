@@ -170,8 +170,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if have_ab and (self.materials.produce_product_req() == True) and 'collect_product' not in self.task_manager.task_in_dic.keys():
             self.available_task_dic['collect_product'] = 7
             task_mask[8] = 1
-        if have_w and 'collect_product' in self.task_manager.task_in_dic.keys() and self.task_manager.boxs.product_collecting_idx >=0 and 'placing_product' not in self.task_manager.task_in_dic.keys()\
-            and self.gripper_inner_task not in range (4, 8):
+        if have_w and 'collect_product' in self.task_manager.task_in_dic.keys() and self.task_manager.boxs.product_collecting_idx >=0 and \
+                len(self.task_manager.boxs.product_idx_list[self.task_manager.boxs.product_collecting_idx])>0 and \
+                'placing_product' not in self.task_manager.task_in_dic.keys() and self.gripper_inner_task not in range (4, 8):
             # (self.task_manager.boxs.is_full_products() or self.materials.produce_product_req() == False) :
             self.available_task_dic['placing_product'] = 8
             task_mask[9] = 1
@@ -330,8 +331,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             elif have_ab and (self.materials.produce_product_req() == True) and 'collect_product' not in self.task_manager.task_in_dic.keys():
                 self.task_manager.assign_task(task='collect_product')
                 task_id = 7
-            elif have_w and 'collect_product' in self.task_manager.task_in_dic.keys() and self.task_manager.boxs.product_collecting_idx >=0 and 'placing_product' not in self.task_manager.task_in_dic.keys()\
-                and self.gripper_inner_task not in range (4, 8):
+            elif have_w and 'collect_product' in self.task_manager.task_in_dic.keys() and self.task_manager.boxs.product_collecting_idx >=0 and \
+                len(self.task_manager.boxs.product_idx_list[self.task_manager.boxs.product_collecting_idx])>0 and \
+                'placing_product' not in self.task_manager.task_in_dic.keys() and self.gripper_inner_task not in range (4, 8):
                 task_id = 8
                 self.task_manager.task_clearing(task='collect_product')
                 self.task_manager.assign_task(task='placing_product')
@@ -389,7 +391,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 if np.linalg.norm(np.array(s[:2]) - np.array(g[:2])) < 0.1:
                     reaching_flag = True
                 else:
-                    s_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=s)
+                    s_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=s, in_dis=3)
                     g_str = self.task_manager.characters.sub_task_character_dic[task]
                     # self.task_manager.characters.x_paths[idx], self.task_manager.characters.y_paths[idx], self.task_manager.characters.yaws[idx] = self.path_planner(s.copy(), g.copy())
                     self.task_manager.characters.x_paths[idx], self.task_manager.characters.y_paths[idx], self.task_manager.characters.yaws[idx] = self.task_manager.characters.routes_dic[s_str][g_str]
@@ -542,8 +544,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                         reaching_flag = True
                     else:
                         s, g = world_pose_to_navigation_pose(current_pose), world_pose_to_navigation_pose(box_pose)
-                        s_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=s)
-                        g_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=g)
+                        s_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=s, in_dis=3)
+                        g_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=g, in_dis=3)
                         if s_str == g_str:
                             reaching_flag = True
                         else:
@@ -556,7 +558,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                         self.task_manager.agvs.reset_path(idx)
                 if reaching_flag:
                     self.task_manager.agvs.states[idx] = 2 #carrying_box       
-                    self.task_manager.boxs.tasks[idx] = 2 #moving_with_box
+                    self.task_manager.boxs.tasks[corresp_box_idx] = 2 #moving_with_box
                     
         elif state == 2: #carrying_box
             reaching_flag = False
@@ -578,7 +580,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 if np.linalg.norm(np.array(s[:2]) - np.array(g[:2])) < 0.1:
                     reaching_flag = True
                 else:
-                    s_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=s)
+                    s_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=s, in_dis=3)
                     g_str = self.task_manager.agvs.sub_task_dic[task]
                     self.task_manager.agvs.x_paths[idx], self.task_manager.agvs.y_paths[idx], self.task_manager.agvs.yaws[idx] = self.task_manager.agvs.routes_dic[s_str][g_str]
                     # self.task_manager.agvs.x_paths[idx], self.task_manager.agvs.y_paths[idx], self.task_manager.agvs.yaws[idx] = self.path_planner(s.copy(), g.copy())
@@ -874,6 +876,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     "a product is produced and placed on the robot, then do resetting"
                     self.gripper_inner_state = 0
                     self.materials.product_states[self.materials.inner_cube_processing_index] = 1 # product is collected
+                    assert collecting_box_idx >=0, "box idx error"
                     collecting_box_idx = self.task_manager.task_in_dic['collect_product']['box_idx'] 
                     self.task_manager.boxs.product_idx_list[collecting_box_idx].append(self.materials.inner_cube_processing_index)
                     self.task_manager.boxs.counts[collecting_box_idx] += 1
@@ -888,6 +891,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     "a product is produced and placed on the robot, then do resetting"
                     self.gripper_inner_state = 0
                     self.materials.product_states[self.materials.outer_cube_processing_index] = 1 # product is collected
+                    assert collecting_box_idx >=0, "box idx error"
                     collecting_box_idx = self.task_manager.task_in_dic['collect_product']['box_idx'] 
                     self.task_manager.boxs.product_idx_list[collecting_box_idx].append(self.materials.outer_cube_processing_index)
                     self.task_manager.boxs.counts[collecting_box_idx] += 1
@@ -1827,7 +1831,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.obj_11_welding_1.set_joint_positions(next_pose)
         self.obj_11_welding_1.set_joint_velocities(torch.zeros(1, device=self.cuda_device))
     
-    def find_closest_pose(self, pose_dic, ego_pose, in_dis=50):
+    def find_closest_pose(self, pose_dic, ego_pose, in_dis=5):
         dis = np.inf
         key = None
         for _key, val in pose_dic.items():

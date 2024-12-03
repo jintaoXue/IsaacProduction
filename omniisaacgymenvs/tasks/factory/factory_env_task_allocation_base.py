@@ -328,13 +328,14 @@ class Characters(object):
         elif high_level_task == 'bending_tube_loading_outer':
             self.tasks[idx] = 8
         elif high_level_task == 'cutting_cube':
-            #TODO
+            #TODO warning
             for _idx in range(0, len(self.list)):
                 xyz, _ = self.list[_idx].get_world_poses()
-                idx = -1
                 if self.tasks[_idx] == 0 and xyz[0][0] < -22:
                     self.tasks[_idx] = 9
-                    idx = _idx
+                    return _idx
+                else:
+                    self.tasks[idx] = 9
                     return idx
             # if self.tasks[1] == 0: #only assign worker 1 to do the cutting cube task 
             #     self.tasks[1] = 9
@@ -1158,7 +1159,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
         '''max_env_length_dic'''
-        self.max_env_length_dic = [[1132],[],[]]
+        self.max_env_length_dic = [[1052],[],[]]
         # num worker:1, num agv&box:1, env_length:1132
         return
     
