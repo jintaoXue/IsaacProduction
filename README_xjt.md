@@ -220,7 +220,15 @@ log 显示上可以加一个进度条
 终端log、tansformer、数量变化（env_length这个setting可能也需要变化）
 
 num worker:1, num agv&box:1, env_length:1132
-
+num worker:1, num agv&box:1, env_length:1012
+num worker:1, num agv&box:1, env_length:1034
+num worker:1, num agv&box:2, env_length:1149
+num worker:1, num agv&box:2, env_length:1110
+num worker:2, num agv&box:2, env_length:789
+num worker:2, num agv&box:1, env_length:756
+num worker:2, num agv&box:1, env_length:751
+num worker:3, num agv&box:3, env_length:872
+num worker:3, num agv&box:3, env_length:871
 
 # ignore
 __pycache___

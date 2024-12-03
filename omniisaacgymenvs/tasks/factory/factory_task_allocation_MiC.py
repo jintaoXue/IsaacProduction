@@ -593,6 +593,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             if reaching_flag:
                 if task == 5: #reset agvs state
                     self.task_manager.agvs.reset_idx(idx)
+                    assert corresp_box_idx>=0, "error"
                     self.task_manager.boxs.states[corresp_box_idx] = 1 #waiting
                     self.task_manager.boxs.tasks[corresp_box_idx] = 3 #collect products
                     self.task_manager.task_in_dic[high_level_task]['agv_idx'] = -2 #task collecting product dont need agv later 
@@ -635,6 +636,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 '''collecting product and waiting for task manager to end the collecting task'''
         elif state == 2: #moving
             #todo
+            assert corresp_agv_idx>=0, "error"
             target_position, target_orientation = self.task_manager.agvs.list[corresp_agv_idx].get_world_poses()
         #to avoid the object fall underground
         target_position[0][-1] = 0
@@ -876,8 +878,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     "a product is produced and placed on the robot, then do resetting"
                     self.gripper_inner_state = 0
                     self.materials.product_states[self.materials.inner_cube_processing_index] = 1 # product is collected
-                    assert collecting_box_idx >=0, "box idx error"
                     collecting_box_idx = self.task_manager.task_in_dic['collect_product']['box_idx'] 
+                    assert collecting_box_idx >=0, "box idx error"
                     self.task_manager.boxs.product_idx_list[collecting_box_idx].append(self.materials.inner_cube_processing_index)
                     self.task_manager.boxs.counts[collecting_box_idx] += 1
                     self.materials.inner_cube_processing_index = -1
@@ -891,8 +893,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     "a product is produced and placed on the robot, then do resetting"
                     self.gripper_inner_state = 0
                     self.materials.product_states[self.materials.outer_cube_processing_index] = 1 # product is collected
-                    assert collecting_box_idx >=0, "box idx error"
                     collecting_box_idx = self.task_manager.task_in_dic['collect_product']['box_idx'] 
+                    assert collecting_box_idx >=0, "box idx error"
                     self.task_manager.boxs.product_idx_list[collecting_box_idx].append(self.materials.outer_cube_processing_index)
                     self.task_manager.boxs.counts[collecting_box_idx] += 1
                     self.materials.outer_cube_processing_index = -1

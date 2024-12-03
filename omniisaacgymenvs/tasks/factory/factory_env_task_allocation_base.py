@@ -609,6 +609,8 @@ class TransBoxs(object):
             # else:
             #     return -1 
             assert self.product_collecting_idx>=0, "placing product task wrong"
+            self.high_level_tasks[self.product_collecting_idx] = high_level_task
+            self.tasks[self.product_collecting_idx] = 1 
             return self.product_collecting_idx
         
         idx = self.find_available_box()
@@ -1097,9 +1099,15 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             name="character_2",
             track_contact_forces=True,
         )
+        self.character_3 = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_03",
+            name="character_3",
+            track_contact_forces=True,
+        )
         scene.add(self.character_1)
         scene.add(self.character_2)
-        character_list = [self.character_1, self.character_2]
+        scene.add(self.character_3)
+        character_list = [self.character_1, self.character_2, self.character_3]
         # self.characters = Characters(character_list)
 
         self.box_1 = RigidPrimView(
@@ -1112,9 +1120,15 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             name="box_2",
             track_contact_forces=True,
         )
+        self.box_3 = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/AGVs/box_03",
+            name="box_3",
+            track_contact_forces=True,
+        )
         scene.add(self.box_1)
         scene.add(self.box_2)
-        box_list = [self.box_1, self.box_2]
+        scene.add(self.box_3)
+        box_list = [self.box_1, self.box_2, self.box_3]
         # self.transboxs = TransBoxs(box_list)
 
         self.agv_1 = ArticulationView(
@@ -1127,9 +1141,15 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             name="agv_2",
             reset_xform_properties=False,
         )
+        self.agv_3 = ArticulationView(
+            prim_paths_expr="/World/envs/.*/obj/AGVs/agv_03",
+            name="agv_3",
+            reset_xform_properties=False,
+        )
         scene.add(self.agv_1)
         scene.add(self.agv_2)
-        agv_list = [self.agv_1, self.agv_2]
+        scene.add(self.agv_3)
+        agv_list = [self.agv_1, self.agv_2, self.agv_3]
         # self.agvs = Agvs(agv_list)
         self.cuda_device = torch.device("cuda:0")
         self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list, self.cuda_device)
@@ -1159,8 +1179,16 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
         '''max_env_length_dic'''
-        self.max_env_length_dic = [[1052],[],[]]
-        # num worker:1, num agv&box:1, env_length:1132
+        self.max_env_length_dic = [[1052],[1149],[]]
+        # num worker:1, num agv&box:1, env_length:1012
+        # num worker:1, num agv&box:1, env_length:1034
+        # num worker:1, num agv&box:2, env_length:1149
+        # num worker:1, num agv&box:2, env_length:1110
+        # num worker:2, num agv&box:2, env_length:789
+        # num worker:2, num agv&box:1, env_length:756
+        # num worker:2, num agv&box:1, env_length:751
+        # num worker:3, num agv&box:3, env_length:872
+        # num worker:3, num agv&box:3, env_length:871
         return
     
     def reset_machine_state(self):
