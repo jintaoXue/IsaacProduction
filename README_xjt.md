@@ -142,7 +142,8 @@ rule-based:
 length = 23
 
 add two actions
-
+###### 11.21 
+如果还是不行的话 就看看别人的loss function怎么做的，以及加上efficient buffer
 # 10.21
 如何调整weld station的inner还是outer的选择方式？
 原来的是cube in list 之后然后再做选择
@@ -212,13 +213,17 @@ mse loss 好像有问题
 
 ablation study 可以加一个history state
 log 显示上可以加一个进度条
-###### 11.21 
-如果还是不行的话 就看看别人的loss function怎么做的，以及加上efficient buffer
 
 #### 11.28
 对于worker agv的状态表示不够， 以及可以通过route map增加随机性
 终端log、tansformer、数量变化（env_length这个setting可能也需要变化）
 
+## 12.1
+把tokens 加上mask
+## 12.2
+facing bugs, environment simulation
+
+## 12.3
 num worker:1, num agv&box:1, env_length:1132
 num worker:1, num agv&box:1, env_length:1012
 num worker:1, num agv&box:1, env_length:1034
