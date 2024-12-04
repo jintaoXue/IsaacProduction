@@ -576,8 +576,8 @@ class RainbowminiAgent():
             if dones[0]:
                 _,_,_,_,_infos = temporary_buffer[-1]
                 if _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1 and _infos['task_finished']:
-                    reward_extra = 0.5*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
-                    repeat_times = 4
+                    reward_extra = 0.4*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
+                    repeat_times = 2
                 else:
                     if len(temporary_buffer) < 100:
                         reward_extra = -0.05

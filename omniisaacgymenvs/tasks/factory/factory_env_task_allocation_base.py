@@ -1179,7 +1179,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
         '''max_env_length_dic'''
-        self.max_env_length_dic = [1200, 900, 900]
+        self.max_env_length_dic = [1200, 950, 900]
         return
     
     def reset_machine_state(self):

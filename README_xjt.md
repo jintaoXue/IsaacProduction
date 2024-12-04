@@ -273,13 +273,6 @@ num worker:3, num agv&box:3, env_length:852
 
 
 
-num worker:3, num agv&box:3, env_length:694
-num worker:3, num agv&box:1, env_length:750
-num worker:1, num agv&box:2, env_length:1129
-num worker:3, num agv&box:3, env_length:1024
-num worker:3, num agv&box:3, env_length:852
-
-
 
 
 
