@@ -43,7 +43,7 @@ class RainbowminiAgent():
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
         self.num_warmup_steps = config.get('num_warmup_steps', int(5e4))
-        # self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
@@ -450,8 +450,8 @@ class RainbowminiAgent():
                 self.game_rewards.update(self.current_rewards[done_indices])
                 self.game_lengths.update(self.current_lengths[done_indices])
 
-                no_timeouts = self.current_lengths <= self.max_env_steps
-                dones = dones * no_timeouts
+                # no_timeouts = self.current_lengths <= self.max_env_steps
+                # dones = dones * no_timeouts
                 not_dones = 1.0 - dones.float()
                 obs_cpu = {}
                 for key, value in obs.items():
@@ -553,8 +553,8 @@ class RainbowminiAgent():
             all_done_indices = dones.nonzero(as_tuple=False)
             done_indices = all_done_indices[::self.num_agents]
 
-            no_timeouts = self.temp_current_lengths <= self.max_env_steps
-            dones = dones * no_timeouts
+            # no_timeouts = self.temp_current_lengths <= self.max_env_steps
+            # dones = dones * no_timeouts
             not_dones = 1.0 - dones.float()
 
             self.temp_current_lengths = self.temp_current_lengths * not_dones
@@ -616,8 +616,8 @@ class RainbowminiAgent():
             total_time += (step_end - step_start)
             step_time += (step_end - step_start)
 
-            no_timeouts = self.evaluate_current_lengths != self.max_env_steps
-            dones = dones * no_timeouts
+            # no_timeouts = self.evaluate_current_lengths != self.max_env_steps
+            # dones = dones * no_timeouts
             not_dones = 1.0 - dones.float()            
             if dones[0]: 
                 if self.use_wandb:
