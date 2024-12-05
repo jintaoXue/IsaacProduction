@@ -152,21 +152,17 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         #TODO
         acti_num_char = None
         acti_num_robot = None
-        if not self._test:
-            self.max_episode_length = self.max_env_length_dic[self.task_manager.characters.acti_num_charc-1]
-        else:
+        if self._test:
             self.max_episode_length = self._train_cfg['params']['config']['test_env_max_length']
             if self._test_all_settings:
-                if self.test_all_idx>=0:
+                if self.test_all_idx in range(0, len(self.test_settings_list)):
                     acti_num_char, acti_num_robot = self.test_settings_list[self.test_all_idx]
                 self.test_all_idx += 1 
         self.task_manager.reset(acti_num_char, acti_num_robot)
         self.materials.reset()
         self.reset_machine_state()
-        # if self._test:
-        #     self.max_episode_length = self._train_cfg['params']['config']['test_env_max_length']
-        # else:
-        #     self.max_episode_length = self.max_env_length_dic[self.task_manager.characters.acti_num_charc-1]
+        if not self._test:
+            self.max_episode_length = self.max_env_length_settings[self.task_manager.characters.acti_num_charc-1][self.task_manager.agvs.acti_num_agv-1]
         return 
     
     def reset_update(self):
@@ -178,7 +174,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         # If max episode length has been reached
         if is_last_step or task_finished :
             self.reset_buf[0] = 1
-            print("num worker:{}, num agv&box:{}, env_length:{}".format(self.task_manager.characters.acti_num_charc, self.task_manager.agvs.acti_num_agv, self.progress_buf[0]))
+            print("num worker:{}, num agv&box:{}, env_length:{}, max_env_len:{}".format(self.task_manager.characters.acti_num_charc, 
+                                                    self.task_manager.agvs.acti_num_agv, self.progress_buf[0], self.max_episode_length))
         else:
             pass
 

@@ -36,7 +36,7 @@ class RainbowminiAgent():
         ###########for agent training
         self.update_frequency = config.get('update_frequency', 100)
         # self.update_frequency = config.get('update_frequency', 10)
-        self.evaluate_interval = config.get('evaluate_interval', 10)
+        self.evaluate_interval = config.get('evaluate_interval', 20)
         self.target_update = config.get('target_update', int(1e2))
         self.max_steps = config.get("max_steps", int(5e9))
         self.max_epochs = config.get("max_epochs", int(1e11))
@@ -235,6 +235,7 @@ class RainbowminiAgent():
         wandb.define_metric("Evaluate/EpTime", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpProgress", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpRetAction", step_metric="Evaluate/step_episode")
+        wandb.define_metric("Evaluate/Success", step_metric="Evaluate/step_episode")
         self.evaluate_table = wandb.Table(columns=["env_length", "action_seq", "progress"])
 
         #test
@@ -489,8 +490,17 @@ class RainbowminiAgent():
                     if self.episode_num % self.evaluate_interval == 0:
                         #TODO debug
                         # pass
-                        self.evaluate_epoch()
-
+                        success_list= []
+                        for w in range(self.config["max_num_worker"]):
+                            for r in range(self.config["max_num_robot"]):
+                                success_list.append(self.evaluate_epoch())
+                        if np.all(success_list):
+                            # checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
+                            checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num)
+                            self.save(os.path.join(self.nn_dir, checkpoint_name))
+                            if self.use_wandb:
+                                wandb.log({"Evaluate/Success": self.episode_num,
+                                })
                 self.current_rewards = self.current_rewards * not_dones
                 self.current_lengths = self.current_lengths * not_dones
                 self.current_ep_time = self.current_ep_time * not_dones
@@ -603,6 +613,7 @@ class RainbowminiAgent():
         total_time = 0
         step_time = 0.0
         action_info_list = []
+        task_success = False
         if test:
             time_step_list = []
         while True:
@@ -649,11 +660,13 @@ class RainbowminiAgent():
                         "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
                     })   
                     if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1:
+                        task_success = True
                         self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
                         wandb.log({"Action": self.evaluate_table}) 
-                        if not test:
-                            checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
-                            self.save(os.path.join(self.nn_dir, checkpoint_name)) 
+                        # if not test:
+                        #     # checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
+                        #     checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num)
+                        #     self.save(os.path.join(self.nn_dir, checkpoint_name)) 
                     if test:
                         self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'].cpu())
                         self.test_table3.add_data(' '.join(time_step_list), ' '.join(action_info_list))
@@ -670,7 +683,7 @@ class RainbowminiAgent():
 
         total_time_end = time.time()
         total_time = total_time_end - total_time_start
-        return 
+        return task_success
     
     def train(self):
         self.init_tensors()

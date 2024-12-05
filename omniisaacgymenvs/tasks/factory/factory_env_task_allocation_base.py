@@ -1205,12 +1205,12 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
-        '''max_env_length_dic'''
-        self.max_env_length_dic = [1200, 950, 900]
+        '''max_env_length_settings'''
+        self.max_env_length_settings = [[1300, 1300, 1300], [1000, 1000, 1000], [900, 900, 900]]
 
         '''test settings'''
         if self._test and self._test_all_settings:
-            self.test_all_idx = -2
+            self.test_all_idx = -1
             self.test_settings_list = []
             for w in range(self._train_cfg['params']['config']["max_num_worker"]):
                 for r in range(self._train_cfg['params']['config']["max_num_robot"]):
