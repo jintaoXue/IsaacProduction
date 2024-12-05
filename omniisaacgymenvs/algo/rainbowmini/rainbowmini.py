@@ -644,7 +644,7 @@ class RainbowminiAgent():
                     })   
                     if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1:
                         self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
-                        wandb.log({"Actions": self.evaluate_table}) 
+                        wandb.log({"Action": self.evaluate_table}) 
                         if not test:
                             checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
                             self.save(os.path.join(self.nn_dir, checkpoint_name)) 

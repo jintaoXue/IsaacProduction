@@ -305,3 +305,32 @@ checkpoints
 omniisaacgymenvs/wandb
 **/__pycache__
 wandb/
+
+
+json:
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "test:rainbowmini",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "/home/xue/Repos/miniconda3/envs/isaac-sim/bin/python",
+            // "python": "/home/xue/.local/share/ov/pkg/isaac_sim-2023.1.1/kit/python/bin/python3",
+            "program": "${workspaceFolder}/omniisaacgymenvs/scripts/rlgames_train_v1.py",
+            "console": "integratedTerminal",
+            "stopOnEntry": false,
+            // "args": ["-eph", "./pretrain_info/embed_mat.txt", "-mn", "simple_hgn", "-sp", "True", "-debug", "True"],
+            "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbowmini", "headless=True", "wandb_activate=True", "test=True"],
+            // "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbowmini"],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "setup conda env",
+            // "justMyCode":false  
+            
+        },
+    ]
+}
