@@ -719,7 +719,7 @@ class RainbowminiAgent():
             else:
                 for w in range(self.config["max_num_worker"]):
                     for r in range(self.config["max_num_robot"]):
-                        step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch(w,r)
+                        step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch(w+1,r+1)
 
                 total_time += epoch_total_time
                 # self.step_num += self.num_steps_per_epoch
