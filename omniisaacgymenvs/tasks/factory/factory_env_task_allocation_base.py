@@ -277,7 +277,7 @@ class Characters(object):
         
         return
     
-    def reset(self, acti_num_charc = None):
+    def reset(self, acti_num_charc = None, random = None):
         if not acti_num_charc:
             acti_num_charc = np.random.randint(2, 3)
         self.acti_num_charc = acti_num_charc
@@ -288,16 +288,21 @@ class Characters(object):
         self.y_paths = [[] for i in range(acti_num_charc)]
         self.yaws = [[] for i in range(acti_num_charc)]
         self.path_idxs = [0 for i in range(acti_num_charc)]
-
-        random = np.random.choice(len(self.poses_dic), acti_num_charc, replace=False)
+        if not random:
+            random = np.random.choice(len(self.poses_dic), acti_num_charc, replace=False)
         pose_list = list(self.poses_dic.values())
+        pose_str_list = list(self.poses_dic.keys())
+        initial_pose_str = []
         for i in range(0, acti_num_charc):
             position = pose_list[random[i]][:2]+[0.0415]
+            initial_pose_str.append(pose_str_list[random[i]])
             self.list[i].set_world_poses(torch.tensor([position]), torch.tensor([[1., 0., 0., 0.]]))
             self.list[i].set_velocities(torch.zeros((1,6)))
             self.reset_idx(i)
             self.reset_path(i)
         self.loading_operation_time_steps = [0 for i in range(acti_num_charc)]
+
+        return initial_pose_str
 
 
     def reset_idx(self, idx):
@@ -430,7 +435,7 @@ class Agvs(object):
         self.placing_product_pose = [-38.54638, 12.40097, np.deg2rad(0)]
         return
     
-    def reset(self, acti_num_agv=None):
+    def reset(self, acti_num_agv=None, random = None):
         if not acti_num_agv:
             acti_num_agv = np.random.randint(2, 3)
         self.acti_num_agv = acti_num_agv
@@ -441,16 +446,21 @@ class Agvs(object):
         self.y_paths = [[] for i in range(acti_num_agv)]
         self.yaws = [[] for i in range(acti_num_agv)]
         self.path_idxs = [0 for i in range(acti_num_agv)]
-        random = np.random.choice(len(self.poses_dic), acti_num_agv, replace=False)
+        if not random:
+            random = np.random.choice(len(self.poses_dic), acti_num_agv, replace=False)
         pose_list = list(self.poses_dic.values())
-        
+        pose_str_list = list(self.poses_dic.keys())
+        initial_pose_str = []
         for i in range(0, acti_num_agv):
+            initial_pose_str.append(pose_str_list[random[i]])
             position = pose_list[random[i]][:2]+[0.1]
             self.list[i].set_world_poses(torch.tensor([position]), torch.tensor([[1., 0., 0., 0.]]))
             self.list[i].set_velocities(torch.zeros((1,6)))
             self.reset_idx(i)
             self.reset_path(i)
 
+        return initial_pose_str
+    
     def reset_idx(self, idx):
         if idx < 0 :
             return
@@ -563,7 +573,7 @@ class TransBoxs(object):
         self.reset()
         return
     
-    def reset(self, acti_num_box=None):
+    def reset(self, acti_num_box=None, random = None):
         if not acti_num_box:
             acti_num_box = np.random.randint(2, 3)
         self.acti_num_box = acti_num_box
@@ -576,15 +586,19 @@ class TransBoxs(object):
         self.product_idx_list = [[] for i in range(acti_num_box)]
         self.counts = [0 for i in range(acti_num_box)]
         self.product_collecting_idx = -1
-
-        random = np.random.choice(len(self.poses_dic), acti_num_box, replace=False)
+        if not random:
+            random = np.random.choice(len(self.poses_dic), acti_num_box, replace=False)
         pose_list = list(self.poses_dic.values())
+        pose_str_list = list(self.poses_dic.keys())
+        initial_pose_str = []
         for i in range(0, acti_num_box):
+            initial_pose_str.append(pose_str_list[random[i]])
             position = pose_list[random[i]][:2]+[0.0]
             self.list[i].set_world_poses(torch.tensor([position]), torch.tensor([[1., 0., 0., 0.]]))
             self.list[i].set_velocities(torch.zeros((1,6)))
             self.reset_idx(i)
 
+        return initial_pose_str
 
     def reset_idx(self, idx):
         if idx < 0 :
@@ -655,7 +669,7 @@ class TransBoxs(object):
 
 
 class TaskManager(object):
-    def __init__(self, character_list, agv_list, box_list, cuda_device) -> None:
+    def __init__(self, character_list, agv_list, box_list, cuda_device, train_cfg) -> None:
         self.cuda_device = cuda_device
         self.characters = Characters(character_list=character_list)
         self.agvs = Agvs(agv_list = agv_list)
@@ -666,14 +680,24 @@ class TaskManager(object):
         self.task_in_dic = {}
         self.task_mask = torch.zeros(len(self.task_dic), device=cuda_device)
         self.task_dic_inverse = {value: key for key, value in self.task_dic.items()}
+        self._test = train_cfg['test']
+        if self._test:
+           np.random.seed(1)
+           self._eval_times = train_cfg['test_times']
+           self.acti_num_agv = train_cfg['test_acti_num_agv']
+           self.acti_num_charc = train_cfg['test_acti_num_charc']
         return
     
     def reset(self):
-        activate_num =  np.random.randint(1, 4)
-        acti_num_charc = np.random.randint(1, 4)
-        self.characters.reset(acti_num_charc)
-        self.agvs.reset(activate_num)
-        self.boxs.reset(activate_num)
+        if self._test:
+            acti_num_agv = self.acti_num_agv
+            acti_num_charc = self.acti_num_charc
+        else:
+            acti_num_agv =  np.random.randint(1, 4)
+            acti_num_charc = np.random.randint(1, 4)
+        self.ini_worker_pose = self.characters.reset(acti_num_charc)
+        self.ini_agv_pose = self.agvs.reset(acti_num_agv)
+        self.ini_box_pose = self.boxs.reset(acti_num_agv)
         self.task_in_set = set()
         self.task_in_dic = {}
         self.task_mask = torch.zeros(len(self.task_dic), device=self.cuda_device)
@@ -768,7 +792,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         ]  # strip superfluous nesting
 
         self.accerlate_train = self._task_cfg['env']['accerlate_train']
-        self._evaluate = self._task_cfg['rl']['evaluate']
+        self._test = self._train_cfg['params']['config']['test']
         
 
     def update_config(self, sim_config):
@@ -1152,7 +1176,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         agv_list = [self.agv_1, self.agv_2, self.agv_3]
         # self.agvs = Agvs(agv_list)
         self.cuda_device = torch.device("cuda:0")
-        self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list, self.cuda_device)
+        self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list, self.cuda_device, self._train_cfg['params']['config'])
         '''Ending: for humans workers (characters) and robots (agv+boxs)'''
         # from omniisaacgymenvs.robots.omni_anim_people.scripts.character_behavior import CharacterBehavior
         # from pxr import Sdf

@@ -10,9 +10,9 @@ blank_state = {'action_mask': torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 
  'cutting_machine_state': torch.tensor([0]), 'is_full_products': torch.tensor([0]), 'produce_product_req': torch.tensor([0]), 
  'time_step': torch.tensor([0.]),'progress': torch.tensor([0.]), 'max_env_len': torch.tensor([0.]),
  'raw_products': torch.tensor([0]),
- 'worker_pose':torch.zeros([3,1]), 'worker_state':torch.zeros([3,1]), 'worker_task':torch.zeros([3,1]),
- 'agv_pose':torch.zeros([3,1]), 'agv_state':torch.zeros([3,1]), 'agv_task':torch.zeros([3,1]),
- 'box_pose':torch.zeros([3,1]), 'box_state':torch.zeros([3,1]), 'box_task':torch.zeros([3,1]),
+ 'worker_pose':torch.zeros([3,1], dtype=torch.int32), 'worker_state':torch.zeros([3,1], dtype=torch.int32), 'worker_task':torch.zeros([3,1], dtype=torch.int32),
+ 'agv_pose':torch.zeros([3,1], dtype=torch.int32), 'agv_state':torch.zeros([3,1], dtype=torch.int32), 'agv_task':torch.zeros([3,1], dtype=torch.int32),
+ 'box_pose':torch.zeros([3,1], dtype=torch.int32), 'box_state':torch.zeros([3,1], dtype=torch.int32), 'box_task':torch.zeros([3,1], dtype=torch.int32),
  'token_mask':torch.zeros([43], dtype=torch.bool)
  }
 

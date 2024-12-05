@@ -77,7 +77,7 @@ class RLGTrainer:
             f.write(OmegaConf.to_yaml(self.cfg))
 
         runner.run(
-            {"train": not self.cfg.test, "play": self.cfg.test, "checkpoint": self.cfg.checkpoint, "sigma": None}
+            {"train": True, "play": False, "checkpoint": self.cfg.checkpoint, "sigma": None}
         )
 
 
@@ -152,7 +152,10 @@ def parse_hydra_configs(cfg: DictConfig):
         # Make sure to install WandB if you actually use this.
         import wandb
 
-        run_name = f"{cfg.wandb_name}_{time_str}"
+        if cfg.train.params.config.test:
+            run_name = f"test_{cfg.wandb_name}_{time_str}"
+        else:
+            run_name = f"{cfg.wandb_name}_{time_str}"
 
         wandb.init(
             project=cfg.wandb_project,

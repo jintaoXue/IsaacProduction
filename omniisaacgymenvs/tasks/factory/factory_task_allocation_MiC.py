@@ -85,8 +85,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                     self.calculate_metrics()
                     obs = self.get_observations()
                     break
-                if self._evaluate:
-                    self.world.step(render=True)
+                # if self._evaluate:
+                #     self.world.step(render=True)
                 # self.world.step(render=True)
         return obs, self.rew_buf, self.reset_buf, self.extras
     
@@ -128,7 +128,11 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.extras['rew_action'] = self.reward_action
         self.extras['env_length'] = self.progress_buf[0].clone()
         self.extras['max_env_len'] = self.max_episode_length
-        self.extras['task_finished'] = task_finished
+        self.extras['time_step'] = f"{self.progress_buf[0].cpu()}"
+        if self._test:
+            self.extras['worker_initial_pose'] = self.task_manager.ini_worker_pose
+            self.extras['robot_initial_pose'] = self.task_manager.ini_agv_pose
+            self.extras['box_initial_pose'] = self.task_manager.ini_box_pose
         # self.reward_test_list.append(self.rew_buf[0].clone())
         return
     
@@ -149,7 +153,10 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.task_manager.reset()
         self.materials.reset()
         self.reset_machine_state()
-        self.max_episode_length = self.max_env_length_dic[self.task_manager.characters.acti_num_charc-1]
+        if self._test:
+            self.max_episode_length = self._train_cfg['params']['config']['test_env_max_length']
+        else:
+            self.max_episode_length = self.max_env_length_dic[self.task_manager.characters.acti_num_charc-1]
         return 
     
     def reset_update(self):
@@ -1886,7 +1893,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         agv_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
         worker_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
         box_mask = torch.zeros([max_num], dtype=bool, device = self.cuda_device)
-        
+
         obs_dict['worker_pose'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
         obs_dict['worker_state'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)
         obs_dict['worker_task'] = torch.zeros([max_num, 1], dtype=torch.int32, device = self.cuda_device)

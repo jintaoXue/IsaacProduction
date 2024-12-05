@@ -40,8 +40,13 @@ params:
     clip_value: True
     seq_length: 4
     bounds_loss_coef: 0.0001
-    # env_rule_based_exploration: True
-    evaluate: ${....evaluate}
+
+    env_rule_based_exploration: True
+    test: ${....test}
+    test_times: 100
+    test_acti_num_agv: 1
+    test_acti_num_charc: 1
+    test_env_max_length: 2000
     # load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
     # load_name: /FactoryTaskAllocationMiC_ep_11852_rew_4.8871512.pth
 

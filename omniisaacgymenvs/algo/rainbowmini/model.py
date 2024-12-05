@@ -781,7 +781,7 @@ def build_transformer(dim_state: DimState, d_model: int=512, h: int=8, dropout: 
     
     # Create the encoder blocks
     encoder_blocks = []
-    for _ in range(1):
+    for _ in range(2):
         encoder_self_attention_block = MultiheadAttentionBlock(d_model, h, dropout)
         feed_forward_block = FeedForwardBlock(d_model, d_ff, dropout)
         encoder_block = EncoderBlock(d_model, encoder_self_attention_block, feed_forward_block, dropout)

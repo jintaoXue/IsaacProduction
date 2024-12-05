@@ -43,11 +43,11 @@ class RainbowminiAgent():
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
         self.num_warmup_steps = config.get('num_warmup_steps', int(5e4))
-        self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
+        # self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
-        # self.env_rule_based_exploration = config.get('env_rule_based_exploration', True)
+        self.env_rule_based_exploration = config.get('env_rule_based_exploration', False)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
         #########buffer
@@ -56,7 +56,7 @@ class RainbowminiAgent():
         ####### net
         # self.online_net = DQN(config, self.actions_num).to(device=self._device)
         self.online_net = DQNTrans(config, self.actions_num).to(device=self._device)
-        if self._evaluate:
+        if self._test and not self.env_rule_based_exploration:
             weights = torch.load(self.train_dir + self._load_dir + self._load_name, weights_only=True)
             self.online_net.load_state_dict(weights['net'])
         self.online_net.train()
@@ -120,8 +120,8 @@ class RainbowminiAgent():
         self.obs_shape = self.observation_space.shape
         self.obs = None
         self._device = config['device']
-        ##evaluate
-        self._evaluate = config['evaluate']
+        ##test
+        self._test = config['test']
         self._load_dir = config['load_dir']
         self._load_name = config['load_name']
         #temporary for Isaac gym compatibility
@@ -230,6 +230,11 @@ class RainbowminiAgent():
         wandb.define_metric("Evaluate/EpProgress", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpRetAction", step_metric="Evaluate/step_episode")
         self.evaluate_table = wandb.Table(columns=["env_length", "action_seq", "progress"])
+
+        #test
+        self.test_table = wandb.Table(columns=["worker_initial_pose", "robot_initial_pose", "box_initial_pose", "progress", "env_length"])
+        self.test_table2 = wandb.Table(columns=["num_worker", "num_robot&box", "mean_env_length"])
+        self.test_table3 = wandb.Table(columns=["time_step", "action_list"])
         return
     
     # Resets noisy weights in all linear layers (of online net only)
@@ -575,7 +580,7 @@ class RainbowminiAgent():
             repeat_times = 1
             if dones[0]:
                 _,_,_,_,_infos = temporary_buffer[-1]
-                if _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1 and _infos['task_finished']:
+                if _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1:
                     reward_extra = 0.4*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
                     repeat_times = 2
                 else:
@@ -587,19 +592,23 @@ class RainbowminiAgent():
                 break
         return temporary_buffer, reward_extra, repeat_times
     
-    def evaluate_epoch(self):
+    def evaluate_epoch(self, test=False):
         total_time_start = time.time()
         total_time = 0
         step_time = 0.0
         action_info_list = []
+        if test:
+            time_step_list = []
         while True:
             self.set_eval()
             obs : dict = self.obs
-            with torch.no_grad():
-                action = self.act(obs).unsqueeze(0)
+            if self.env_rule_based_exploration:
+                action = None
+            else:
+                with torch.no_grad():
+                    action = self.act(obs).unsqueeze(0)
 
             step_start = time.time()
-            # action = None
             with torch.no_grad():
                 next_obs, rewards, dones, infos, action = self.env_step(action)
             # if self.reward_clip > 0:
@@ -611,6 +620,8 @@ class RainbowminiAgent():
             self.evaluate_current_rewards += rewards
             self.evaluate_current_rewards_action += infos["rew_action"]
             action_info_list.append(infos["action_info"])
+            if test:
+                time_step_list.append(infos["time_step"])
             self.evaluate_current_lengths += 1
             self.evaluate_current_ep_time += (step_end - step_start)
             total_time += (step_end - step_start)
@@ -631,11 +642,15 @@ class RainbowminiAgent():
                         "Evaluate/EpProgress": infos['progress'],
                         "Evaluate/EpRetAction": self.evaluate_current_rewards_action,
                     })   
-                    if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1 and infos['task_finished']:
+                    if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1:
                         self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
                         wandb.log({"Actions": self.evaluate_table}) 
-                        checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
-                        self.save(os.path.join(self.nn_dir, checkpoint_name)) 
+                        if not test:
+                            checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
+                            self.save(os.path.join(self.nn_dir, checkpoint_name)) 
+                    if test:
+                        self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'])
+                        self.test_table3.add_data(' '.join(time_step_list), ' '.join(action_info_list))
                 action_info_list = []
                 next_obs = self.env_reset() 
             self.evaluate_current_rewards = self.evaluate_current_rewards * not_dones
@@ -658,8 +673,17 @@ class RainbowminiAgent():
         self.obs = self.env_reset()
         while True:
             self.epoch_num += 1
-            if self._evaluate:
-                self.evaluate_epoch()
+            if self._test:
+                for i in range(self.config['test_times']):
+                    self.evaluate_epoch(test=True)
+                mean_time_span = self.test_table.get_column("env_length")
+                num_worker = len(self.test_table.get_column("worker_initial_pose")[0])
+                num_robot_box = len(self.test_table.get_column("robot_initial_pose")[0])
+                self.test_table2.add_data(num_worker, num_robot_box, np.mean(mean_time_span))
+                wandb.log({"Instances": self.test_table}) 
+                wandb.log({"Mean_time": self.test_table2}) 
+                wandb.log({"Actions": self.test_table3}) 
+                break
             else:
                 step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch()
                 total_time += epoch_total_time

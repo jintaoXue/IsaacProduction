@@ -67,7 +67,7 @@ env:
 
 rl:
   max_episode_length: 950
-  evaluate: ${...evaluate}
+  # evaluate: ${...evaluate}
   
 
 

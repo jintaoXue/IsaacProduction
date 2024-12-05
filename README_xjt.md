@@ -271,14 +271,22 @@ num worker:3, num agv&box:3, env_length:694
 num worker:3, num agv&box:3, env_length:1024
 num worker:3, num agv&box:3, env_length:852
 
-
-
-
-
-
 rainbow 的action = None 要改，Evaluate epoch 需要取消注释
 
+# evaluate 环节要做的
+test instance 100次 保证可以复现
 
+makespan performance
+training performance
+甘特图单个例子
+zero shot
+
+ablation study
+甘特图例子
+makespan
+zero shot, 记得要改material的相关函数和变量
+
+max_length 也要改
 
 # 注
 每一次修改关于observation的变量
@@ -286,7 +294,7 @@ rainbow 的action = None 要改，Evaluate epoch 需要取消注释
 2. model里的dim_state和网络结构
 3. memory要改
 4. reset_update函数要改
-
+5. 死循环很可能是memory的问题
 
 # ignore
 __pycache___

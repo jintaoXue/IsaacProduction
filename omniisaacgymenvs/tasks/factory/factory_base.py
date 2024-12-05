@@ -64,6 +64,7 @@ class FactoryBase(RLTask, FactoryABCBase):
         self._sim_config = sim_config
         self._cfg = sim_config.config  # CL args, task config, and train config
         self._task_cfg = sim_config.task_config  # just task config
+        self._train_cfg = sim_config.config['train']
         self._num_envs = sim_config.task_config["env"]["numEnvs"]
         self._num_observations = sim_config.task_config["env"]["numObservations"]
         self._num_actions = sim_config.task_config["env"]["numActions"]
