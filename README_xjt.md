@@ -334,3 +334,17 @@ json:
         },
     ]
 }
+
+
+            {
+                "name": "test:rainbowmini",
+                "type": "debugpy",
+                "request": "launch",
+                // "program": "${workspaceFolder}/install/map_visualize/lib/map_visualize/get_path",
+                "program": "${workspaceFolder}/omniisaacgymenvs/scripts/rlgames_train_v1.py",
+                "console": "integratedTerminal",
+                "stopOnEntry": false,
+                "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbowmini", "wandb_activate=True", "headless=True", "test=True", "rule_based=True"],
+                "cwd": "${workspaceFolder}",
+                
+            },   
