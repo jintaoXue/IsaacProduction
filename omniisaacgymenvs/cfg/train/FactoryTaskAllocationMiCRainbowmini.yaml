@@ -40,7 +40,7 @@ params:
     clip_value: True
     seq_length: 4
     bounds_loss_coef: 0.0001
-    env_rule_based_exploration: True
+    env_rule_based_exploration: False
     test: ${....test}
     test_all_settings: True
     test_times: ${....test_times}
