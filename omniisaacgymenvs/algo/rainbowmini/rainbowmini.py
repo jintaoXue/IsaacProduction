@@ -426,8 +426,8 @@ class RainbowminiAgent():
         self.game_lengths.clear()
         self.mean_rewards = self.last_mean_rewards = -1000000000
     
-    def train_epoch(self):
-        temporary_buffer, reward_extra, repeat_times = self.play_steps()
+    def train_epoch(self, num_worker=None, num_robot=None):
+        temporary_buffer, reward_extra, repeat_times = self.play_steps(num_worker, num_robot)
         total_time_start = time.time()
         total_update_time = 0
         total_time = 0
@@ -550,7 +550,7 @@ class RainbowminiAgent():
 
         return step_time, play_time, total_update_time, total_time, loss
     
-    def play_steps(self):
+    def play_steps(self, num_worker=None, num_robot=None):
         temporary_buffer = []
         while True:
             obs : dict = self.obs
@@ -597,13 +597,14 @@ class RainbowminiAgent():
             # dones_cpu = dones.squeeze().cpu()
             temporary_buffer.append((copy.deepcopy(obs), copy.deepcopy(action), copy.deepcopy(rewards), copy.deepcopy(dones), copy.deepcopy(infos)))
             if dones[0]:
-                next_obs = self.env_reset()   
+                next_obs = self.env_reset(num_worker=num_worker, num_robot=num_robot)   
             self.obs = next_obs.copy()
             reward_extra = 0.
             repeat_times = 1
             if dones[0]:
                 _,_,_,_,_infos = temporary_buffer[-1]
-                if _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1:
+                goal_finished = _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1
+                if goal_finished:
                     reward_extra = 0.4*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
                     repeat_times = 10
                 else:
@@ -612,7 +613,8 @@ class RainbowminiAgent():
                     else:
                         reward_extra = -0.001
                 # print("reward_extra:{}, env_len:{}".format(reward_extra, _infos['env_length']))
-                break
+                if not random_exploration or goal_finished:
+                    break
         return temporary_buffer, reward_extra, repeat_times
     
     def evaluate_epoch(self, test=False, num_worker=None, num_robot=None):
@@ -715,7 +717,10 @@ class RainbowminiAgent():
                     wandb.finish()
                 break
             else:
-                step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch()
+                for w in range(self.config["max_num_worker"]):
+                    for r in range(self.config["max_num_robot"]):
+                        step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch(w,r)
+
                 total_time += epoch_total_time
                 # self.step_num += self.num_steps_per_epoch
 
