@@ -689,12 +689,12 @@ class TaskManager(object):
         return
     
     def reset(self, acti_num_charc, acti_num_agv):
+        assert not ((acti_num_charc is None) ^ (acti_num_agv is None)), "warning"
         if self._test:
-            assert not ((acti_num_charc is None) ^ (acti_num_agv is None)), "warning"
             if acti_num_charc is None:
                 acti_num_agv = self.acti_num_agv
                 acti_num_charc = self.acti_num_charc
-        else:
+        elif acti_num_charc is None:
             acti_num_agv =  np.random.randint(1, 4)
             acti_num_charc = np.random.randint(1, 4)
         self.ini_worker_pose = self.characters.reset(acti_num_charc)

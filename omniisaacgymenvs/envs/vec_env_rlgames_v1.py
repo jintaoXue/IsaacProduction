@@ -414,13 +414,13 @@ class VecEnvRLGames(VecEnvBase):
 
         return self._obs, self._rew, self._resets, self._extras, actions
 
-    def reset(self, seed=None, options=None):
+    def reset(self, num_worker=None, num_robot=None, seed=None, options=None):
         """Resets the task and applies default zero actions to recompute observations and states."""
         # now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # print(f"[{now}] Running RL reset")
 
         self._task.reset()
-        self._task.reset_step()
+        self._task.reset_step(num_worker=num_worker, num_robot=num_robot)
         actions = torch.zeros((self.num_envs, self._task._dim_actions), device=self._task.rl_device)
         obs_dict, _, _, _, _ = self.step(actions)
 

@@ -142,22 +142,21 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         box = [a*b for a,b in zip(self.task_manager.boxs.states,self.task_manager.boxs.tasks)].count(0)
         return worker>0, agv>0, box>0
     
-    def reset_step(self):
+    def reset_step(self, num_worker=None, num_robot=None):
         if self.reset_buf[0] == 1:
             self._reset_buffers(env_ids=0)
-            self.post_reset()
+            self.post_reset(acti_num_char=num_worker, acti_num_robot=num_robot)
         return
     
-    def post_reset(self) -> None:
+    def post_reset(self, acti_num_char=None, acti_num_robot=None) -> None:
         #TODO
-        acti_num_char = None
-        acti_num_robot = None
         if self._test:
             self.max_episode_length = self._train_cfg['params']['config']['test_env_max_length']
             if self._test_all_settings:
                 if self.test_all_idx in range(0, len(self.test_settings_list)):
                     acti_num_char, acti_num_robot = self.test_settings_list[self.test_all_idx]
                 self.test_all_idx += 1 
+
         self.task_manager.reset(acti_num_char, acti_num_robot)
         self.materials.reset()
         self.reset_machine_state()

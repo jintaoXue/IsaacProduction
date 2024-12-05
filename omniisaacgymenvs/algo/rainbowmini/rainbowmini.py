@@ -413,9 +413,9 @@ class RainbowminiAgent():
         return self.obs_to_tensors(obs), rewards.to(self._device), dones.to(self._device), infos, actions
 
 
-    def env_reset(self):
+    def env_reset(self, num_worker=None, num_robot=None):
         with torch.no_grad():
-            obs = self.vec_env.reset()
+            obs = self.vec_env.reset(num_worker, num_robot)
 
         obs = self.obs_to_tensors(obs)
 
@@ -486,13 +486,21 @@ class RainbowminiAgent():
                             "Metrics/EpRetAction": self.current_rewards_action,
                         })
                     # next_obs = self.env_reset()   
-                    if self.episode_num % self.evaluate_interval == 0:
+                    if not random_exploration and self.episode_num % self.evaluate_interval == 0:
                         #TODO debug
                         # pass
                         success_list= []
-                        for w in range(self.config["max_num_worker"]):
-                            for r in range(self.config["max_num_robot"]):
-                                success_list.append(self.evaluate_epoch())
+                        w, r = 1, 1
+                        self.obs = self.env_reset(1,1)
+                        for _i in range(self.config["max_num_worker"]):
+                            for _j in range(self.config["max_num_robot"]):
+                                r += 1
+                                if r>self.config["max_num_robot"]:
+                                    r = 1
+                                    w += 1
+                                if w>self.config["max_num_worker"]:
+                                    w, r = None, None
+                                success_list.append(self.evaluate_epoch(test=False, num_worker=w, num_robot=r))
                         if np.all(success_list):
                             # checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
                             checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num)
@@ -597,7 +605,7 @@ class RainbowminiAgent():
                 _,_,_,_,_infos = temporary_buffer[-1]
                 if _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1:
                     reward_extra = 0.4*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
-                    repeat_times = 2
+                    repeat_times = 10
                 else:
                     if len(temporary_buffer) < 100:
                         reward_extra = -0.05
@@ -607,7 +615,7 @@ class RainbowminiAgent():
                 break
         return temporary_buffer, reward_extra, repeat_times
     
-    def evaluate_epoch(self, test=False):
+    def evaluate_epoch(self, test=False, num_worker=None, num_robot=None):
         total_time_start = time.time()
         total_time = 0
         step_time = 0.0
@@ -670,7 +678,7 @@ class RainbowminiAgent():
                         self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'].cpu())
                         self.test_table3.add_data(' '.join(time_step_list), ' '.join(action_info_list))
                 action_info_list = []
-                next_obs = self.env_reset() 
+                next_obs = self.env_reset(num_worker=num_worker, num_robot=num_robot) 
             self.evaluate_current_rewards = self.evaluate_current_rewards * not_dones
             self.evaluate_current_lengths = self.evaluate_current_lengths * not_dones
             self.evaluate_current_ep_time = self.evaluate_current_ep_time * not_dones

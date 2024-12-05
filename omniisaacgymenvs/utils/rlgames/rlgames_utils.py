@@ -102,8 +102,8 @@ class RLGPUEnv(vecenv.IVecEnv):
     def step(self, action):
         return self.env.step(action)
 
-    def reset(self):
-        return self.env.reset()
+    def reset(self, num_worker=None, num_robot=None):
+        return self.env.reset(num_worker, num_robot)
 
     def get_number_of_agents(self):
         return self.env.get_number_of_agents()
