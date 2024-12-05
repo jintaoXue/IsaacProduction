@@ -35,8 +35,7 @@ class RainbowminiAgent():
         self.norm_clip = config.get('norm_clip', 10)
         ###########for agent training
         self.update_frequency = config.get('update_frequency', 100)
-        # self.update_frequency = config.get('update_frequency', 10)
-        self.evaluate_interval = config.get('evaluate_interval', 20)
+        self.evaluate_interval = config.get('evaluate_interval', 50)
         self.target_update = config.get('target_update', int(1e2))
         self.max_steps = config.get("max_steps", int(5e9))
         self.max_epochs = config.get("max_epochs", int(1e11))
@@ -84,7 +83,7 @@ class RainbowminiAgent():
 
         self.setdefault(self.config, key='device', default='cuda:0')
         ########for replay buffer args initialize
-        self.setdefault(self.config, key='replay_buffer_size', default=int(1e7))
+        self.setdefault(self.config, key='replay_buffer_size', default=int(2e6))
         self.setdefault(self.config, key='history_length', default=1)
         self.setdefault(self.config, key='discount', default=0.99)
         self.setdefault(self.config, key='multi_step', default=1)
