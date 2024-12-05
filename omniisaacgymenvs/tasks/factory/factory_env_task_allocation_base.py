@@ -278,7 +278,7 @@ class Characters(object):
         return
     
     def reset(self, acti_num_charc = None, random = None):
-        if not acti_num_charc:
+        if acti_num_charc is None:
             acti_num_charc = np.random.randint(2, 3)
         self.acti_num_charc = acti_num_charc
         self.states = [0]*acti_num_charc
@@ -288,7 +288,7 @@ class Characters(object):
         self.y_paths = [[] for i in range(acti_num_charc)]
         self.yaws = [[] for i in range(acti_num_charc)]
         self.path_idxs = [0 for i in range(acti_num_charc)]
-        if not random:
+        if random is None:
             random = np.random.choice(len(self.poses_dic), acti_num_charc, replace=False)
         pose_list = list(self.poses_dic.values())
         pose_str_list = list(self.poses_dic.keys())
@@ -436,7 +436,7 @@ class Agvs(object):
         return
     
     def reset(self, acti_num_agv=None, random = None):
-        if not acti_num_agv:
+        if acti_num_agv is None:
             acti_num_agv = np.random.randint(2, 3)
         self.acti_num_agv = acti_num_agv
         self.states = [0]*acti_num_agv
@@ -446,7 +446,7 @@ class Agvs(object):
         self.y_paths = [[] for i in range(acti_num_agv)]
         self.yaws = [[] for i in range(acti_num_agv)]
         self.path_idxs = [0 for i in range(acti_num_agv)]
-        if not random:
+        if random is None:
             random = np.random.choice(len(self.poses_dic), acti_num_agv, replace=False)
         pose_list = list(self.poses_dic.values())
         pose_str_list = list(self.poses_dic.keys())
@@ -574,7 +574,7 @@ class TransBoxs(object):
         return
     
     def reset(self, acti_num_box=None, random = None):
-        if not acti_num_box:
+        if acti_num_box is None:
             acti_num_box = np.random.randint(2, 3)
         self.acti_num_box = acti_num_box
         self.list = self.box_list[:acti_num_box]
@@ -586,7 +586,7 @@ class TransBoxs(object):
         self.product_idx_list = [[] for i in range(acti_num_box)]
         self.counts = [0 for i in range(acti_num_box)]
         self.product_collecting_idx = -1
-        if not random:
+        if random is None:
             random = np.random.choice(len(self.poses_dic), acti_num_box, replace=False)
         pose_list = list(self.poses_dic.values())
         pose_str_list = list(self.poses_dic.keys())
@@ -688,10 +688,12 @@ class TaskManager(object):
            self.acti_num_charc = train_cfg['test_acti_num_charc']
         return
     
-    def reset(self):
+    def reset(self, acti_num_charc, acti_num_agv):
         if self._test:
-            acti_num_agv = self.acti_num_agv
-            acti_num_charc = self.acti_num_charc
+            assert not ((acti_num_charc is None) ^ (acti_num_agv is None)), "warning"
+            if acti_num_charc is None:
+                acti_num_agv = self.acti_num_agv
+                acti_num_charc = self.acti_num_charc
         else:
             acti_num_agv =  np.random.randint(1, 4)
             acti_num_charc = np.random.randint(1, 4)
@@ -793,6 +795,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
 
         self.accerlate_train = self._task_cfg['env']['accerlate_train']
         self._test = self._train_cfg['params']['config']['test']
+        self._test_all_settings = self._train_cfg['params']['config']['test_all_settings']
         
 
     def update_config(self, sim_config):
@@ -1204,6 +1207,15 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.reset_machine_state()
         '''max_env_length_dic'''
         self.max_env_length_dic = [1200, 950, 900]
+
+        '''test settings'''
+        if self._test and self._test_all_settings:
+            self.test_all_idx = -2
+            self.test_settings_list = []
+            for w in range(self._train_cfg['params']['config']["max_num_worker"]):
+                for r in range(self._train_cfg['params']['config']["max_num_robot"]):
+                    for i in range(self._train_cfg['params']['config']['test_times']):  
+                        self.test_settings_list.append((w+1,r+1))
         return
     
     def reset_machine_state(self):

@@ -47,7 +47,6 @@ class RainbowminiAgent():
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
-        self.env_rule_based_exploration = config.get('env_rule_based_exploration', False)
         print(self.batch_size, self.num_actors, self.num_agents)
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
         #########buffer
@@ -124,6 +123,7 @@ class RainbowminiAgent():
         self._test = config['test']
         self._load_dir = config['load_dir']
         self._load_name = config['load_name']
+        self.env_rule_based_exploration = config.get('env_rule_based_exploration', False)
         #temporary for Isaac gym compatibility
         print('Env info:')
         print(self.env_info)
@@ -161,7 +161,7 @@ class RainbowminiAgent():
         self.evaluate_step_num = 0
         self.evaluate_episode_num = 0
         # TODO: put it into the separate class
-        pbt_str = ''
+        pbt_str = '_'
         self.population_based_training = config.get('population_based_training', False)
         if self.population_based_training:
             # in PBT, make sure experiment name contains a unique id of the policy within a population
@@ -174,7 +174,13 @@ class RainbowminiAgent():
         #     self.experiment_name = config['name'] + pbt_str + datetime.now().strftime("_%d-%H-%M-%S")
         # time_now = datetime.now().strftime("_%d-%H-%M-%S")
         time_now = self.config['time_str']
-        self.experiment_name = config['name'] + pbt_str + time_now
+        if not self._test:
+            self.experiment_name = config['name'] + pbt_str + time_now
+        else:
+            if self.env_rule_based_exploration:
+                self.experiment_name = 'test_rule'+ pbt_str + time_now
+            else:
+                self.experiment_name = 'test'+ '_'.join(self._load_name.split('_')[1:3]) + '_' + self._load_dir[-22:-3]
         self.train_dir = config.get('train_dir', 'runs')
 
         # a folder inside of train_dir containing everything related to a particular experiment
@@ -233,7 +239,7 @@ class RainbowminiAgent():
 
         #test
         self.test_table = wandb.Table(columns=["worker_initial_pose", "robot_initial_pose", "box_initial_pose", "progress", "env_length"])
-        self.test_table2 = wandb.Table(columns=["num_worker", "num_robot&box", "mean_env_length"])
+        self.test_table2 = wandb.Table(columns=["num_worker", "num_robot&box", "max", "min", "mean"])
         self.test_table3 = wandb.Table(columns=["time_step", "action_list"])
         return
     
@@ -649,7 +655,7 @@ class RainbowminiAgent():
                             checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
                             self.save(os.path.join(self.nn_dir, checkpoint_name)) 
                     if test:
-                        self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'])
+                        self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'].cpu())
                         self.test_table3.add_data(' '.join(time_step_list), ' '.join(action_info_list))
                 action_info_list = []
                 next_obs = self.env_reset() 
@@ -673,16 +679,20 @@ class RainbowminiAgent():
         self.obs = self.env_reset()
         while True:
             self.epoch_num += 1
-            if self._test:
-                for i in range(self.config['test_times']):
-                    self.evaluate_epoch(test=True)
-                mean_time_span = self.test_table.get_column("env_length")
-                num_worker = len(self.test_table.get_column("worker_initial_pose")[0])
-                num_robot_box = len(self.test_table.get_column("robot_initial_pose")[0])
-                self.test_table2.add_data(num_worker, num_robot_box, np.mean(mean_time_span))
-                wandb.log({"Instances": self.test_table}) 
-                wandb.log({"Mean_time": self.test_table2}) 
-                wandb.log({"Actions": self.test_table3}) 
+            if self._test:     
+                for w in range(self.config["max_num_worker"]):
+                    for r in range(self.config["max_num_robot"]):
+                        for i in range(self.config['test_times']):
+                            self.evaluate_epoch(test=True)
+                        if self.use_wandb:
+                            index = w*self.config["max_num_worker"]+r
+                            time_span = self.test_table.get_column("env_length")[index*self.config['test_times']: (index+1)*self.config['test_times']]
+                            self.test_table2.add_data(w+1, r+1, np.max(time_span), np.min(time_span), np.mean(time_span))
+                if self.use_wandb:
+                    wandb.log({"Instances": self.test_table}) 
+                    wandb.log({"Instances2": self.test_table2}) 
+                    wandb.log({"Actions": self.test_table3}) 
+                    wandb.finish()
                 break
             else:
                 step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch()

@@ -150,13 +150,23 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
     
     def post_reset(self) -> None:
         #TODO
-        self.task_manager.reset()
+        acti_num_char = None
+        acti_num_robot = None
+        if not self._test:
+            self.max_episode_length = self.max_env_length_dic[self.task_manager.characters.acti_num_charc-1]
+        else:
+            self.max_episode_length = self._train_cfg['params']['config']['test_env_max_length']
+            if self._test_all_settings:
+                if self.test_all_idx>=0:
+                    acti_num_char, acti_num_robot = self.test_settings_list[self.test_all_idx]
+                self.test_all_idx += 1 
+        self.task_manager.reset(acti_num_char, acti_num_robot)
         self.materials.reset()
         self.reset_machine_state()
-        if self._test:
-            self.max_episode_length = self._train_cfg['params']['config']['test_env_max_length']
-        else:
-            self.max_episode_length = self.max_env_length_dic[self.task_manager.characters.acti_num_charc-1]
+        # if self._test:
+        #     self.max_episode_length = self._train_cfg['params']['config']['test_env_max_length']
+        # else:
+        #     self.max_episode_length = self.max_env_length_dic[self.task_manager.characters.acti_num_charc-1]
         return 
     
     def reset_update(self):

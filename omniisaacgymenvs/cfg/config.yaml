@@ -35,7 +35,10 @@ solver_type: 1 # 0: pgs, 1: tgs
 # RLGames Arguments
 # test - if set, run policy in inference mode (requires setting checkpoint to load)
 test: False
+test_times: 1
 # used to set checkpoint path
+load_dir: ''
+load_name: ''
 checkpoint: ''
 # evaluate checkpoint
 evaluation: False
