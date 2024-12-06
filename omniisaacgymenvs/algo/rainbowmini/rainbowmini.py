@@ -280,7 +280,6 @@ class RainbowminiAgent():
         self.temp_current_lengths = torch.zeros(batch_size, dtype=torch.long, device=self._device)
         self.temp_dones = torch.zeros((batch_size,), dtype=torch.uint8, device=self._device)
 
-
         self.current_rewards = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
         self.current_rewards_action = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
         self.current_lengths = torch.zeros(batch_size, dtype=torch.long, device=self._device)
@@ -291,6 +290,9 @@ class RainbowminiAgent():
         self.evaluate_current_rewards_action = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
         self.evaluate_current_lengths = torch.zeros(batch_size, dtype=torch.long, device=self._device)
         self.evaluate_current_ep_time = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
+
+        self.count_task_times = torch.zeros([self.config["max_num_worker"], self.config["max_num_robot"]], dtype=torch.float32, device=self._device)
+        self.count_task_finished = torch.zeros([self.config["max_num_worker"], self.config["max_num_robot"]], dtype=torch.float32, device=self._device)
 
     @property
     def device(self):
