@@ -129,6 +129,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.extras['env_length'] = self.progress_buf[0].clone()
         self.extras['max_env_len'] = self.max_episode_length
         self.extras['time_step'] = f"{self.progress_buf[0].cpu()}"
+        self.extras['num_worker'] = self.task_manager.characters.acti_num_charc
+        self.extras['num_robot'] = self.task_manager.agvs.acti_num_agv
         if self._test:
             self.extras['worker_initial_pose'] = self.task_manager.ini_worker_pose
             self.extras['robot_initial_pose'] = self.task_manager.ini_agv_pose

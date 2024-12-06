@@ -42,7 +42,7 @@ class RainbowminiAgent():
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
         self.num_warmup_steps = config.get('num_warmup_steps', int(10e4))
-        # self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
+        self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
         self.demonstration_steps = config.get('demonstration_steps', int(0))
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
@@ -516,7 +516,7 @@ class RainbowminiAgent():
                                     w += 1
                                 if w>self.config["max_num_worker"]:
                                     w, r = None, None
-                                success_list.append(self.evaluate_epoch(test=False, num_worker=w, num_robot=r))
+                                success_list.append(self.evaluate_epoch(test=False, reset_n_worker=w, reset_n_robot=r))
                         if np.all(success_list):
                             # checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
                             checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num)
@@ -633,7 +633,7 @@ class RainbowminiAgent():
                     break
         return temporary_buffer, reward_extra, repeat_times
     
-    def evaluate_epoch(self, test=False, num_worker=None, num_robot=None):
+    def evaluate_epoch(self, test=False, reset_n_worker=None, reset_n_robot=None):
         total_time_start = time.time()
         total_time = 0
         step_time = 0.0
@@ -686,8 +686,9 @@ class RainbowminiAgent():
                     })   
                     if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1:
                         task_success = True
-                    self.eval_avgs[num_worker][num_robot].update(torch.tensor([task_success], dtype=torch.float32, device=self._device))
-                    wandb.log({f'Avg/{num_worker+1}_{num_robot+1}': self.eval_avgs[num_worker][num_robot].get_mean()}) 
+                    num_worker, num_robot = infos['num_worker'], infos['num_robot']
+                    self.eval_avgs[num_worker-1][num_robot-1].update(torch.tensor([task_success], dtype=torch.float32, device=self._device))
+                    wandb.log({f'Avg/{num_worker}_{num_robot}': self.eval_avgs[num_worker-1][num_robot-1].get_mean()}) 
                         # self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
                         # wandb.log({"Action": self.evaluate_table}) 
                         # if not test:
@@ -698,7 +699,7 @@ class RainbowminiAgent():
                         self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'].cpu())
                         self.test_table3.add_data(' '.join(time_step_list), ' '.join(action_info_list))
                 action_info_list = []
-                next_obs = self.env_reset(num_worker=num_worker, num_robot=num_robot) 
+                next_obs = self.env_reset(num_worker=reset_n_worker, num_robot=reset_n_robot) 
             self.evaluate_current_rewards = self.evaluate_current_rewards * not_dones
             self.evaluate_current_lengths = self.evaluate_current_lengths * not_dones
             self.evaluate_current_ep_time = self.evaluate_current_ep_time * not_dones

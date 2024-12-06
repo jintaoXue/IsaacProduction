@@ -279,7 +279,7 @@ class Characters(object):
     
     def reset(self, acti_num_charc = None, random = None):
         if acti_num_charc is None:
-            acti_num_charc = np.random.randint(2, 3)
+            acti_num_charc = np.random.randint(1, 4)
         self.acti_num_charc = acti_num_charc
         self.states = [0]*acti_num_charc
         self.tasks = [0]*acti_num_charc
