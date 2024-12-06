@@ -173,8 +173,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         # If max episode length has been reached
         if is_last_step or task_finished :
             self.reset_buf[0] = 1
-            print("num worker:{}, num agv&box:{}, env_length:{}, max_env_len:{}".format(self.task_manager.characters.acti_num_charc, 
-                                                    self.task_manager.agvs.acti_num_agv, self.progress_buf[0], self.max_episode_length))
+            print("num worker:{}, num agv&box:{}, env_length:{}, max_env_len:{}, task_finished:{}".format(self.task_manager.characters.acti_num_charc, 
+                                                    self.task_manager.agvs.acti_num_agv, self.progress_buf[0], self.max_episode_length, task_finished))
         else:
             pass
 

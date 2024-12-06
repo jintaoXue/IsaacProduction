@@ -245,6 +245,9 @@ class RainbowminiAgent():
         wandb.define_metric("Evaluate/EpProgress", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpRetAction", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/Savepth", step_metric="Evaluate/step_episode")
+        for i in range(0, self.config['max_num_worker']):
+            for j in range(0, self.config['max_num_robot']):
+                wandb.define_metric(f'Avg/{i+1}_{j+1}', step_metric="Evaluate/step")
         # self.evaluate_table = wandb.Table(columns=["env_length", "action_seq", "progress"])
 
         #test
@@ -683,6 +686,8 @@ class RainbowminiAgent():
                     })   
                     if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1:
                         task_success = True
+                    self.eval_avgs[num_worker][num_robot].update(torch.tensor([task_success], dtype=torch.float32, device=self._device))
+                    wandb.log({f'Avg/{num_worker+1}_{num_robot+1}': self.eval_avgs[num_worker][num_robot].get_mean()}) 
                         # self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
                         # wandb.log({"Action": self.evaluate_table}) 
                         # if not test:
