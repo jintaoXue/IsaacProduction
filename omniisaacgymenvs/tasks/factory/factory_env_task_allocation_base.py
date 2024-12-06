@@ -1206,7 +1206,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.initialize_pre_def_routes(from_file = True)
         self.reset_machine_state()
         '''max_env_length_settings'''
-        self.max_env_length_settings = [[1300, 1300, 1300], [1000, 1000, 1000], [900, 900, 900]]
+        self.max_env_length_settings = [[1250, 1250, 1250], [1000, 1000, 1000], [1000, 1000, 1000]]
 
         '''test settings'''
         if self._test and self._test_all_settings:

@@ -148,6 +148,16 @@ class RainbowminiAgent():
         self.games_to_track = config.get('games_to_track', 100)
         self.game_rewards = torch_ext.AverageMeter(1, self.games_to_track).to(self._device)
         self.game_lengths = torch_ext.AverageMeter(1, self.games_to_track).to(self._device)
+        self.train_avgs = []
+        self.eval_avgs = []
+        for i in range(0, self.config['max_num_worker']):
+            list_a = []
+            list_b = []
+            for j in range(0, self.config['max_num_robot']):
+                list_a.append(torch_ext.AverageMeter(1, self.games_to_track).to(self._device))
+                list_b.append(torch_ext.AverageMeter(1, self.games_to_track).to(self._device))
+            self.train_avgs.append(list_a)
+            self.eval_avgs.append(list_b)
     
         # self.min_alpha = torch.tensor(np.log(1)).float().to(self._device)
         self.step_num = 0
@@ -234,8 +244,8 @@ class RainbowminiAgent():
         wandb.define_metric("Evaluate/EpTime", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpProgress", step_metric="Evaluate/step_episode")
         wandb.define_metric("Evaluate/EpRetAction", step_metric="Evaluate/step_episode")
-        wandb.define_metric("Evaluate/Success", step_metric="Evaluate/step_episode")
-        self.evaluate_table = wandb.Table(columns=["env_length", "action_seq", "progress"])
+        wandb.define_metric("Evaluate/Savepth", step_metric="Evaluate/step_episode")
+        # self.evaluate_table = wandb.Table(columns=["env_length", "action_seq", "progress"])
 
         #test
         self.test_table = wandb.Table(columns=["worker_initial_pose", "robot_initial_pose", "box_initial_pose", "progress", "env_length"])
@@ -292,7 +302,8 @@ class RainbowminiAgent():
         self.evaluate_current_ep_time = torch.zeros(batch_size, dtype=torch.float32, device=self._device)
 
         self.count_task_times = torch.zeros([self.config["max_num_worker"], self.config["max_num_robot"]], dtype=torch.float32, device=self._device)
-        self.count_task_finished = torch.zeros([self.config["max_num_worker"], self.config["max_num_robot"]], dtype=torch.float32, device=self._device)
+        self.count_task_success = torch.zeros([self.config["max_num_worker"], self.config["max_num_robot"]], dtype=torch.float32, device=self._device)
+        self.task_succ_rate = torch.zeros([self.config["max_num_worker"], self.config["max_num_robot"]], dtype=torch.float32, device=self._device)
 
     @property
     def device(self):
@@ -508,7 +519,7 @@ class RainbowminiAgent():
                             checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num)
                             self.save(os.path.join(self.nn_dir, checkpoint_name))
                             if self.use_wandb:
-                                wandb.log({"Evaluate/Success": self.episode_num,
+                                wandb.log({"Evaluate/Savepth": self.episode_num,
                                 })
                 self.current_rewards = self.current_rewards * not_dones
                 self.current_lengths = self.current_lengths * not_dones
@@ -672,8 +683,8 @@ class RainbowminiAgent():
                     })   
                     if infos['env_length'] < infos['max_env_len']-1 and infos['progress'] == 1:
                         task_success = True
-                        self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
-                        wandb.log({"Action": self.evaluate_table}) 
+                        # self.evaluate_table.add_data(infos['env_length'], ' '.join(action_info_list), infos['progress'])
+                        # wandb.log({"Action": self.evaluate_table}) 
                         # if not test:
                         #     # checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_len_' + str(infos['env_length'].item()) + '_rew_' + "{:.2f}".format(self.evaluate_current_rewards.item())
                         #     checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num)
@@ -723,94 +734,94 @@ class RainbowminiAgent():
                     for r in range(self.config["max_num_robot"]):
                         step_time, play_time, update_time, epoch_total_time, loss = self.train_epoch(w+1,r+1)
 
-                total_time += epoch_total_time
-                # self.step_num += self.num_steps_per_epoch
+                        # total_time += epoch_total_time
+                        # self.step_num += self.num_steps_per_epoch
 
-                fps_step = self.num_steps_per_epoch / step_time
-                fps_step_inference = self.num_steps_per_epoch / play_time
-                fps_total = self.num_steps_per_epoch / epoch_total_time
+                        # fps_step = self.num_steps_per_epoch / step_time
+                        # fps_step_inference = self.num_steps_per_epoch / play_time
+                        # fps_total = self.num_steps_per_epoch / epoch_total_time
 
-                if self.use_wandb:
-                    wandb.log({
-                            "Train/step": self.step_num,
-                            "Train/train_epoch": self.epoch_num,
-                            'Train/buffer_size': self.replay_buffer.transitions.index,
-                        })  
-                    if self.game_rewards.current_size > 0:
-                        wandb.log({
-                            'Train/Mrewards': self.game_rewards.get_mean(),
-                            'Train/MLen': self.game_lengths.get_mean(),
-                        })  
-                    # if self.step_num >= self.num_warmup_steps and loss is not None:
-                    #     assert type(loss.mean().item()) == float, "not approprate loss"
-                    #     wandb.log({
-                    #             # 'Train/buffer_size': self.replay_buffer.transitions.index,
-                    #             "Train/Loss": loss.mean().item(),
-                    #             # "Train/Loss": loss.mean().cpu().detach().numpy().item(),
-                    #         })                  
+                        if self.use_wandb:
+                            wandb.log({
+                                    "Train/step": self.step_num,
+                                    "Train/train_epoch": self.epoch_num,
+                                    'Train/buffer_size': self.replay_buffer.transitions.index,
+                                })  
+                            if self.game_rewards.current_size > 0:
+                                wandb.log({
+                                    'Train/Mrewards': self.game_rewards.get_mean(),
+                                    'Train/MLen': self.game_lengths.get_mean(),
+                                })  
+                            # if self.step_num >= self.num_warmup_steps and loss is not None:
+                            #     assert type(loss.mean().item()) == float, "not approprate loss"
+                            #     wandb.log({
+                            #             # 'Train/buffer_size': self.replay_buffer.transitions.index,
+                            #             "Train/Loss": loss.mean().item(),
+                            #             # "Train/Loss": loss.mean().cpu().detach().numpy().item(),
+                            #         })                  
 
-                self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.step_num)
-                # self.writer.add_scalar('performance/step_inference_fps', fps_step_inference, self.step_num)
-                # self.writer.add_scalar('performance/step_fps', fps_step, self.step_num)
-                # self.writer.add_scalar('performance/rl_update_time', update_time, self.step_num)
-                # self.writer.add_scalar('performance/step_inference_time', play_time, self.step_num)
-                # self.writer.add_scalar('performance/step_time', step_time, self.step_num)
+                        # self.writer.add_scalar('performance/step_inference_rl_update_fps', fps_total, self.step_num)
+                        # self.writer.add_scalar('performance/step_inference_fps', fps_step_inference, self.step_num)
+                        # self.writer.add_scalar('performance/step_fps', fps_step, self.step_num)
+                        # self.writer.add_scalar('performance/rl_update_time', update_time, self.step_num)
+                        # self.writer.add_scalar('performance/step_inference_time', play_time, self.step_num)
+                        # self.writer.add_scalar('performance/step_time', step_time, self.step_num)
 
-                # if self.epoch_num >= self.num_warmup_steps and loss is not None:
-                    # self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.step_num)
+                        # if self.epoch_num >= self.num_warmup_steps and loss is not None:
+                            # self.writer.add_scalar('losses/loss', torch_ext.mean_list(loss).item(), self.step_num)
 
-                # self.writer.add_scalar('info/epochs', self.epoch_num, self.step_num)
+                        # self.writer.add_scalar('info/epochs', self.epoch_num, self.step_num)
 
-                if self.game_rewards.current_size > 0:
-                    mean_rewards = self.game_rewards.get_mean()
-                    # mean_lengths = self.game_lengths.get_mean()
+                        # if self.game_rewards.current_size > 0:
+                        #     mean_rewards = self.game_rewards.get_mean()
+                        #     # mean_lengths = self.game_lengths.get_mean()
 
-                    # self.writer.add_scalar('rewards/step', mean_rewards, self.step_num)
-                    # self.writer.add_scalar('rewards/time', mean_rewards, total_time)
-                    # self.writer.add_scalar('episode_lengths/step', mean_lengths, self.step_num)
-                    # self.writer.add_scalar('episode_lengths/time', mean_lengths, total_time)
-                    checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_rew_' + str(mean_rewards)
+                        #     # self.writer.add_scalar('rewards/step', mean_rewards, self.step_num)
+                        #     # self.writer.add_scalar('rewards/time', mean_rewards, total_time)
+                        #     # self.writer.add_scalar('episode_lengths/step', mean_lengths, self.step_num)
+                        #     # self.writer.add_scalar('episode_lengths/time', mean_lengths, total_time)
+                        #     checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num) + '_rew_' + str(mean_rewards)
 
-                    should_exit = False
+                        #     should_exit = False
 
-                    # if self.save_freq > 0:
-                    #     if self.epoch_num % self.save_freq == 0:
-                    #         self.save(os.path.join(self.nn_dir, checkpoint_name))
-                                # Save model parameters on current device (don't move model between devices)
+                        #     # if self.save_freq > 0:
+                        #     #     if self.epoch_num % self.save_freq == 0:
+                        #     #         self.save(os.path.join(self.nn_dir, checkpoint_name))
+                        #                 # Save model parameters on current device (don't move model between devices)
 
-                    if mean_rewards > self.last_mean_rewards and self.episode_num >= self.save_best_after:
-                        # print('saving next best rewards: ', mean_rewards)
-                        self.last_mean_rewards = mean_rewards
-                        # self.save(os.path.join(self.nn_dir, self.config['name']))
-                        if self.last_mean_rewards > self.config.get('score_to_win', float('inf')):
-                            print('Maximum reward achieved. Network won!')
-                            # self.save(os.path.join(self.nn_dir, checkpoint_name))
-                            should_exit = True
+                        #     if mean_rewards > self.last_mean_rewards and self.episode_num >= self.save_best_after:
+                        #         # print('saving next best rewards: ', mean_rewards)
+                        #         self.last_mean_rewards = mean_rewards
+                        #         # self.save(os.path.join(self.nn_dir, self.config['name']))
+                        #         if self.last_mean_rewards > self.config.get('score_to_win', float('inf')):
+                        #             print('Maximum reward achieved. Network won!')
+                        #             # self.save(os.path.join(self.nn_dir, checkpoint_name))
+                        #             should_exit = True
 
-                    if self.epoch_num >= self.max_epochs and self.max_epochs != -1:
-                        if self.game_rewards.current_size == 0:
-                            print('WARNING: Max epochs reached before any env terminated at least once')
-                            mean_rewards = -np.inf
+                        #     if self.epoch_num >= self.max_epochs and self.max_epochs != -1:
+                        #         if self.game_rewards.current_size == 0:
+                        #             print('WARNING: Max epochs reached before any env terminated at least once')
+                        #             mean_rewards = -np.inf
 
-                        # self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_ep_' + str(self.epoch_num) \
-                        #     + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
-                        print('MAX EPOCHS NUM!')
-                        should_exit = True
+                        #         # self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_ep_' + str(self.epoch_num) \
+                        #         #     + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
+                        #         print('MAX EPOCHS NUM!')
+                        #         should_exit = True
 
-                    if self.step_num >= self.max_steps and self.max_steps != -1:
-                        if self.game_rewards.current_size == 0:
-                            print('WARNING: Max steps reached before any env terminated at least once')
-                            mean_rewards = -np.inf
+                        #     if self.step_num >= self.max_steps and self.max_steps != -1:
+                        #         if self.game_rewards.current_size == 0:
+                        #             print('WARNING: Max steps reached before any env terminated at least once')
+                        #             mean_rewards = -np.inf
 
-                        # self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_step_' + str(self.step_num) \
-                        #     + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
-                        print('MAX STEPS NUM!')
-                        should_exit = True
+                        #         # self.save(os.path.join(self.nn_dir, 'last_' + self.config['name'] + '_step_' + str(self.step_num) \
+                        #         #     + '_rew_' + str(mean_rewards).replace('[', '_').replace(']', '_')))
+                        #         print('MAX STEPS NUM!')
+                        #         should_exit = True
 
-                    update_time = 0
-                    #TODO 
-                    should_exit = False
-                    if should_exit:
-                        return self.last_mean_rewards, self.epoch_num
+                        #     update_time = 0
+                        #     #TODO 
+                        #     should_exit = False
+                        #     if should_exit:
+                        #         return self.last_mean_rewards, self.epoch_num
 
 
