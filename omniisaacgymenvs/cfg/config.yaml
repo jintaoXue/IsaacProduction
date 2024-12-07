@@ -34,12 +34,7 @@ solver_type: 1 # 0: pgs, 1: tgs
 
 # RLGames Arguments
 # test - if set, run policy in inference mode (requires setting checkpoint to load)
-test: False
-test_times: 100
-rule_based: False
-# used to set checkpoint path
-load_dir: ''
-load_name: ''
+
 checkpoint: ''
 # evaluate checkpoint
 evaluation: False
@@ -87,3 +82,9 @@ hydra:
   run:
     dir: .
 
+test: False
+test_times: 100
+rule_based: False
+    
+load_dir: /FactoryTaskAllocationMiC_2024-12-06_17-13-47/nn
+load_name: /FactoryTaskAllocationMiC_ep_11100.pth
