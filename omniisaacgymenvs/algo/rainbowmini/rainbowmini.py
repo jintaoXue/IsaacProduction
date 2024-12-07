@@ -34,7 +34,7 @@ class RainbowminiAgent():
         self.discount = config['discount']
         self.norm_clip = config.get('norm_clip', 10)
         ###########for agent training
-        self.update_frequency = config.get('update_frequency', 100)
+        self.update_frequency = config.get('update_frequency', 300)
         self.evaluate_interval = config.get('evaluate_interval', 50)
         self.target_update = config.get('target_update', int(1e2))
         self.max_steps = config.get("max_steps", int(5e9))
@@ -95,7 +95,7 @@ class RainbowminiAgent():
         self.setdefault(self.config, key='noisy_std', default=0.1)
         ######for optimizer initialize
         # self.setdefault(self.config, key='learning_rate', default=0.0000625)
-        self.setdefault(self.config, key='learning_rate', default=1e-3)
+        self.setdefault(self.config, key='learning_rate', default=1e-4)
         self.setdefault(self.config, key='adam_eps', default=1.5e-4)
         config = self.config
         ####TODO
@@ -631,7 +631,7 @@ class RainbowminiAgent():
                 goal_finished = _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1
                 if goal_finished:
                     reward_extra = 0.4*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
-                    repeat_times = 10
+                    repeat_times = 5
                 else:
                     if len(temporary_buffer) < 100:
                         reward_extra = -0.05
