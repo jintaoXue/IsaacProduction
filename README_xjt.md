@@ -296,6 +296,17 @@ max_length 也要改
 4. reset_update函数要改
 5. 死循环很可能是memory的问题
 
+
+
+## 实验：
+best: test_FactoryTaskAllocationMiC_2024-12-07_14-12-05 测试模型结果："/FactoryTaskAllocationMiC_ep_11100.pth" 的performance最优（"/FactoryTaskAllocationMiC_2024-12-06_17-13-47/nn"
+1. 包括training 的曲线, evaluation的
+2. 原版, 没有efficient buffer，dueling net, nosiy net
+
+
+
+
+
 # ignore
 __pycache___
 __pycache__/

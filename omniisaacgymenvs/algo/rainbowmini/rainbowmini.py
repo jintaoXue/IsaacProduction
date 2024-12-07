@@ -268,7 +268,14 @@ class RainbowminiAgent():
 
     # Acts with an ε-greedy policy (used for evaluation only)
     def act_e_greedy(self, state, epsilon=0.001):  # High ε can reduce evaluation scores drastically
-        return np.random.randint(0, self.action_space) if np.random.random() < epsilon else self.act(state)
+        return self.act_random(state) if np.random.random() < epsilon else self.act(state)
+    
+    def act_random(self, state):
+        action_mask = state['action_mask']
+        indexs = action_mask.nonzero()
+        index = torch.randint(low=0, high = len(indexs), size = (1,), device=self._device) 
+        action = indexs[index]
+        return action
 
     def update_target_net(self):
         self.target_net.load_state_dict(self.online_net.state_dict())
@@ -576,13 +583,15 @@ class RainbowminiAgent():
                 if self.step_num < self.demonstration_steps:
                     action = None
                 else: 
-                    action_mask = obs['action_mask']
-                    indexs = action_mask.nonzero()
-                    index = torch.randint(low=0, high = len(indexs), size = (1,), device=self._device) 
-                    action = indexs[index]
+                    action = self.act_random(obs)
+                    # action_mask = obs['action_mask']
+                    # indexs = action_mask.nonzero()
+                    # index = torch.randint(low=0, high = len(indexs), size = (1,), device=self._device) 
+                    # action = indexs[index]
             else:
                 with torch.no_grad():
-                    action = self.act(obs).unsqueeze(0)
+                    # action = self.act(obs).unsqueeze(0)
+                    action = self.act_e_greedy(obs).unsqueeze(0)
             #debug TODO
             # action = None
 
