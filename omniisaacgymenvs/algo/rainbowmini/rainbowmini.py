@@ -37,7 +37,7 @@ class RainbowminiAgent():
         self.update_frequency = config.get('update_frequency', 200)
         self.evaluate_interval = config.get('evaluate_interval', 50)
         self.target_update = config.get('target_update', int(1e2))
-        self.max_steps = config.get("max_steps", int(5e9))
+        self.max_steps = config.get("max_steps", int(3e6))
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
@@ -83,7 +83,7 @@ class RainbowminiAgent():
 
         self.setdefault(self.config, key='device', default='cuda:0')
         ########for replay buffer args initialize
-        self.setdefault(self.config, key='replay_buffer_size', default=int(2e6))
+        self.setdefault(self.config, key='replay_buffer_size', default=int(1e6))
         self.setdefault(self.config, key='history_length', default=1)
         self.setdefault(self.config, key='discount', default=0.99)
         self.setdefault(self.config, key='multi_step', default=1)
@@ -767,6 +767,10 @@ class RainbowminiAgent():
                                     'Train/Mrewards': self.game_rewards.get_mean(),
                                     'Train/MLen': self.game_lengths.get_mean(),
                                 })  
+                if self.step_num > self.max_steps:
+                    if self.use_wandb:
+                        wandb.finish()
+                    break
                             # if self.step_num >= self.num_warmup_steps and loss is not None:
                             #     assert type(loss.mean().item()) == float, "not approprate loss"
                             #     wandb.log({
