@@ -1894,6 +1894,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         ####10.progress
         obs_dict['progress'] = torch.tensor([self.materials.progress()], dtype=torch.float32, device = self.cuda_device)
         ####11.raw products left, max is 20
+        # obs_dict['raw_products'] = torch.tensor([5], dtype=torch.int32, device = self.cuda_device)
         obs_dict['raw_products'] = torch.tensor([self.materials.product_states.count(0)], dtype=torch.int32, device = self.cuda_device)
 
         ####8.worker agv box state TODO
