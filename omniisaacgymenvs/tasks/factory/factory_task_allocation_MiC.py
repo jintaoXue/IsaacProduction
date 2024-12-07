@@ -222,7 +222,6 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
     def update_available_task(self):
         self.available_task_dic = {'none':-1}
         task_mask = torch.zeros(len(self.task_manager.task_dic), device=self.cuda_device)
-        task_mask[0] = 1
         worker, agv, box = self.check_task_lacking_entity()
         have_wab = worker and agv and box
         have_w = worker
@@ -259,6 +258,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             task_mask[9] = 1
 
         # self.available_task_dic['none'] = -1
+        if task_mask.count_nonzero() == 0:
+            task_mask[0] = 1
         self.task_manager.task_mask = task_mask
         return
 

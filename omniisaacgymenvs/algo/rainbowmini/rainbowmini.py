@@ -590,8 +590,8 @@ class RainbowminiAgent():
                     # action = indexs[index]
             else:
                 with torch.no_grad():
-                    # action = self.act(obs).unsqueeze(0)
-                    action = self.act_e_greedy(obs).unsqueeze(0)
+                    action = self.act(obs).unsqueeze(0)
+                    # action = self.act_e_greedy(obs).unsqueeze(0)
             #debug TODO
             # action = None
 
