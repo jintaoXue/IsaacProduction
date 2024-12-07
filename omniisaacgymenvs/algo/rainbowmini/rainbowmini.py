@@ -34,7 +34,7 @@ class RainbowminiAgent():
         self.discount = config['discount']
         self.norm_clip = config.get('norm_clip', 10)
         ###########for agent training
-        self.update_frequency = config.get('update_frequency', 300)
+        self.update_frequency = config.get('update_frequency', 200)
         self.evaluate_interval = config.get('evaluate_interval', 50)
         self.target_update = config.get('target_update', int(1e2))
         self.max_steps = config.get("max_steps", int(5e9))

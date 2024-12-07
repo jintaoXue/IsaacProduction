@@ -1111,7 +1111,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         bending_tube_list = [self.materials_bending_tube_0, self.materials_bending_tube_1, self.materials_bending_tube_2, self.materials_bending_tube_3, self.materials_bending_tube_4]
         upper_tube_list = [self.materials_upper_tube_0, self.materials_upper_tube_1, self.materials_upper_tube_2, self.materials_upper_tube_3, self.materials_upper_tube_4]
         product_list = [self.product_0, self.product_1, self.product_2, self.product_3, self.product_4]
-        need_num_products = 2
+        need_num_products = 5
         cube_list, hoop_list, bending_tube_list, upper_tube_list, product_list = \
             [cube_list[:need_num_products], hoop_list[:need_num_products], bending_tube_list[:need_num_products], upper_tube_list[:need_num_products], product_list[:need_num_products]]
         self.materials : Materials = Materials(cube_list=cube_list, hoop_list=hoop_list, bending_tube_list=bending_tube_list, upper_tube_list=upper_tube_list, product_list = product_list)
