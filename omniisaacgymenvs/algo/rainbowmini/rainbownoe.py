@@ -83,7 +83,7 @@ class RainbownoeAgent():
 
         self.setdefault(self.config, key='device', default='cuda:0')
         ########for replay buffer args initialize
-        self.setdefault(self.config, key='replay_buffer_size', default=int(1e6))
+        self.setdefault(self.config, key='replay_buffer_size', default=int(5e5))
         self.setdefault(self.config, key='history_length', default=1)
         self.setdefault(self.config, key='discount', default=0.99)
         self.setdefault(self.config, key='multi_step', default=1)
