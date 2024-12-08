@@ -1,7 +1,7 @@
 params:
   seed: ${...seed}
   algo:
-    name: rainbowmini
+    name: rainbowepsilon
   load_checkpoint: ${if:${...checkpoint},True,False}
   load_path: ${...checkpoint}
 
