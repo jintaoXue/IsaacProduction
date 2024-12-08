@@ -37,7 +37,7 @@ class RainbownoeAgent():
         self.update_frequency = config.get('update_frequency', 200)
         self.evaluate_interval = config.get('evaluate_interval', 100)
         self.target_update = config.get('target_update', int(1e2))
-        self.max_steps = config.get("max_steps", int(1e6))
+        self.max_steps = config.get("max_steps", int(7e5))
         self.max_epochs = config.get("max_epochs", int(1e11))
         self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
