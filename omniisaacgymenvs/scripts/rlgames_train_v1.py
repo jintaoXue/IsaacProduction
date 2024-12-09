@@ -47,6 +47,7 @@ from omniisaacgymenvs.algo.rainbow import rainbow
 from omniisaacgymenvs.algo.rainbowmini import rainbowmini
 from omniisaacgymenvs.algo.rainbowmini import rainbownoe
 from omniisaacgymenvs.algo.rainbowmini import rainbowepsilon
+from omniisaacgymenvs.algo.rainbowmini import epsilon_noisy
 class RLGTrainer:
     def __init__(self, cfg, cfg_dict):
         self.cfg = cfg
@@ -72,6 +73,7 @@ class RLGTrainer:
         runner.algo_factory.register_builder('rainbowmini', lambda **kwargs: rainbowmini.RainbowminiAgent(**kwargs))
         runner.algo_factory.register_builder('rainbownoe', lambda **kwargs: rainbownoe.RainbownoeAgent(**kwargs))
         runner.algo_factory.register_builder('rainbowepsilon', lambda **kwargs: rainbowepsilon.RainbowepsilonAgent(**kwargs))
+        runner.algo_factory.register_builder('epsilon_noisy', lambda **kwargs: epsilon_noisy.EpsilonNoisyAgent(**kwargs))
         runner.load(self.rlg_config_dict)
         runner.reset()
 
