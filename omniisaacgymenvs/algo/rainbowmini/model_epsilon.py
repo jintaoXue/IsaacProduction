@@ -842,3 +842,35 @@ class DQNTrans(nn.Module):
     for name, module in self.named_children():
       if 'fc' in name:
         module.reset_noise()
+
+
+class NoduelTrans(nn.Module):
+  def __init__(self, config, action_space):
+    super(DQNTrans, self).__init__()
+    self.action_space = action_space
+    hidden_size = config['hidden_size']
+    self.transformer : Transformer = build_transformer(DimState(), hidden_size) 
+    self.fc_h_q = NoisyLinear(hidden_size, hidden_size, std_init=config['noisy_std'])
+    self.fc_z_q = NoisyLinear(hidden_size, action_space, std_init=config['noisy_std'])
+    self.Vmin = config.get('V_min', -20)
+    self.Vmax = config.get('V_max', 20)
+    
+  def forward(self, x, log=False):
+    action_mask = x['action_mask']
+    x = self.transformer(x)
+    x = x.squeeze(1) # squeeze the query sequence
+    q = self.fc_z_q(F.relu(self.fc_h_q(x)))  # Value stream
+
+    # q = torch.nn.functional.normalize(q, dim=1)
+    assert log==False, "rainbowmini only support log False"
+    # if log:  # Use log softmax for numerical stability
+    #   q = F.log_softmax(q, dim=1)  # Log probabilities with action over second dimension
+    # else:
+    q = torch.clamp(q, min=self.Vmin, max=self.Vmax)
+    q = (action_mask-1)*(-self.Vmin) + q*action_mask
+    return q
+
+  def reset_noise(self):
+    for name, module in self.named_children():
+      if 'fc' in name:
+        module.reset_noise()
