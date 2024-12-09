@@ -157,9 +157,9 @@ def parse_hydra_configs(cfg: DictConfig):
         import wandb
 
         if cfg.train.params.config.test:
-            run_name = f"test_{cfg.wandb_name}_{time_str}"
+            run_name = f"test_{cfg.train.params.algo.name}_{time_str}"
         else:
-            run_name = f"{cfg.wandb_name}_{time_str}"
+            run_name = f"{cfg.train.params.algo.name}_{time_str}"
 
         wandb.init(
             project=cfg.wandb_project,
