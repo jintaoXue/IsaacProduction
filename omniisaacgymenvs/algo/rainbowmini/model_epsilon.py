@@ -846,7 +846,7 @@ class DQNTrans(nn.Module):
 
 class NoduelTrans(nn.Module):
   def __init__(self, config, action_space):
-    super(DQNTrans, self).__init__()
+    super(NoduelTrans, self).__init__()
     self.action_space = action_space
     hidden_size = config['hidden_size']
     self.transformer : Transformer = build_transformer(DimState(), hidden_size) 
