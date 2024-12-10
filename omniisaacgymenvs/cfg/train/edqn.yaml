@@ -1,0 +1,65 @@
+params:
+  seed: ${...seed}
+  algo:
+    name: edqn
+  load_checkpoint: ${if:${...checkpoint},True,False}
+  load_path: ${...checkpoint}
+
+  config:
+    name: ${resolve_default:FactoryTaskAllocationMiC,${....experiment}}
+    wandb_activate: ${....wandb_activate}
+    time_str: ${....time_str}
+    full_experiment_name: ${.name}
+    device: ${....rl_device}
+    device_name: ${....rl_device}
+    env_name: rlgpu
+    multi_gpu: False
+    num_actors: ${....task.env.numEnvs}
+    reward_shaper:
+      scale_value: 1.0
+    
+    gamma: 0.99
+    tau: 0.95
+    learning_rate: 1e-4
+    lr_schedule: fixed
+    schedule_type: standard
+    kl_threshold: 0.016
+    score_to_win: 20000
+    # max_epochs: ${resolve_default:200,${....max_iterations}}
+    save_best_after: 50
+    save_frequency: 100
+    print_stats: True
+    grad_norm: 1.0
+    entropy_coef: 0.0
+    truncate_grads: False
+    e_clip: 0.2
+    horizon_length: 1000
+    minibatch_size: 4
+    mini_epochs: 8
+    critic_coef: 2
+    clip_value: True
+    seq_length: 4
+    bounds_loss_coef: 0.0001
+    env_rule_based_exploration: ${....rule_based}
+    test: ${....test}
+    test_all_settings: True
+    test_times: ${....test_times}
+    test_acti_num_agv: 1
+    test_acti_num_charc: 1
+    test_env_max_length: 2000
+    max_num_worker: 3
+    max_num_robot: 3
+    # load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
+    # load_name: /FactoryTaskAllocationMiC_ep_11852_rew_4.8871512.pth
+
+    # load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
+    # load_name: /FactoryTaskAllocationMiC_ep_12919_rew_-3.2757943.pth    
+    
+    # load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
+    # load_name: /FactoryTaskAllocationMiC_ep_14079_rew_8.060657.pth
+    
+    load_dir: ${....load_dir}
+    load_name: ${....load_name}
+
+   
+

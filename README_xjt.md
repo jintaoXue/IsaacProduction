@@ -301,7 +301,8 @@ max_length 也要改
 ## 实验：
 best: test_FactoryTaskAllocationMiC_2024-12-07_14-12-05 测试模型结果："/FactoryTaskAllocationMiC_ep_11100.pth" 的performance最优（"/FactoryTaskAllocationMiC_2024-12-06_17-13-47/nn"
 1. 包括training 的曲线, evaluation的：efficient buffer，dueling net, nosiy net，prioritied
-2. 对比方法：原版, 没有efficient buffer，dueling net, nosiy net，prioritied (EDQNX-GN, EDQNX-G, EDDQNX-N, EDDQN-G, Dueling DDQN, Noisy DQN, Dueling DDQN)
+2. 对比方法：原版, 没有efficient buffer，dueling net, nosiy net，prioritied (
+    EDDQNX-GN (with noisy and greedy) , EDDQNX-G (only greedy), EDDQNX-N (only nosiy), EDQN-G (no dueling, but greedy), DQN)
    1. 变换num_worker, num_robot后对应方法的mean makespan，固定materials
    2. 固定num_worker, num_robot,变换对应的materials, 统计mean makespan (zero_shot)
    3. table统计 make span和 task failed
