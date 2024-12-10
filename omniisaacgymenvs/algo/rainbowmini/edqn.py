@@ -386,8 +386,9 @@ class RainbowepsilonAgent():
         with torch.no_grad():
             # Calculate nth next state probabilities
             qns = self.target_net(next_states)  # Probabilities p(s_t+n, ·; θonline)
-            max_qns = qns.max(1)  # Perform argmax action selection using online network: argmax_a[(z, p(s_t+n, a; θonline))]
-            y = returns + self.discount*max_qns*nonterminals.squeeze() 
+            max_qns_idx = qns.argmax(1)  # Perform argmax action selection using online network: argmax_a[(z, p(s_t+n, a; θonline))]
+            qns_a = qns[range(self.batch_size), max_qns_idx]
+            y = returns + self.discount*qns_a*nonterminals.squeeze() 
         loss = self.loss_criterion(q_a ,y).mean(dim=0)
         self.online_net.zero_grad()
         (weights * loss).mean().backward()  # Backpropagate importance-weighted minibatch loss
