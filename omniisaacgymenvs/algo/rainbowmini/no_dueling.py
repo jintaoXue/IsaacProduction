@@ -636,6 +636,14 @@ class NoduelAgent():
             if dones[0]:
                 _,_,_,_,_infos = temporary_buffer[-1]
                 goal_finished = _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1
+                if goal_finished:
+                    reward_extra = 0.4*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
+                    repeat_times = 5
+                else:
+                    if len(temporary_buffer) < 100:
+                        reward_extra = -0.05
+                    else:
+                        reward_extra = -0.001
                 # print("reward_extra:{}, env_len:{}".format(reward_extra, _infos['env_length']))
                 if not random_exploration or goal_finished:
                     break
