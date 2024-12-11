@@ -1,6 +1,6 @@
 #！/bin/bash
 # 读取不同的学习率
-load_dir="/FactoryTaskAllocationMiC_2024-12-06_17-13-47/nn"
+load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn"
 relative_pth="/omniisaacgymenvs/runs"
 str="/"
 work_space_path=$(pwd)
@@ -21,7 +21,8 @@ files=$(ls $dir_path)
 
 for filename in $files
 do
-    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True load_dir="$load_dir" load_name="$str$filename"
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowepsilon headless=True wandb_activate=True test=True \
+    load_dir="$load_dir" load_name="$str$filename" wandb_project=test_HRTA
 #    echo $filename >> filename.txt
 #    echo -e >> filename.txt
 done
