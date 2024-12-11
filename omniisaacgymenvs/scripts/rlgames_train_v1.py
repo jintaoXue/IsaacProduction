@@ -164,7 +164,7 @@ def parse_hydra_configs(cfg: DictConfig):
 
         if cfg.train.params.config.test:
             load_name = '_'.join(cfg.train.params.config.load_name.split('_')[1:3]) + '_' + cfg.train.params.config.load_dir[-22:-3]
-            run_name = f"test_{load_name}"
+            run_name = f"test_{cfg.train.params.algo.name}_{load_name}"
         else:
             run_name = f"{cfg.train.params.algo.name}_{time_str}"
 
