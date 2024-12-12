@@ -1,6 +1,7 @@
 #！/bin/bash
 # 读取不同的学习率
-load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn"
+# load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn"
+load_dir=$1
 load_name="/FactoryTaskAllocationMiC_ep_25000.pth"
 relative_pth="/omniisaacgymenvs/runs"
 str="/"
