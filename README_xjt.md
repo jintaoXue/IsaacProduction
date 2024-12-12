@@ -299,6 +299,15 @@ max_length 也要改
 
 
 ## 实验：
+Efficient greedy rainbow: 4070 
+Efficient nosiy rainbow: 
+Efficient greedy+noisy rainbow: 
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCepsilon_noisy headless=True wandb_activate=True test=True load_dir=/FactoryTaskAllocationMiC_2024-12-09_14-31-02/nn load_name=/FactoryTaskAllocationMiC_ep_25000.pth wandb_project=test_HRTA test_times=100
+Edqn(greedy): 
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=edqn headless=True wandb_activate=True test=True load_dir=/FactoryTaskAllocationMiC_2024-12-11_13-29-49/nn load_name=/FactoryTaskAllocationMiC_ep_25000.pth wandb_project=test_HRTA test_times=100
+EDDQN(no dueling):
+DQNX(no efficient)
+
 best: test_FactoryTaskAllocationMiC_2024-12-07_14-12-05 测试模型结果："/FactoryTaskAllocationMiC_ep_11100.pth" 的performance最优（"/FactoryTaskAllocationMiC_2024-12-06_17-13-47/nn"
 1. 包括training 的曲线, evaluation的：efficient buffer，dueling net, nosiy net，prioritied
 2. 对比方法：原版, 没有efficient buffer，dueling net, nosiy net，prioritied (
