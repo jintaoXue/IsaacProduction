@@ -1,6 +1,6 @@
 #！/bin/bash
 # 读取不同的学习率
-load_dir="/FactoryTaskAllocationMiC_2024-12-11_13-29-49/nn"
+load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn"
 load_name="/FactoryTaskAllocationMiC_ep_25000.pth"
 relative_pth="/omniisaacgymenvs/runs"
 str="/"
@@ -29,7 +29,7 @@ list=(
 for num in $list
 do
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowepsilon headless=True wandb_activate=False test=True \
-    load_dir="$load_dir" load_name="$load_name" wandb_project=test_zero_shot test_times=100 num_product=$num
+    load_dir="$load_dir" load_name="$load_name" wandb_project=test_zero_shot test_times=10 num_product=$num
 #    echo $filename >> filename.txt
 #    echo -e >> filename.txt
 done
