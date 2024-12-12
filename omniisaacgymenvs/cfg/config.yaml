@@ -88,3 +88,5 @@ rule_based: False
     
 load_dir: /FactoryTaskAllocationMiC_2024-12-06_17-13-47/nn
 load_name: /FactoryTaskAllocationMiC_ep_11100.pth
+
+num_product: 5
