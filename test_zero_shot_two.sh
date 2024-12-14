@@ -6,7 +6,7 @@ load_dir3="/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn"
 # load_name="/FactoryTaskAllocationMiC_ep_25000.pth"
 train=edqn
 train2=FactoryTaskAllocationMiCepsilon_noisy
-train3=FactoryTaskAllocationMiCRainbow
+train3=FactoryTaskAllocationMiCRainbowmini
 
 relative_pth="/omniisaacgymenvs/runs"
 str="/"
