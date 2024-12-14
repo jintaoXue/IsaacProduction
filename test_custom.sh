@@ -28,5 +28,4 @@ do
 done
 done
 
-python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbownoe headless=True wandb_activate=True test=True \
-    load_dir="$load_dir" load_name="$str$filename" wandb_project=test_HRTA test_times=100 
+

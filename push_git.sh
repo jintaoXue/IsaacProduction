@@ -1,4 +1,4 @@
-str01=""
+    str01=""
 count=0
 for i in "$@";do
     if [ $count == '0' ]

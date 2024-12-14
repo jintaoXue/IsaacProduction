@@ -299,6 +299,9 @@ max_length 也要改
 
 
 ## 实验：
+smooth line:    
+https://cloud.tencent.com/developer/article/2340215
+
 Efficient greedy rainbow: 4070 
 
 
@@ -313,6 +316,11 @@ Edqn(greedy):
     
 EDDQN(no dueling):
 DQNX(no efficient)
+
+
+####### efficient buffer 
+training hours
+
 
 
 zero shot:
@@ -333,9 +341,7 @@ best: test_FactoryTaskAllocationMiC_2024-12-07_14-12-05 测试模型结果："/F
 4. low_level agent 路径规划
 5. 行为分析
 6. 超参数
-
-
-
+    bastch_size reptive times study ...
 
 
 # ignore
