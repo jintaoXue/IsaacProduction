@@ -19,15 +19,30 @@ files=$(ls $dir_path)
 # #    echo -e >> filename.txt
 # done
 
-for filename in $files
+# for filename in $files
+# do
+#     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbownoe headless=True wandb_activate=True test=True \
+#     load_dir="$load_dir" load_name="$str$filename" wandb_project=test_HRTA test_times=100 
+# #    echo $filename >> filename.txt
+# #    echo -e >> filename.txt
+# done
+
+list=(
+    1
+    2
+    3
+    4
+    5
+)
+python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbownoe headless=True wandb_activate=True test=True \
+    load_dir="$load_dir" load_name="/FactoryTaskAllocationMiC_ep_6100.pth" wandb_project=test_HRTA test_times=100 
+for num in $list
 do
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbownoe headless=True wandb_activate=True test=True \
-    load_dir="$load_dir" load_name="$str$filename" wandb_project=test_HRTA test_times=100 
+    load_dir="$load_dir" load_name="/FactoryTaskAllocationMiC_ep_6100.pth" wandb_project=test_zero_shot test_times=10 num_product=$num
 #    echo $filename >> filename.txt
 #    echo -e >> filename.txt
 done
-
-
 
 
 
