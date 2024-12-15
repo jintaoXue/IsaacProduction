@@ -22,7 +22,6 @@ list=(
     2
     3
     4
-    5
 )
 
 # files=$(ls $dir_path)
