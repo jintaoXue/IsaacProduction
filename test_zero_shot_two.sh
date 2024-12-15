@@ -18,11 +18,7 @@ dir_path2=$work_space_path$relative_pth$load_dir2
 files=$(ls $dir_path)
 files2=$(ls $dir_path2)
 # files3=$(ls $dir_path3)
-list=(
-    2
-    3
-    4
-)
+
 
 # files=$(ls $dir_path)
 
@@ -43,7 +39,7 @@ list=(
 # done
 
 
-for num in $list
+for num in {3..4}
 do
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=edqn headless=True wandb_activate=True test=True \
     load_dir="/FactoryTaskAllocationMiC_2024-12-11_13-29-49/nn" load_name=/FactoryTaskAllocationMiC_ep_10500.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num
@@ -61,10 +57,11 @@ do
 done
 
 
-# for num in $list
+
+# for num in {1..4}
 # do
 #     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbownoe headless=True wandb_activate=True test=True \
-#     load_dir="/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn" load_name=/FactoryTaskAllocationMiC_ep_6100.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num
+#     load_dir="/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn" load_name=/FactoryTaskAllocationMiC_ep_8000.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num
 
 # #    echo $filename >> filename.txt
 # #    echo -e >> filename.txt
