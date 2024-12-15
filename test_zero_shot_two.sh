@@ -48,7 +48,7 @@ list=(
 for num in $list
 do
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=edqn headless=True wandb_activate=True test=True \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-11_13-29-49/nn" load_name=FactoryTaskAllocationMiC_ep_10500.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num
+    load_dir="/FactoryTaskAllocationMiC_2024-12-11_13-29-49/nn" load_name=/FactoryTaskAllocationMiC_ep_10500.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num
 
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCepsilon_noisy headless=True wandb_activate=True test=True \
     load_dir="/FactoryTaskAllocationMiC_2024-12-09_14-31-02/nn" load_name="/FactoryTaskAllocationMiC_ep_5700.pth" wandb_project="test_zero_shot$num" test_times=10 num_product=$num
