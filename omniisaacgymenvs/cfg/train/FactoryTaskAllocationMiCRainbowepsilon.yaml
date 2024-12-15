@@ -61,5 +61,5 @@ params:
     load_dir: ${....load_dir}
     load_name: ${....load_name}
 
-   
+    batch_size: ${....batch_size}
 
