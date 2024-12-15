@@ -90,3 +90,4 @@ load_dir: /FactoryTaskAllocationMiC_2024-12-06_17-13-47/nn
 load_name: /FactoryTaskAllocationMiC_ep_11100.pth
 
 num_product: 5
+test_env_max_length: 2000

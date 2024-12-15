@@ -21,58 +21,40 @@ files2=$(ls $dir_path2)
 
 
 
-for num in {5}
+for num in {5..5}
 do
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbownoe \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_8000.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2000
+    train=FactoryTaskAllocationMiCRainbownoe load_dir="/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn" load_name=/FactoryTaskAllocationMiC_ep_8000.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2000
 
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbowepsilon \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_19500.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2000
+    train=FactoryTaskAllocationMiCRainbowepsilon load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn" load_name=/FactoryTaskAllocationMiC_ep_19500.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2000
 
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbowmini \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_24000.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2000
+    train=FactoryTaskAllocationMiCRainbowmini load_dir="/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn" load_name=/FactoryTaskAllocationMiC_ep_24000.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2000
 done
 
 for num in {6..8}
 do
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbownoe \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_8000.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
+    train=FactoryTaskAllocationMiCRainbownoe load_dir="/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn" load_name=/FactoryTaskAllocationMiC_ep_8000.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
 
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbowepsilon \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_19500.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
+    train=FactoryTaskAllocationMiCRainbowepsilon load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn" load_name=/FactoryTaskAllocationMiC_ep_19500.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
 
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbowmini \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_24000.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
+    train=FactoryTaskAllocationMiCRainbowmini load_dir="/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn" load_name=/FactoryTaskAllocationMiC_ep_24000.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
 done
 
 for num in {9..10}
 do
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbownoe \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_8000.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=3000
+    train=FactoryTaskAllocationMiCRainbownoe load_dir="/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn" load_name=/FactoryTaskAllocationMiC_ep_8000.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
 
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbowepsilon \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_19500.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=3000
+    train=FactoryTaskAllocationMiCRainbowepsilon load_dir="/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn" load_name=/FactoryTaskAllocationMiC_ep_19500.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
 
     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC headless=True wandb_activate=True test=True \
-    train=FactoryTaskAllocationMiCRainbowmini \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn" \
-    load_name=/FactoryTaskAllocationMiC_ep_24000.pth \ wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=3000
+    train=FactoryTaskAllocationMiCRainbowmini load_dir="/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn" load_name=/FactoryTaskAllocationMiC_ep_24000.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num test_env_max_length=2500
 done
 
 # for filename3 in $files3

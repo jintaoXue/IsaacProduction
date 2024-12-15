@@ -46,7 +46,7 @@ params:
     test_times: ${....test_times}
     test_acti_num_agv: 1
     test_acti_num_charc: 1
-    test_env_max_length: 2000
+    test_env_max_length: ${....test_env_max_length}
     max_num_worker: 3
     max_num_robot: 3
     # load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
