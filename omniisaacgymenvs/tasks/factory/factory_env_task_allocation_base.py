@@ -927,136 +927,6 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         self.obj_2_loader_1 =  ArticulationView(
             prim_paths_expr="/World/envs/.*/obj/part2/Loaders/Loader1", name="obj_2_loader_1", reset_xform_properties=False
         )
-
-        self.materials_cube_0 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/cubes/cube_0",
-            name="cube_0",
-            track_contact_forces=True,
-        )
-        self.materials_hoop_0 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/hoops/hoop_0",
-            name="hoop_0",
-            track_contact_forces=True,
-        )
-        self.materials_bending_tube_0 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/bending_tubes/bending_tube_0",
-            name="bending_tube_0",
-            track_contact_forces=True,
-        )
-        self.materials_upper_tube_0 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/upper_tubes/upper_tube_0",
-            name="upper_tube_0",
-            track_contact_forces=True,
-        )
-        self.product_0 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/products/product_0",
-            name="product_0",
-            track_contact_forces=True,
-        )
-
-        self.materials_cube_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/cubes/cube_01",
-            name="cube_1",
-            track_contact_forces=True,
-        )
-        self.materials_hoop_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/hoops/hoop_01",
-            name="hoop_1",
-            track_contact_forces=True,
-        )
-        self.materials_bending_tube_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/bending_tubes/bending_tube_01",
-            name="bending_tube_1",
-            track_contact_forces=True,
-        )
-        self.materials_upper_tube_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/upper_tubes/upper_tube_01",
-            name="upper_tube_1",
-            track_contact_forces=True,
-        )
-        self.product_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/products/product_01",
-            name="product_1",
-            track_contact_forces=True,
-        )
-
-        self.materials_cube_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/cubes/cube_02",
-            name="cube_2",
-            track_contact_forces=True,
-        )
-        self.materials_hoop_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/hoops/hoop_02",
-            name="hoop_2",
-            track_contact_forces=True,
-        )
-        self.materials_bending_tube_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/bending_tubes/bending_tube_02",
-            name="bending_tube_2",
-            track_contact_forces=True,
-        )
-        self.materials_upper_tube_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/upper_tubes/upper_tube_02",
-            name="upper_tube_2",
-            track_contact_forces=True,
-        )
-        self.product_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/products/product_02",
-            name="product_2",
-            track_contact_forces=True,
-        )
-
-        self.materials_cube_3 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/cubes/cube_03",
-            name="cube_3",
-            track_contact_forces=True,
-        )
-        self.materials_hoop_3 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/hoops/hoop_03",
-            name="hoop_3",
-            track_contact_forces=True,
-        )
-        self.materials_bending_tube_3 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/bending_tubes/bending_tube_03",
-            name="bending_tube_3",
-            track_contact_forces=True,
-        )
-        self.materials_upper_tube_3 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/upper_tubes/upper_tube_03",
-            name="upper_tube_3",
-            track_contact_forces=True,
-        )
-        self.product_3 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/products/product_03",
-            name="product_3",
-            track_contact_forces=True,
-        )
-
-        self.materials_cube_4 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/cubes/cube_04",
-            name="cube_4",
-            track_contact_forces=True,
-        )
-        self.materials_hoop_4 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/hoops/hoop_04",
-            name="hoop_4",
-            track_contact_forces=True,
-        )
-        self.materials_bending_tube_4 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/bending_tubes/bending_tube_04",
-            name="bending_tube_4",
-            track_contact_forces=True,
-        )
-        self.materials_upper_tube_4 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/upper_tubes/upper_tube_04",
-            name="upper_tube_4",
-            track_contact_forces=True,
-        )
-        self.product_4 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Materials/products/product_04",
-            name="product_4",
-            track_contact_forces=True,
-        )
         scene.add(self.obj_11_station_0)
         scene.add(self.obj_11_station_1)
         scene.add(self.obj_11_welding_0)
@@ -1074,47 +944,16 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         scene.add(self.obj_0_1)
         scene.add(self.obj_belt_0)
         scene.add(self.obj_belt_1)
-
-        scene.add(self.materials_cube_0)
-        scene.add(self.materials_hoop_0)
-        scene.add(self.materials_bending_tube_0)
-        scene.add(self.materials_upper_tube_0)
-        scene.add(self.product_0)   
-
-        scene.add(self.materials_cube_1)
-        scene.add(self.materials_hoop_1)
-        scene.add(self.materials_bending_tube_1)
-        scene.add(self.materials_upper_tube_1)
-        scene.add(self.product_1) 
-
-        scene.add(self.materials_cube_2)
-        scene.add(self.materials_hoop_2)
-        scene.add(self.materials_bending_tube_2)
-        scene.add(self.materials_upper_tube_2)
-        scene.add(self.product_2)
-    
-        scene.add(self.materials_cube_3)
-        scene.add(self.materials_hoop_3)
-        scene.add(self.materials_bending_tube_3)
-        scene.add(self.materials_upper_tube_3)
-        scene.add(self.product_3)
-      
-        scene.add(self.materials_cube_4)
-        scene.add(self.materials_hoop_4)
-        scene.add(self.materials_bending_tube_4)
-        scene.add(self.materials_upper_tube_4)
-        scene.add(self.product_4)
-
-
+        ############ materials ###########
+        cube_list, hoop_list, bending_tube_list, upper_tube_list, product_list = [],[],[],[],[]
+        for i in range(self.num_product):
+            cube, hoop, bending_tube, upper_tube, product = self.set_up_materials(scene=scene,num=i)
+            cube_list.append(cube)
+            hoop_list.append(hoop)
+            bending_tube_list.append(bending_tube)
+            upper_tube_list.append(upper_tube)
+            product_list.append(product)
         #materials states
-        cube_list = [self.materials_cube_0, self.materials_cube_1, self.materials_cube_2, self.materials_cube_3, self.materials_cube_4]
-        hoop_list = [self.materials_hoop_0, self.materials_hoop_1, self.materials_hoop_2, self.materials_hoop_3, self.materials_hoop_4]
-        bending_tube_list = [self.materials_bending_tube_0, self.materials_bending_tube_1, self.materials_bending_tube_2, self.materials_bending_tube_3, self.materials_bending_tube_4]
-        upper_tube_list = [self.materials_upper_tube_0, self.materials_upper_tube_1, self.materials_upper_tube_2, self.materials_upper_tube_3, self.materials_upper_tube_4]
-        product_list = [self.product_0, self.product_1, self.product_2, self.product_3, self.product_4]
-        need_num_products = self.num_product
-        cube_list, hoop_list, bending_tube_list, upper_tube_list, product_list = \
-            [cube_list[:need_num_products], hoop_list[:need_num_products], bending_tube_list[:need_num_products], upper_tube_list[:need_num_products], product_list[:need_num_products]]
         self.materials : Materials = Materials(cube_list=cube_list, hoop_list=hoop_list, bending_tube_list=bending_tube_list, upper_tube_list=upper_tube_list, product_list = product_list)
         # self.materials_flag_dic = {-1:"done", 0:"wait", 1:"conveying", 2:"conveyed", 3:"cutting", 4:"cut_done", 5:"pick_up_cut", 
         # 5:"down", 6:"combine_l", 7:"weld_l", 8:"combine_r", 9:"weld_r"}
@@ -1222,6 +1061,47 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
                         self.test_settings_list.append((w+1,r+1))
         return
     
+    def set_up_materials(self, scene, num):
+        if num > 0:
+            _str = ("{}".format(num)).zfill(2)
+        else:
+            _str = "0"
+        materials_cube = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/Materials/cubes/cube_"+_str,
+            name="cube_"+_str,
+            track_contact_forces=True,
+        )
+        materials_hoop = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/Materials/hoops/hoop_"+_str,
+            name="hoop_"+_str,
+            track_contact_forces=True,
+        )
+        materials_bending_tube = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/Materials/bending_tubes/bending_tube_"+_str,
+            name="bending_tube_"+_str,
+            track_contact_forces=True,
+        )
+        materials_upper_tube = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/Materials/upper_tubes/upper_tube_"+_str,
+            name="upper_tube_"+_str,
+            track_contact_forces=True,
+        )
+        product = RigidPrimView(
+            prim_paths_expr="/World/envs/.*/obj/Materials/products/product_"+_str,
+            name="product_"+_str,
+            track_contact_forces=True,
+        )
+        scene.add(materials_cube)
+        scene.add(materials_hoop)
+        scene.add(materials_bending_tube)
+        scene.add(materials_upper_tube)
+        scene.add(product)   
+        return materials_cube, materials_hoop, materials_bending_tube, materials_upper_tube, product
+
+
+
+
+
     def reset_machine_state(self):
         # conveyor
         #0 free 1 working
