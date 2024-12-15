@@ -33,28 +33,35 @@ list=(
 #   echo -e >> filename.txt
 # done
 
-for filename in $files
-do
+# for filename in $files
+# do
+# for num in $list
+# do
+#     python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=$train headless=True wandb_activate=True test=True \
+#     load_dir="$load_dir" load_name="$str$filename" wandb_project=test_zero_shot test_times=10 num_product=$num
+# #    echo $filename >> filename.txt
+# #    echo -e >> filename.txt
+# done
+# done
+
+
 for num in $list
 do
-    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=$train headless=True wandb_activate=True test=True \
-    load_dir="$load_dir" load_name="$str$filename" wandb_project=test_zero_shot test_times=10 num_product=$num
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=edqn headless=True wandb_activate=True test=True \
+    load_dir="/FactoryTaskAllocationMiC_2024-12-11_13-29-49/nn" load_name=FactoryTaskAllocationMiC_ep_10500.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num
+
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCepsilon_noisy headless=True wandb_activate=True test=True \
+    load_dir="/FactoryTaskAllocationMiC_2024-12-09_14-31-02/nn" load_name="/FactoryTaskAllocationMiC_ep_5700.pth" wandb_project="test_zero_shot$num" test_times=10 num_product=$num
+
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=no_dueling headless=True wandb_activate=True test=True \
+    load_dir="/FactoryTaskAllocationMiC_2024-12-10_13-06-23/nn" load_name="/FactoryTaskAllocationMiC_ep_24900.pth" wandb_project="test_zero_shot$num" test_times=10 num_product=$num
+
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
+    load_dir="/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn" load_name="/FactoryTaskAllocationMiC_ep_24000.pth" wandb_project="test_zero_shot$num" test_times=10 num_product=$num
 #    echo $filename >> filename.txt
 #    echo -e >> filename.txt
 done
-done
 
-
-for filename2 in $files2
-do
-for num in $list
-do
-    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=$train2 headless=True wandb_activate=True test=True \
-    load_dir="$load_dir2" load_name="$str$filename2" wandb_project=test_zero_shot test_times=10 num_product=$num
-#    echo $filename >> filename.txt
-#    echo -e >> filename.txt
-done
-done
 
 
 # for filename3 in $files3
