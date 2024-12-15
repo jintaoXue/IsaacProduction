@@ -637,7 +637,7 @@ class RainbowepsilonAgent():
                 goal_finished = _infos['env_length'] < _infos['max_env_len']-1 and _infos['progress'] == 1
                 if goal_finished:
                     reward_extra = 0.4*(_infos['max_env_len']-1 - _infos['env_length'])/_infos['env_length']
-                    repeat_times = 5
+                    repeat_times = 10
                 else:
                     if len(temporary_buffer) < 100:
                         reward_extra = -0.05
