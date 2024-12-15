@@ -199,7 +199,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
         for idx in self.depot_product_set:
             self.materials.product_list[idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))
-            self.materials.product_list[idx].set_world_poses(self.materials.position_depot_product[idx].to(self.cuda_device), self.materials.orientation_depot_product.to(self.cuda_device))
+            self.materials.product_list[idx].set_world_poses(self.materials.position_depot_product[idx%5].to(self.cuda_device), self.materials.orientation_depot_product.to(self.cuda_device))
 
         #raw material
         for idx, state in zip(range(0, len(self.materials.hoop_states)), self.materials.hoop_states):
