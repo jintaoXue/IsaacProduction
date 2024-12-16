@@ -49,6 +49,8 @@ def draw(res_l, algo_dict:dict, metric_l, color_l, base_line, annotates):
         bbox_to_anchor=(0.3, 1.0),
         ncol=1)
     # ax.legend()
+    for ax in fig.get_axes():
+        ax.grid(True)
     ax.set_ylim([0,0.3])
 
 
@@ -90,7 +92,7 @@ def caculate(data_list, metric_l, scaling, base_line):
 if __name__ == '__main__':
     ### zero_shot performance
     #from o1 to o10
-    metric_l = ["Training time", "Test: timespan", "ZeroShot: timespan", "ZeroShot: succ"]
+    metric_l = ["Training time", "Test: timespan", "ZeroShot: timespan", "ZeroShot: success rate"]
     color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EQX-G': 'dodgerblue', 'EQX-N': 'palevioletred', 'EQX-GN':'blueviolet'}
     scaling_factor = np.array([0.09,-1,-1,1])
     algo_dict = {"D3QN":"test_rainbownoe_ep_8000.pth_2024-12-09_21-42-46", 
