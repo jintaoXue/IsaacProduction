@@ -13,7 +13,7 @@ def cacu_env_len(data_path, algo_dict):
     res_len = {}
     for i in range(0, len(data_path)):
         m_len = cacu_env_len_helper(data_path=data_path[i], algo_dict=algo_dict)
-        id  = data_path[i].split('/')[-1][0]
+        id  = (data_path[i].split('/')[-1]).split('_')[0]
         res_len[id+'_len'] = m_len
     return res_len
 
@@ -36,7 +36,7 @@ def cacu_success_progress(data_path, algo_dict):
     res_succ, res_prog = {}, {}
     for i in range(0, len(data_path)):
         succ, prog = cacu_success_progress_helper(data_path=data_path[i], algo_dict=algo_dict)
-        id  = data_path[i].split('/')[-1][0]
+        id  = (data_path[i].split('/')[-1]).split('_')[0]
         res_succ[id+'_succ'] = succ
         res_prog[id+'_prog'] = prog
     return res_succ, res_prog
@@ -60,13 +60,24 @@ def cacu_success_progress_helper(data_path, algo_dict):
             data_dict_succ[alog_name] = (np.where(array<1.0, 0, 1.0)).mean()
     return data_dict_prog, data_dict_succ 
 
+
+def mean_res(data):
+    m_res =  {}
+    num = len(data.keys())
+    for key, val in data.items():
+        for k, v in val.items():
+            if k not in m_res.keys():
+                m_res[k]=v/num
+            else:
+                m_res[k]+=v/num    
+    return m_res
 '''=========================================================Main drawing code=========================================================='''
 if __name__ == '__main__':
     ### zero_shot performance
     #from o1 to o10
     datas_len = []
     datas_succ = []
-    for i in range(1, 2):
+    for i in range(1, 11):
         _len = os.path.dirname(__file__) + "/metric3/zero_shot" + "/{}_len.csv".format(i)
         _succ = os.path.dirname(__file__) + "/metric3/zero_shot" + "/{}_succ.csv".format(i)
         datas_len.append(_len)
@@ -80,6 +91,8 @@ if __name__ == '__main__':
     
     res_succ, res_prog = cacu_success_progress(datas_succ, algo_dict)
     res_len = cacu_env_len(datas_len, algo_dict)
+    m_succ = mean_res(res_succ)
+    m_len = mean_res(res_len)
     a=1
     
     
