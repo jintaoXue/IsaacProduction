@@ -319,10 +319,6 @@ EDDQN(no dueling):
 DQNX(no efficient)
 
 
-####### efficient buffer 
-training hours
-
-
 zero shot:
 Edqn(greedy): test_edqn_ep_10500.pth_2024-12-11_13-29-49
 
@@ -348,7 +344,11 @@ test_rainbowmini_ep_24000.pth_2024-12-08_15-44-10
 6. 超参数
     bastch_size reptive times study ...
 7. Performance drops of ablation agents
-
+8. ####### efficient buffer  training hours
+9. performance improvement
+   1.  training timespan progress training hours
+   2.  test timespan progress
+   3.  zero shot timespan succ rate
 # ignore
 __pycache___
 __pycache__/

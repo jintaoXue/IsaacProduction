@@ -73,15 +73,19 @@ def mean_res(data):
     return m_res
 '''=========================================================Main drawing code=========================================================='''
 if __name__ == '__main__':
-    ### zero_shot performance
-    #from o1 to o10
+
     datas_len = []
     datas_succ = []
+    ### zero_shot performance
+    #from o1 to o10
     for i in range(1, 11):
         _len = os.path.dirname(__file__) + "/metric3/zero_shot" + "/{}_len.csv".format(i)
         _succ = os.path.dirname(__file__) + "/metric3/zero_shot" + "/{}_succ.csv".format(i)
         datas_len.append(_len)
         datas_succ.append(_succ)
+    ###mean test performance
+
+
     algo_dict = {"D3QN":"test_rainbownoe_ep_8000.pth_2024-12-09_21-42-46", 
                  "EDQN1":"test_edqn_ep_10500.pth_2024-12-11_13-29-49", 
                  "EDQN2":"test_no_dueling_ep_24900.pth_2024-12-10_13-06-23", 
