@@ -1059,8 +1059,16 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
                 for r in range(self._train_cfg['params']['config']["max_num_robot"]):
                     for i in range(self._train_cfg['params']['config']['test_times']):  
                         self.test_settings_list.append((w+1,r+1))
+        '''gantt chart'''
+        self.actions_list = []
+        self.time_frames = []
+        self.gantt_charc = []
+        self.gantt_agv = []
         return
     
+########################
+
+########################
     def set_up_materials(self, scene, num):
         if num > 0:
             _str = ("{}".format(num)).zfill(2)
@@ -1368,6 +1376,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         _y = [(value - trans_y)*self.xyResolution for value in y]
         visualize = False
         if visualize:
+
             import math
             for k in range(len(_x)):
                 plt.cla()
@@ -1383,9 +1392,15 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
                 # hybridAStar.drawCar(s[0], s[1], s[2])
                 # hybridAStar.drawCar(g[0], g[1], g[2])
                 hybridAStar.drawCar(_x[k], _y[k], yaw[k])
-                plt.arrow(_x[k], _y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=.1)
-                plt.title("Hybrid A*")
-                plt.pause(0.01)
+                plt.arrow(_x[k], _y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=.2, color='royalblue')
+                # plt.title("Hybrid A*",fontsize=20)
+                # plt.tick_params(axis='both', which='both', labelsize=15)
+                plt.gca().invert_xaxis()
+                plt.gca().invert_yaxis()
+                plt.title("Path planning result",fontsize=30)
+                plt.tick_params(axis='both', which='both', labelsize=20)
+                plt.tight_layout()
+                # plt.pause(0.01)
         return x, y, yaw
 
     def scale_pose(self, _pose: list):

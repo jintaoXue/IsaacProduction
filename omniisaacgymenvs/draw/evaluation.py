@@ -127,7 +127,7 @@ if __name__ == '__main__':
     color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EQX-G': 'dodgerblue', 'EQX-N': 'palevioletred', 'EQX-GN':'blueviolet'}
     
     data_list = [e_return, e_len, e_succ]
-    titles = ["Return", "Timespan", "Progress"]
+    titles = ["Return", "Makespan", "Progress"]
     x_lables = ["Episode", "Episode", "Episode"]
     log_x = [False, False, False]
     y_tick_f = [True, False, True]

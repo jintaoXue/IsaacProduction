@@ -374,7 +374,7 @@ if __name__ == '__main__':
     color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EQX-G': 'dodgerblue', 'EQX-N': 'palevioletred', 'EQX-GN':'blueviolet'}
     
     data_list = [t_loss, t_return, t_len, t_succ]
-    titles = ["Loss", "Return", "Timespan", "Progress"]
+    titles = ["Loss", "Return", "Makespan", "Progress"]
     x_lables = ["Step", "Episode", "Episode", "Episode"]
     log_x = [True, False, False, False]
     y_tick_f = ["None", "None", "2", "1"]

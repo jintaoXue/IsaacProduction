@@ -35,7 +35,7 @@ def draw(data, data_dict, color_dict):
     for ax, i in zip(fig.get_axes(), range(0,6)):
         ax.grid(True)
         ax.set_xticks(range(1,11))
-        draw_helper(ax, "Zero shot: timespan", 'Number order', data, color_dict, list(data_dict.keys()))
+        draw_helper(ax, "Zero shot: makespan", 'Number order', data, color_dict, list(data_dict.keys()))
     plt.tight_layout()
     # plt.show()
     path = os.path.dirname(__file__)

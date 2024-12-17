@@ -92,7 +92,7 @@ def caculate(data_list, metric_l, scaling, base_line):
 if __name__ == '__main__':
     ### zero_shot performance
     #from o1 to o10
-    metric_l = ["Training time", "Test: timespan", "ZeroShot: timespan", "ZeroShot: success rate"]
+    metric_l = ["Training time", "Test: makespan", "ZeroShot: makespan", "ZeroShot: success rate"]
     color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EQX-G': 'dodgerblue', 'EQX-N': 'palevioletred', 'EQX-GN':'blueviolet'}
     scaling_factor = np.array([0.09,-1,-1,1])
     algo_dict = {"D3QN":"test_rainbownoe_ep_8000.pth_2024-12-09_21-42-46", 

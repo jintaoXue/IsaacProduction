@@ -43,6 +43,8 @@ def draw(data, data_dict, color_dict):
     for ax, i in zip(fig.get_axes(), range(0,6)):
         ax.grid(True)
         ax.set_xticks([1,2,3])
+        if i%3 ==0:
+            ax.set_ylabel('Makespan', fontsize=15)
         if i in range(0,3):
             draw_helper(ax, "Human={}".format(i+1), 'Robot', data[i], color_dict, list(data_dict.keys()))
         if i in range(3,6):
