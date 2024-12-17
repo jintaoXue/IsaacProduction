@@ -95,7 +95,7 @@ class RainbowepsilonAgent():
         self.setdefault(self.config, key='noisy_std', default=0.1)
         ######for optimizer initialize
         # self.setdefault(self.config, key='learning_rate', default=0.0000625)
-        self.setdefault(self.config, key='learning_rate', default=1e-4)
+        self.setdefault(self.config, key='learning_rate', default=1e-3)
         self.setdefault(self.config, key='adam_eps', default=1.5e-4)
         config = self.config
         ####TODO

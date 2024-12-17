@@ -176,7 +176,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         if is_last_step or task_finished :
             self.reset_buf[0] = 1
             '''gantt chart'''
-            self.save_gantt_chart()
+            # self.save_gantt_chart()
             '''end'''
             print("num worker:{}, num agv&box:{}, env_length:{}, max_env_len:{}, task_finished:{}".format(self.task_manager.characters.acti_num_charc, 
                                                     self.task_manager.agvs.acti_num_agv, self.progress_buf[0], self.max_episode_length, task_finished))
@@ -276,8 +276,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             task_id = actions[0] - 1
             task = self.task_manager.task_dic[task_id.item()]
             '''gantt chart'''
-            self.actions_list.append(task)
-            self.time_frames.append(self.progress_buf[0].cpu().item())
+            # self.actions_list.append(task)
+            # self.time_frames.append(self.progress_buf[0].cpu().item())
             '''end'''
             if task not in self.available_task_dic.keys():
                 task = 'none'
@@ -374,8 +374,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                 res.append([self.progress_buf[0].cpu().item(), sub_dic[id], low2high_dic[sub_dic[id]]])
             return res
         '''gantt chart'''
-        self.gantt_charc.append(convert(self.task_manager.characters.sub_task_character_dic, self.task_manager.characters.low2high_level_task_dic, self.task_manager.characters.tasks))
-        self.gantt_agv.append(convert(self.task_manager.agvs.sub_task_dic, self.task_manager.agvs.low2high_level_task_dic, self.task_manager.agvs.tasks))
+        # self.gantt_charc.append(convert(self.task_manager.characters.sub_task_character_dic, self.task_manager.characters.low2high_level_task_dic, self.task_manager.characters.tasks))
+        # self.gantt_agv.append(convert(self.task_manager.agvs.sub_task_dic, self.task_manager.agvs.low2high_level_task_dic, self.task_manager.agvs.tasks))
         '''end'''
         self.task_manager.step()
         for charac_idx in range(0, self.task_manager.characters.acti_num_charc):
