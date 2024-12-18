@@ -367,13 +367,14 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             #     self.reward_action = 0.
             actions = torch.tensor(task_id+1, device=self._device).unsqueeze(0)
             # actions = Fun.one_hot(torch.tensor(task_id+1, device=self._device), num_classes = 10).unsqueeze(0)
-        def convert(sub_dic, low2high_dic, task_ids):
-            res = []
-            low2high_dic['free'] = 'free'
-            for id in task_ids:
-                res.append([self.progress_buf[0].cpu().item(), sub_dic[id], low2high_dic[sub_dic[id]]])
-            return res
+
         '''gantt chart'''
+        # def convert(sub_dic, low2high_dic, task_ids):
+        #     res = []
+        #     low2high_dic['free'] = 'free'
+        #     for id in task_ids:
+        #         res.append([self.progress_buf[0].cpu().item(), sub_dic[id], low2high_dic[sub_dic[id]]])
+        #     return res
         # self.gantt_charc.append(convert(self.task_manager.characters.sub_task_character_dic, self.task_manager.characters.low2high_level_task_dic, self.task_manager.characters.tasks))
         # self.gantt_agv.append(convert(self.task_manager.agvs.sub_task_dic, self.task_manager.agvs.low2high_level_task_dic, self.task_manager.agvs.tasks))
         '''end'''
