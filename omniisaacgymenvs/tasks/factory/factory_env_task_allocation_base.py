@@ -1022,7 +1022,9 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         agv_list = [self.agv_1, self.agv_2, self.agv_3]
         # self.agvs = Agvs(agv_list)
         self.cuda_device = torch.device("cuda:0")
-        self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list, self.cuda_device, self._train_cfg['params']['config'])
+        _num = 2
+        self.task_manager : TaskManager = TaskManager(character_list[:_num], agv_list[:_num], box_list[:_num], self.cuda_device, self._train_cfg['params']['config'])
+        # self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list, self.cuda_device, self._train_cfg['params']['config'])
         '''Ending: for humans workers (characters) and robots (agv+boxs)'''
         # from omniisaacgymenvs.robots.omni_anim_people.scripts.character_behavior import CharacterBehavior
         # from pxr import Sdf

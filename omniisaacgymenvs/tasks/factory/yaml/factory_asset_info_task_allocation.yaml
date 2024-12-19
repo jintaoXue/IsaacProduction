@@ -1,7 +1,7 @@
 obj_all:
     machine:
-        # usd_path: '/home/xue/work/Dataset/3D_model/all.usd'
-        usd_path: '/home/xue/work/Dataset/3D_model/all_10_products.usd'
+        usd_path: '/home/xue/work/Dataset/3D_model/all.usd'
+        # usd_path: '/home/xue/work/Dataset/3D_model/all_10_products.usd'
         width_min: 0.030
         width_max: 0.03464102
         height: 0.016

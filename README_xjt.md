@@ -350,6 +350,7 @@ test_rainbowmini_ep_24000.pth_2024-12-08_15-44-10
    2.  test timespan progress
    3.  zero shot timespan succ rate
 
+worker , robot , box
 [['initial_pose_0', 'placing_product'], ['carry_box_to_hoop', 'initial_box_pose_0'], ['placing_product', 'carry_box_to_hoop_table']]
 data_noe['initial']
 [['initial_pose_0', 'placing_product'], ['carry_box_to_hoop', 'initial_box_pose_0'], ['placing_product', 'carry_box_to_hoop_table']]
