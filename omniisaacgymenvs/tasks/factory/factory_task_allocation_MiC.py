@@ -578,8 +578,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
                         reaching_flag = True
                     else:
                         s, g = world_pose_to_navigation_pose(current_pose), world_pose_to_navigation_pose(box_pose)
-                        s_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=s, in_dis=3)
-                        g_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=g, in_dis=3)
+                        '''no spatial information'''
+                        s_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=s, in_dis=4)
+                        g_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=g, in_dis=4)
                         if s_str == g_str:
                             reaching_flag = True
                         else:
@@ -2021,8 +2022,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
     def save_gantt_chart(self):
         # plt.show()
         import os, pickle
-        gant_path = os.getcwd() + '/omniisaacgymenvs/draw/gantt' + '/' + 'noe_data'
-        # gant_path = os.getcwd() + '/omniisaacgymenvs/draw/gantt' + '/' + 'n_data'
+        # gant_path = os.getcwd() + '/omniisaacgymenvs/draw/gantt' + '/' + 'noe_data'
+        gant_path = os.getcwd() + '/omniisaacgymenvs/draw/gantt' + '/' + 'n_data'
         dic = {}   
         dic['initial'] = [self.task_manager.ini_worker_pose ,self.task_manager.ini_agv_pose, self.task_manager.ini_box_pose] 
         dic['action'] = self.actions_list

@@ -47,8 +47,8 @@ params:
     test_acti_num_agv: 2
     test_acti_num_charc: 2
     test_env_max_length: ${....test_env_max_length}
-    max_num_worker: 3
-    max_num_robot: 3
+    max_num_worker: 2
+    max_num_robot: 2
     # load_dir: /FactoryTaskAllocationMiC2024-10-24_15-30-51/nn
     # load_name: /FactoryTaskAllocationMiC_ep_11852_rew_4.8871512.pth
 

@@ -68,6 +68,15 @@ def world_pose_to_navigation_pose(world_pose):
     nav_pose = [position[0], position[1], euler_angles[2]]
     return nav_pose
 
+def random_zero_index(data):
+
+    if data.count(0)>=1:
+        indexs = np.argwhere(np.array(data) == 0)
+        _idx = np.random.randint(low=0, high = len(indexs)) 
+        return indexs[_idx][0]
+    else:
+        return -1
+
 class Materials(object):
 
     def __init__(self, cube_list : list, hoop_list : list, bending_tube_list : list, upper_tube_list: list, product_list : list) -> None:
@@ -311,11 +320,15 @@ class Characters(object):
         self.states[idx] = 0
         self.tasks[idx] = 0
 
-    def assign_task(self, high_level_task):
+    def assign_task(self, high_level_task, random = True):
         #todo 
         if high_level_task not in self.task_range:
             return -2
-        idx = self.find_available_charac()
+        if random:
+            idx = random_zero_index(self.tasks)
+        else: 
+            idx = self.find_available_charac()
+
         if idx == -1:
             return idx
         if high_level_task == 'hoop_preparing':
@@ -333,15 +346,18 @@ class Characters(object):
         elif high_level_task == 'bending_tube_loading_outer':
             self.tasks[idx] = 8
         elif high_level_task == 'cutting_cube':
+            if random:
+                self.tasks[idx] = 9
             #TODO warning
-            for _idx in range(0, len(self.list)):
-                xyz, _ = self.list[_idx].get_world_poses()
-                if self.tasks[_idx] == 0 and xyz[0][0] < -22:
-                    self.tasks[_idx] = 9
-                    return _idx
-                else:
-                    self.tasks[idx] = 9
-                    return idx
+            else:
+                for _idx in range(0, len(self.list)):
+                    xyz, _ = self.list[_idx].get_world_poses()
+                    if self.tasks[_idx] == 0 and xyz[0][0] < -22:
+                        self.tasks[_idx] = 9
+                        return _idx
+                    else:
+                        self.tasks[idx] = 9
+                        return idx
             # if self.tasks[1] == 0: #only assign worker 1 to do the cutting cube task 
             #     self.tasks[1] = 9
             #     idx = 1
@@ -467,13 +483,19 @@ class Agvs(object):
         self.tasks[idx] = 0
         self.states[idx] = 0
 
-    def assign_task(self, high_level_task, box_idx, box_xyz):
+    def assign_task(self, high_level_task, box_idx, box_xyz, random):
         #todo  
         if high_level_task not in self.task_range or box_idx == -2:
             return -2
         if box_xyz is None:
             return -1
-        idx = self.find_available_agv(box_idx, box_xyz[0])
+        
+        if random:
+            idx = random_zero_index([a*b for a,b in zip(self.states,self.tasks)])
+        else: 
+            idx = self.find_available_agv(box_idx, box_xyz[0])
+        # idx = self.find_available_agv(box_idx, box_xyz[0])
+
         if idx == -1:
             return idx
         if high_level_task == 'hoop_preparing':
@@ -609,7 +631,7 @@ class TransBoxs(object):
         # self.corresp_charac_idxs[idx] = -1
         # self.corresp_agv_idxs[idx] = -1
 
-    def assign_task(self, high_level_task):
+    def assign_task(self, high_level_task, random):
         #todo
         if high_level_task not in self.task_range:
             return -2
@@ -627,7 +649,11 @@ class TransBoxs(object):
             self.tasks[self.product_collecting_idx] = 1 
             return self.product_collecting_idx
         
-        idx = self.find_available_box()
+        # idx = self.find_available_box()
+        if random:
+            idx = random_zero_index([a*b for a,b in zip(self.states,self.tasks)])
+        else: 
+            idx = self.find_available_box()
         if idx == -1:
             if high_level_task == 'collect_product':
                 self.product_collecting_idx = -1
@@ -697,6 +723,9 @@ class TaskManager(object):
         elif acti_num_charc is None:
             acti_num_agv =  np.random.randint(1, 4)
             acti_num_charc = np.random.randint(1, 4)
+            '''gantt chart'''
+            # acti_num_agv =  2
+            # acti_num_charc = 2
         self.ini_worker_pose = self.characters.reset(acti_num_charc)
         self.ini_agv_pose = self.agvs.reset(acti_num_agv)
         self.ini_box_pose = self.boxs.reset(acti_num_agv)
@@ -707,13 +736,13 @@ class TaskManager(object):
 
     def assign_task(self, task):
         
-        charac_idx = self.characters.assign_task(task)
-        box_idx = self.boxs.assign_task(task)
+        charac_idx = self.characters.assign_task(task, random = True)
+        box_idx = self.boxs.assign_task(task, random = True)
         if box_idx >= 0:
             box_xyz, _ = self.boxs.list[box_idx].get_world_poses()
         else:
             box_xyz = None
-        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz)
+        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz, random = True)
         
         lacking_resource = False
         if charac_idx == -1 or agv_idx == -1 or box_idx == -1:
@@ -959,72 +988,11 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         # 5:"down", 6:"combine_l", 7:"weld_l", 8:"combine_r", 9:"weld_r"}
 
         '''for humans workers (characters) and robots (agv+boxs)'''
-        self.character_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_01",
-            name="character_1",
-            track_contact_forces=True,
-        )
-        self.character_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_02",
-            name="character_2",
-            track_contact_forces=True,
-        )
-        self.character_3 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_03",
-            name="character_3",
-            track_contact_forces=True,
-        )
-        scene.add(self.character_1)
-        scene.add(self.character_2)
-        scene.add(self.character_3)
-        character_list = [self.character_1, self.character_2, self.character_3]
-        # self.characters = Characters(character_list)
 
-        self.box_1 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/box_01",
-            name="box_1",
-            track_contact_forces=True,
-        )
-        self.box_2 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/box_02",
-            name="box_2",
-            track_contact_forces=True,
-        )
-        self.box_3 = RigidPrimView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/box_03",
-            name="box_3",
-            track_contact_forces=True,
-        )
-        scene.add(self.box_1)
-        scene.add(self.box_2)
-        scene.add(self.box_3)
-        box_list = [self.box_1, self.box_2, self.box_3]
-        # self.transboxs = TransBoxs(box_list)
-
-        self.agv_1 = ArticulationView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/agv_01",
-            name="agv_1",
-            reset_xform_properties=False,
-        )
-        self.agv_2 = ArticulationView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/agv_02",
-            name="agv_2",
-            reset_xform_properties=False,
-        )
-        self.agv_3 = ArticulationView(
-            prim_paths_expr="/World/envs/.*/obj/AGVs/agv_03",
-            name="agv_3",
-            reset_xform_properties=False,
-        )
-        scene.add(self.agv_1)
-        scene.add(self.agv_2)
-        scene.add(self.agv_3)
-        agv_list = [self.agv_1, self.agv_2, self.agv_3]
-        # self.agvs = Agvs(agv_list)
+        character_list =self.set_up_human(scene, num=3)
+        agv_list, box_list = self.set_up_robot(scene, num=3)
         self.cuda_device = torch.device("cuda:0")
-        _num = 2
-        self.task_manager : TaskManager = TaskManager(character_list[:_num], agv_list[:_num], box_list[:_num], self.cuda_device, self._train_cfg['params']['config'])
-        # self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list, self.cuda_device, self._train_cfg['params']['config'])
+        self.task_manager : TaskManager = TaskManager(character_list, agv_list, box_list, self.cuda_device, self._train_cfg['params']['config'])
         '''Ending: for humans workers (characters) and robots (agv+boxs)'''
         # from omniisaacgymenvs.robots.omni_anim_people.scripts.character_behavior import CharacterBehavior
         # from pxr import Sdf
@@ -1108,10 +1076,45 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         scene.add(product)   
         return materials_cube, materials_hoop, materials_bending_tube, materials_upper_tube, product
 
+    def set_up_human(self, scene, num):
 
+        character_list = []
+        for i in range(1, num+1):
 
+            _str = ("{}".format(i)).zfill(2)
+            character = RigidPrimView(
+                prim_paths_expr="/World/envs/.*/obj/Characters/male_adult_construction_"+_str,
+                name="character_{}".format(i+1),
+                track_contact_forces=True,
+            )
+            character_list.append(character)
 
+            scene.add(character)
 
+        return character_list 
+    
+    def set_up_robot(self, scene, num):
+
+        box_list = []
+        robot_list = []
+        for i in range(1, num+1):
+            box = RigidPrimView(
+                prim_paths_expr="/World/envs/.*/obj/AGVs/box_0{}".format(i),
+                name="box_{}".format(i),
+                track_contact_forces=True,
+            )
+            box_list.append(box)
+            scene.add(box)
+
+            agv = ArticulationView(
+                prim_paths_expr="/World/envs/.*/obj/AGVs/agv_0{}".format(i),
+                name="agv_{}".format(i),
+                reset_xform_properties=False,
+            )
+            robot_list.append(agv)
+            scene.add(agv)
+        return robot_list, box_list 
+    
     def reset_machine_state(self):
         # conveyor
         #0 free 1 working

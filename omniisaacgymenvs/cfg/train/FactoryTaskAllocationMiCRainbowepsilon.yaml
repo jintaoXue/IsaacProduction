@@ -44,8 +44,8 @@ params:
     test: ${....test}
     test_all_settings: True
     test_times: ${....test_times}
-    test_acti_num_agv: 1
-    test_acti_num_charc: 1
+    test_acti_num_agv: 2
+    test_acti_num_charc: 2
     test_env_max_length: ${....test_env_max_length}
     max_num_worker: 3
     max_num_robot: 3
