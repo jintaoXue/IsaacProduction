@@ -687,7 +687,6 @@ class TransBoxs(object):
                 return idx
         else:
             return -1
-    
         
     def is_full_products(self):
         return self.find_full_products_box_idx() != -1

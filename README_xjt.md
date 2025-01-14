@@ -318,6 +318,7 @@ EDDQN(no dueling):
 
 DQNX(no efficient)
 
+No spatial:  FactoryTaskAllocationMiC_ep_20100.pth
 
 zero shot:
 Edqn(greedy): test_edqn_ep_10500.pth_2024-12-11_13-29-49
@@ -329,6 +330,8 @@ Efficient greedy+noisy (epsilon_noisy) rainbow: test_epsilon_noisy_ep_5700.pth_2
 test_no_dueling_ep_24900.pth_2024-12-10_13-06-23
 
 test_rainbowmini_ep_24000.pth_2024-12-08_15-44-10
+
+
 
 
 <!-- best: test_FactoryTaskAllocationMiC_2024-12-07_14-12-05 测试模型结果："/FactoryTaskAllocationMiC_ep_11100.pth" 的performance最优（"/FactoryTaskAllocationMiC_2024-12-06_17-13-47/nn" -->

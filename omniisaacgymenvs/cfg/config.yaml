@@ -93,4 +93,4 @@ num_product: 5
 test_env_max_length: 2000
 batch_size: 512
 
-test_all_settings: False
+test_all_settings: True
