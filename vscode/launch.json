@@ -1,0 +1,164 @@
+
+// https://cloud.tencent.com/developer/article/2192429  制定python路径conda环境
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "rainbowmini",
+                "type": "debugpy",
+                "request": "launch",
+                // "program": "${workspaceFolder}/install/map_visualize/lib/map_visualize/get_path",
+                "program": "${workspaceFolder}/omniisaacgymenvs/scripts/rlgames_train_v1.py",
+                "console": "integratedTerminal",
+                "stopOnEntry": false,
+                "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbowmini", "wandb_activate=True", "headless=True"],
+                "cwd": "${workspaceFolder}",
+                
+            },        
+            {
+                "name": "rainbownoe",
+                "type": "debugpy",
+                "request": "launch",
+                // "program": "${workspaceFolder}/install/map_visualize/lib/map_visualize/get_path",
+                "program": "${workspaceFolder}/omniisaacgymenvs/scripts/rlgames_train_v1.py",
+                "console": "integratedTerminal",
+                "stopOnEntry": false,
+                "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbownoe", "wandb_activate=False", "headless=True"],
+                "cwd": "${workspaceFolder}",
+                
+            },     
+            {
+                "name": "test:greedy",
+                "type": "debugpy",
+                "request": "launch",
+                // "program": "${workspaceFolder}/install/map_visualize/lib/map_visualize/get_path",
+                "program": "${workspaceFolder}/omniisaacgymenvs/scripts/rlgames_train_v1.py",
+                "console": "integratedTerminal",
+                "stopOnEntry": false,
+                "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbowepsilon", "wandb_activate=False", "headless=True", "test=True", 
+                "load_dir=/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn", "load_name=/FactoryTaskAllocationMiC_ep_23200.pth"],
+                "cwd": "${workspaceFolder}",
+                
+            },        
+            {
+                "name": "test:rainbowmini",
+                "type": "debugpy",
+                "request": "launch",
+                // "program": "${workspaceFolder}/install/map_visualize/lib/map_visualize/get_path",
+                "program": "${workspaceFolder}/omniisaacgymenvs/scripts/rlgames_train_v1.py",
+                "console": "integratedTerminal",
+                "stopOnEntry": false,
+                "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbowmini", "wandb_activate=False", "headless=False", 
+                "test=True", "test_times=1", "rule_based=False", "wandb_project=TestVisualied", "test_all_settings=False",
+                "load_dir=/FactoryTaskAllocationMiC_2024-12-08_15-44-10/nn", "load_name=/FactoryTaskAllocationMiC_ep_24000.pth"],
+                "cwd": "${workspaceFolder}",
+                
+            },  
+            {
+                "name": "test:rainbownoe",
+                "type": "debugpy",
+                "request": "launch",
+                // "program": "${workspaceFolder}/install/map_visualize/lib/map_visualize/get_path",
+                "program": "${workspaceFolder}/omniisaacgymenvs/scripts/rlgames_train_v1.py",
+                "console": "integratedTerminal",
+                "stopOnEntry": false,
+                "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbownoe", "wandb_activate=False", "headless=True", 
+                "test=True", "test_times=1", "rule_based=False", "wandb_project=TestVisualied", "test_all_settings=False",
+                "load_dir=/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn", "load_name=/FactoryTaskAllocationMiC_ep_8000.pth"],
+                "cwd": "${workspaceFolder}",
+                
+            },    
+            {
+                "name": "test:rainbowepsilon",
+                "type": "debugpy",
+                "request": "launch",
+                // "program": "${workspaceFolder}/install/map_visualize/lib/map_visualize/get_path",
+                "program": "${workspaceFolder}/omniisaacgymenvs/scripts/rlgames_train_v1.py",
+                "console": "integratedTerminal",
+                "stopOnEntry": false,
+                "args": ["task=FactoryTaskAllocationMiC", "train=FactoryTaskAllocationMiCRainbowepsilon", "wandb_activate=False", "headless=True", 
+                "test=False", "test_times=1", "rule_based=False", "wandb_project=TestVisualied", "test_all_settings=False",
+                "load_dir=/FactoryTaskAllocationMiC_2024-12-09_21-42-46/nn", "load_name=/FactoryTaskAllocationMiC_ep_19500.pth"],
+                "cwd": "${workspaceFolder}",
+                
+            },    
+            {
+                "name": "batch_train",
+                "type": "bashdb",
+                "request": "launch",
+                "program": "${workspaceFolder}/batch_train.sh",
+            },             
+            {
+                "name": "batch_test_zero_shot",
+                "type": "bashdb",
+                "request": "launch",
+                "program": "${workspaceFolder}/test_zero_shot.sh",
+                "args": ["/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn"],
+            },  
+            {
+                "name": "batch_test_zero_shot2",
+                "type": "bashdb",
+                "request": "launch",
+                "program": "${workspaceFolder}/test_zero_shot_two.sh",
+                "args": ["/FactoryTaskAllocationMiC_2024-12-08_17-36-58/nn"],
+            },  
+            {
+                "name": "Draw_1",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/training.py",
+            },
+            {
+                "name": "evaluation",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/evaluation.py",
+            },    
+            {
+                "name": "test_table",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/test_table.py",
+            },  
+            {
+                "name": "improvement",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/improvement.py",
+            },  
+            {
+                "name": "polyline",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/polyline.py",
+            },  
+            {
+                "name": "polyline2",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/polyline2.py",
+            }, 
+            {
+                "name": "gantt",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/gantt.py",
+            },   
+            {
+                "name": "gantt2",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/gantt2.py",
+            },
+            {
+                "name": "ablation",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/omniisaacgymenvs/draw/ablation.py",
+            },      
+
+        ]
+    }

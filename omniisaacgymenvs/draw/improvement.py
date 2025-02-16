@@ -51,7 +51,7 @@ def draw(res_l, algo_dict:dict, metric_l, color_l, base_line, annotates):
     # ax.legend()
     for ax in fig.get_axes():
         ax.grid(True)
-    ax.set_ylim([0,0.3])
+    ax.set_ylim([-0.02,0.3])
 
 
 
@@ -93,41 +93,46 @@ if __name__ == '__main__':
     ### zero_shot performance
     #from o1 to o10
     metric_l = ["Training time", "Test: makespan", "ZeroShot: makespan", "ZeroShot: success rate"]
-    color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EQX-G': 'dodgerblue', 'EQX-N': 'palevioletred', 'EQX-GN':'blueviolet'}
+    color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EBQ-G': 'dodgerblue', 'EBQ-N': 'palevioletred', 'EBQ-GN':'blueviolet', "NoSp": 'silver'}
     scaling_factor = np.array([0.09,-1,-1,1])
     algo_dict = {"D3QN":"test_rainbownoe_ep_8000.pth_2024-12-09_21-42-46", 
                  "EDQN1":"test_edqn_ep_10500.pth_2024-12-11_13-29-49", 
                  "EDQN2":"test_no_dueling_ep_24900.pth_2024-12-10_13-06-23", 
-                 "EQX-G":"test_rainbowepsilon_ep_19500.pth_2024-12-08_17-36-58", 
-                 "EQX-N":"test_rainbowmini_ep_24000.pth_2024-12-08_15-44-10", 
-                 "EQX-GN":"test_epsilon_noisy_ep_5700.pth_2024-12-09_14-31-02"}
+                 "NoSp":"test_no_spatial_rainbowmini_ep_20100.pth_2024-12-23_18-12-29",
+                 "EBQ-G":"test_rainbowepsilon_ep_19500.pth_2024-12-08_17-36-58", 
+                 "EBQ-N":"test_rainbowmini_ep_24000.pth_2024-12-08_15-44-10", 
+                 "EBQ-GN":"test_epsilon_noisy_ep_5700.pth_2024-12-09_14-31-02"}
     
     Training_time = {"D3QN": 0.264, 
                 "EDQN1": 1.0, 
                 "EDQN2":1.0, 
-                "EQX-G":1.0, 
-                "EQX-N":1.0, 
-                "EQX-GN":1.0}
+                "NoSp":1.0,
+                "EBQ-G":1.0, 
+                "EBQ-N":1.0, 
+                "EBQ-GN":1.0}
     
     Test_time ={"D3QN": 874.43, 
             "EDQN1": 834.92, 
             "EDQN2":808.04, 
-            "EQX-G":806.00, 
-            "EQX-N":805.45, 
-            "EQX-GN":865.19}
+            "NoSp":888.23,
+            "EBQ-G":806.00, 
+            "EBQ-N":805.45, 
+            "EBQ-GN":865.19}
 
     zero_timespan = {"D3QN": 1225.94, 
             "EDQN1": 992.98, 
             "EDQN2":966.30, 
-            "EQX-G":962.57, 
-            "EQX-N":947.70, 
-            "EQX-GN":996.86}
+            "NoSp":966.32,
+            "EBQ-G":962.57, 
+            "EBQ-N":947.70, 
+            "EBQ-GN":996.86}
     zero_succ = {"D3QN": 0.843, 
         "EDQN1": 0.969, 
-        "EDQN2":0.987, 
-        "EQX-G":0.989, 
-        "EQX-N":1.0, 
-        "EQX-GN":0.980}
+        "EDQN2":0.987,
+        "NoSp":0.994, 
+        "EBQ-G":0.989, 
+        "EBQ-N":1.0, 
+        "EBQ-GN":0.980}
     data = [Training_time, Test_time, zero_timespan, zero_succ]
     base_line = 'D3QN'
     del color_dict[base_line]

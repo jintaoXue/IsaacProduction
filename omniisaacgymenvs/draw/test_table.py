@@ -80,7 +80,7 @@ if __name__ == '__main__':
     #from o1 to o10
     for i in range(1, 11):
         _len = os.path.dirname(__file__) + "/metric3/zero_shot" + "/{}_len.csv".format(i)
-        _succ = os.path.dirname(__file__) + "/metric3/zero_shot" + "/{}_succ.csv".format(i)
+        _succ = os.path.dirname(__file__) + "/metric3/zero_shot" + "/{}_success.csv".format(i)
         datas_len.append(_len)
         datas_succ.append(_succ)
     ###mean test performance
@@ -89,9 +89,10 @@ if __name__ == '__main__':
     algo_dict = {"D3QN":"test_rainbownoe_ep_8000.pth_2024-12-09_21-42-46", 
                  "EDQN1":"test_edqn_ep_10500.pth_2024-12-11_13-29-49", 
                  "EDQN2":"test_no_dueling_ep_24900.pth_2024-12-10_13-06-23", 
-                 "EQX-G":"test_rainbowepsilon_ep_19500.pth_2024-12-08_17-36-58", 
-                 "EQX-N":"test_rainbowmini_ep_24000.pth_2024-12-08_15-44-10", 
-                 "EQX-GN":"test_epsilon_noisy_ep_5700.pth_2024-12-09_14-31-02"}
+                 "NoSp":"test_no_spatial_rainbowmini_ep_20100.pth_2024-12-23_18-12-29",
+                 "EBQ-G":"test_rainbowepsilon_ep_19500.pth_2024-12-08_17-36-58", 
+                 "EBQ-N":"test_rainbowmini_ep_24000.pth_2024-12-08_15-44-10", 
+                 "EBQ-GN":"test_epsilon_noisy_ep_5700.pth_2024-12-09_14-31-02"}
     
     res_succ, res_prog = cacu_success_progress(datas_succ, algo_dict)
     res_len = cacu_env_len(datas_len, algo_dict)

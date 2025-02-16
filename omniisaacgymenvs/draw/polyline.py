@@ -21,7 +21,7 @@ def convert(hr_dict):
     return np.array(data_array)
         # assert len(one_data)==10, "warning"
 
-def draw(data, data_dict, color_dict):
+def draw(data, data_dict, color_dict, legend_fs):
     plt.style.use('seaborn-v0_8-white')
     # plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams['pdf.fonttype'] = 42
@@ -40,7 +40,7 @@ def draw(data, data_dict, color_dict):
     plt.subplot(234)
     plt.subplot(235)
     plt.subplot(236)
-    for ax, i in zip(fig.get_axes(), range(0,6)):
+    for ax, i, legend_f in zip(fig.get_axes(), range(0,6), legend_fs):
         ax.grid(True)
         ax.set_xticks([1,2,3])
         if i%3 ==0:
@@ -50,6 +50,8 @@ def draw(data, data_dict, color_dict):
         if i in range(3,6):
             j = i%3
             draw_helper(ax, "Robot={}".format(j+1), 'Number of humans', data[:,:,j].transpose(), color_dict, list(data_dict.keys()))
+        if legend_f == False:
+            ax.get_legend().remove()
     plt.tight_layout()
     # plt.show()
     path = os.path.dirname(__file__)
@@ -73,16 +75,16 @@ if __name__ == '__main__':
         "D3QN":"1013.93 & 983.03  & 961.05& 837.25& 855.96& 746.61&871.47&865.49&737.82 & 874.73", 
         "EDQN1":"1032.35& 1069.95& 1019.08& 755.75& 751.14& 752.90& 750.01&692.63&690.46&834.92", 
         "EDQN2":"991.35& 927.71&922.94& 758.83& 745.86& 760.86& 755.80&702.56&706.45&808.04", 
-        "EQX-G":"945.35 & 958.63& 973.70& 757.06&741.82 &746.26 &749.71&692.60&688.77&806.00", 
-        "EQX-N":"934.35& 954.64&924.31 &758.69 & 764.78& 773.74&749.71&692.89&695.95&805.45", 
-        "EQX-GN":"1137.67& 1020.94& 1003.99& 782.51& 820.10& 750.87&832.52 &714.48&723.65&865.19"
+        "EBQ-G":"945.35 & 958.63& 973.70& 757.06&741.82 &746.26 &749.71&692.60&688.77&806.00", 
+        "EBQ-N":"934.35& 954.64&924.31 &758.69 & 764.78& 773.74&749.71&692.89&695.95&805.45", 
+        "EBQ-GN":"1137.67& 1020.94& 1003.99& 782.51& 820.10& 750.87&832.52 &714.48&723.65&865.19",
+        "NoSp": "983.35& 1181.39&995.71&794.91&798.23&839.59&803.93&812.29&785"
     }
-    color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EQX-G': 'dodgerblue', 'EQX-N': 'palevioletred', 'EQX-GN':'blueviolet'}
-    
+    color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EBQ-G': 'dodgerblue', 'EBQ-N': 'palevioletred', 'EBQ-GN':'blueviolet', "NoSp": 'silver'}
+    legend = [False, False, False, True, True, True]
     hr_data = convert(hr_dict)
-    draw(hr_data, hr_dict, color_dict)
+    draw(hr_data, hr_dict, color_dict, legend)
     
-
 
     # draw_roc(os.path.join(os.getcwd(), 'results/tfr_df.csv'), 
     #          os.path.join(os.getcwd(), 'results/roc_df.csv'), 

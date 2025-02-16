@@ -316,7 +316,7 @@ def draw_one_sub_pic(ax, data, title, x_lable, algo_dict, color_dict, log_x, y_t
     #     handlelength=5.0)
         # handleheight=3)
     # get the legend object
-    leg = ax.legend()
+    leg = ax.legend(ncol=2)
     # change the line width for the legend
     for line in leg.get_lines():
         line.set_linewidth(6.0)
@@ -368,10 +368,12 @@ if __name__ == '__main__':
     algo_dict = {"D3QN":"noe_FactoryTaskAllocationMiC_2024-12-09_21-42-46", 
                  "EDQN1":"edqn_2024-12-11_13-29-49", 
                  "EDQN2":"no_dueling_2024-12-10_13-06-23", 
-                 "EQX-G":"epsilon_FactoryTaskAllocationMiC_2024-12-08_17-36-58", 
-                 "EQX-N":"FactoryTaskAllocationMiC_2024-12-08_15-44-10", 
-                 "EQX-GN":"epsilon_nosiy_FactoryTaskAllocationMiC_2024-12-09_14-31-02"}
-    color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EQX-G': 'dodgerblue', 'EQX-N': 'palevioletred', 'EQX-GN':'blueviolet'}
+                 "NoSp":"no_spatial_rainbowmini_2024-12-23_18-12-29",
+                 "EBQ-G":"epsilon_FactoryTaskAllocationMiC_2024-12-08_17-36-58", 
+                 "EBQ-N":"FactoryTaskAllocationMiC_2024-12-08_15-44-10", 
+                 "EBQ-GN":"epsilon_nosiy_FactoryTaskAllocationMiC_2024-12-09_14-31-02",
+                 }
+    color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EBQ-G': 'dodgerblue', 'EBQ-N': 'palevioletred', 'EBQ-GN':'blueviolet', "NoSp": 'silver'}
     
     data_list = [t_loss, t_return, t_len, t_succ]
     titles = ["Loss", "Return", "Makespan", "Progress"]

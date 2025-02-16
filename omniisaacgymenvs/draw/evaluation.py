@@ -121,17 +121,19 @@ if __name__ == '__main__':
     algo_dict = {"D3QN":"noe_FactoryTaskAllocationMiC_2024-12-09_21-42-46", 
                  "EDQN1":"edqn_2024-12-11_13-29-49", 
                  "EDQN2":"no_dueling_2024-12-10_13-06-23", 
-                 "EQX-G":"epsilon_FactoryTaskAllocationMiC_2024-12-08_17-36-58", 
-                 "EQX-N":"FactoryTaskAllocationMiC_2024-12-08_15-44-10", 
-                 "EQX-GN":"epsilon_nosiy_FactoryTaskAllocationMiC_2024-12-09_14-31-02"}
-    color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EQX-G': 'dodgerblue', 'EQX-N': 'palevioletred', 'EQX-GN':'blueviolet'}
+                 "NoSp":"no_spatial_rainbowmini_2024-12-23_18-12-29",
+                 "EBQ-G":"epsilon_FactoryTaskAllocationMiC_2024-12-08_17-36-58", 
+                 "EBQ-N":"FactoryTaskAllocationMiC_2024-12-08_15-44-10", 
+                 "EBQ-GN":"epsilon_nosiy_FactoryTaskAllocationMiC_2024-12-09_14-31-02",
+                 }
+    color_dict = {'D3QN': 'crimson', 'EDQN1': 'orange', 'EDQN2': 'forestgreen', 'EBQ-G': 'dodgerblue', 'EBQ-N': 'palevioletred', 'EBQ-GN':'blueviolet', "NoSp": 'silver'}
     
     data_list = [e_return, e_len, e_succ]
     titles = ["Return", "Makespan", "Progress"]
     x_lables = ["Episode", "Episode", "Episode"]
     log_x = [False, False, False]
     y_tick_f = [True, False, True]
-    y_tick = [[2.7, 2.92], [], [0.8, 1.01]]
+    y_tick = [[2.2, 3.3], [], [0.8, 1.01]]
     # https://stackoverflow.com/questions/74001262/how-to-change-x-axis-to-not-be-uniform-scale
     smooth_alphas = [0.01, 0.01, 0.01]
     # y_lables = ["Loss", "Return", "Timespan", "Progress"]
