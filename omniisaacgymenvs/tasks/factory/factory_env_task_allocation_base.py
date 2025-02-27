@@ -320,7 +320,7 @@ class Characters(object):
         self.states[idx] = 0
         self.tasks[idx] = 0
 
-    def assign_task(self, high_level_task, random = True):
+    def assign_task(self, high_level_task, random = False):
         #todo 
         if high_level_task not in self.task_range:
             return -2
@@ -631,7 +631,7 @@ class TransBoxs(object):
         # self.corresp_charac_idxs[idx] = -1
         # self.corresp_agv_idxs[idx] = -1
 
-    def assign_task(self, high_level_task, random):
+    def assign_task(self, high_level_task, random = False):
         #todo
         if high_level_task not in self.task_range:
             return -2
