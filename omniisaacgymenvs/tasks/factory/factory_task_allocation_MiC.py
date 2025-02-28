@@ -167,7 +167,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         return 
     
     def reset_update(self):
-        """Assign environments for reset if successful or failed."""
+        """Assign environments for reset self.episode_length_bufif successful or failed."""
         task_finished = self.materials.done()
         is_last_step = self.progress_buf[0] >= self.max_episode_length - 1
         #TODO for debug
