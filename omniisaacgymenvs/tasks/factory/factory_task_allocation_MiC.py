@@ -50,6 +50,7 @@ MAX_FLOAT = 3.40282347e38
 class FactoryTaskAllocMiC(FactoryTaskAlloc):
 
     def pre_physics_step(self, actions):
+
         actions = self.post_task_manager_step(actions)
         task_id = actions[0] - 1
         task = self.task_manager.task_dic[task_id.item()]
