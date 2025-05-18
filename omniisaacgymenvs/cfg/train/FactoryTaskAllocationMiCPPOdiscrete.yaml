@@ -60,7 +60,7 @@ params:
     
     load_dir: ${....load_dir}
     load_name: ${....load_name}
-    ppo_buffer_size: 1e3
+    ppo_buffer_size: 5e3
 
    
 

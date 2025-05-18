@@ -42,7 +42,7 @@ class PPOAgent():
         self.target_update = config.get('target_update', int(2e3))
         self.max_steps = config.get("max_steps", int(7e5))
         self.max_epochs = config.get("max_epochs", int(1e11))
-        self.batch_size = config.get('batch_size', 64)
+        self.batch_size = config.get('batch_size', 512)
         # self.batch_size = config.get('batch_size', 2)
         self.num_warmup_steps = config.get('num_warmup_steps', int(1e2))
         # self.num_warmup_steps = config.get('num_warmup_steps', int(1024))
@@ -235,7 +235,7 @@ class PPOAgent():
         wandb.define_metric("Metrics/EpRetAction", step_metric="Metrics/step_episode")
 
  
-        total = sum([param.nelement() for param in self.online_net.parameters()])
+        total = sum([param.nelement() for param in self.actor.parameters()] + [param.nelement() for param in self.critic.parameters()])
         # print("Number of parameters: %.2fM" % (total/1e6))
         param_table = wandb.Table(columns=["online_net_size", "num_warm_up_steps"], data=[[total, self.num_warmup_steps]])
         wandb.log({"Parameter": param_table})
