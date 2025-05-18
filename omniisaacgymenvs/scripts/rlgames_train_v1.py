@@ -50,6 +50,7 @@ from omniisaacgymenvs.algo.rainbowmini import rainbowepsilon
 from omniisaacgymenvs.algo.rainbowmini import epsilon_noisy
 from omniisaacgymenvs.algo.rainbowmini import no_dueling
 from omniisaacgymenvs.algo.rainbowmini import edqn
+from omniisaacgymenvs.algo.rainbowmini import ppo_discrete
 class RLGTrainer:
     def __init__(self, cfg, cfg_dict):
         self.cfg = cfg
@@ -77,7 +78,8 @@ class RLGTrainer:
         runner.algo_factory.register_builder('rainbowepsilon', lambda **kwargs: rainbowepsilon.RainbowepsilonAgent(**kwargs))
         runner.algo_factory.register_builder('epsilon_noisy', lambda **kwargs: epsilon_noisy.EpsilonNoisyAgent(**kwargs))
         runner.algo_factory.register_builder('no_dueling', lambda **kwargs: no_dueling.NoduelAgent(**kwargs))
-        runner.algo_factory.register_builder('edqn', lambda **kwargs: edqn.RainbowepsilonAgent(**kwargs))
+        runner.algo_factory.register_builder('edqn', lambda **kwargs: edqn.RainbowepsilonAgent(**kwargs)) 
+        runner.algo_factory.register_builder('ppo_discrete', lambda **kwargs: ppo_discrete.PPOAgent(**kwargs)) 
         runner.load(self.rlg_config_dict)
         runner.reset()
 
