@@ -61,7 +61,8 @@ class PPOAgent():
         self.critic = Critic(config, self.actions_num).to(device=self._device)
         if self._test and not self.env_rule_based_exploration:
             weights = torch.load(self.train_dir + self._load_dir + self._load_name, weights_only=True)
-            self.actor.load_state_dict(weights['net'])
+            self.actor.load_state_dict(weights['actor'])
+            self.critic.load_state_dict(weights['critic'])
         self.actor.train()
         self.critic.train()
         self.gamma = 0.98
@@ -328,7 +329,7 @@ class PPOAgent():
 
     def get_weights(self):
         print("Loading weights")
-        state = {'net':self.online_net.state_dict()}
+        state = {'actor':self.actor.state_dict(), 'critic':self.critic.state_dict()}
         return state
 
     def save(self, fn):
@@ -343,7 +344,7 @@ class PPOAgent():
         state = self.get_weights()
 
         state['epoch'] = self.epoch_num
-        state['optimizer'] = self.optimiser.state_dict()       
+        # state['optimizer'] = self.optimiser.state_dict()       
 
         return state
 
