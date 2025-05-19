@@ -721,7 +721,7 @@ class PPOAgent():
                         self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'].cpu())
                         self.test_table3.add_data(' '.join(time_step_list), ' '.join(action_info_list))
                 action_info_list = []
-                print("evaluate ", end='')
+                print(" evaluate ", end=' ')
                 next_obs = self.env_reset(num_worker=reset_n_worker, num_robot=reset_n_robot) 
             self.evaluate_current_rewards = self.evaluate_current_rewards * not_dones
             self.evaluate_current_lengths = self.evaluate_current_lengths * not_dones
