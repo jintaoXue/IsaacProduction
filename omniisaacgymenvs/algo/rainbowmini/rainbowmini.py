@@ -597,6 +597,7 @@ class RainbowminiAgent():
 
             with torch.no_grad():
                 next_obs, rewards, dones, infos, action = self.env_step(action)
+
             # if self.reward_clip > 0:
             #     reward = max(min(reward, self.reward_clip), -self.reward_clip)  # Clip rewards
             #TODO only support num_agents == 1
