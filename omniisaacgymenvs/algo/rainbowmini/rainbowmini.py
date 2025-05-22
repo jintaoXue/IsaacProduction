@@ -47,6 +47,7 @@ class RainbowminiAgent():
         self.num_steps_per_epoch = config.get("num_steps_per_epoch", 100)
         self.max_env_steps = config.get("horizon_length", 1000) # temporary, in future we will use other approach
         print(self.batch_size, self.num_actors, self.num_agents)
+        a = 1
         print("Number of Agents", self.num_actors, "Batch Size", self.batch_size)
         #########buffer
         self.priority_weight_increase = (1 - config['priority_weight']) / (self.max_steps - self.num_warmup_steps)
