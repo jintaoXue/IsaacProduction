@@ -430,3 +430,37 @@ s, g = world_pose_to_navigation_pose(current_pose), world_pose_to_navigation_pos
 '''no spatial information'''
 s_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=s, in_dis=10)
 g_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=g, in_dis=10)
+
+path:
+num worker:2, num agv&box:2, env_length:731, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:877, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:890, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:728, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:903, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:726, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:878, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:890, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:731, max_env_len:2000, task_finished:True
+
+random:
+num worker:2, num agv&box:2, env_length:746, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:733, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:881, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:749, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:907, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:914, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:905, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:900, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:747, max_env_len:2000, task_finished:True
+
+greedy:
+num worker:2, num agv&box:2, env_length:746, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:717, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:741, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:749, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:757, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:747, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:756, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:736, max_env_len:2000, task_finished:True
+num worker:2, num agv&box:2, env_length:907, max_env_len:2000, task_finished:True
+

@@ -132,6 +132,8 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         self.extras['time_step'] = f"{self.progress_buf[0].cpu()}"
         self.extras['num_worker'] = self.task_manager.characters.acti_num_charc
         self.extras['num_robot'] = self.task_manager.agvs.acti_num_agv
+        self.extras['human_move'] = self.task_manager.characters.get_sum_movement()
+        self.extras['agv_move'] = self.task_manager.agvs.get_sum_movement()
         if self._test:
             self.extras['worker_initial_pose'] = self.task_manager.ini_worker_pose
             self.extras['robot_initial_pose'] = self.task_manager.ini_agv_pose
@@ -547,7 +549,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             
         charac.set_world_poses(positions=target_position, orientations=target_orientation)
         charac.set_velocities(torch.zeros((1,6), device=self.cuda_device))    
-
+        self.task_manager.characters.update_pose_str(idx)
         return
     
     def post_agv_step(self, idx):
@@ -642,7 +644,7 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         target_position[:,-1] = 0.1
         agv.set_world_poses(positions=target_position, orientations=target_orientation)  
         agv.set_velocities(torch.zeros((1,6), device=self.cuda_device))  
-
+        self.task_manager.agvs.update_pose_str(idx)
         return 
     
     def post_trans_box_step(self, idx):
@@ -678,18 +680,19 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         target_position[0][-1] = 0
         box.set_world_poses(positions=target_position, orientations=target_orientation)
         box.set_velocities(torch.zeros((1,6), device=self.cuda_device))  
-        for idx in hoop_idx_list:
-            offset=self.materials.in_box_offsets[idx%self.task_manager.boxs.CAPACITY].to(self.cuda_device)
-            self.materials.hoop_list[idx].set_world_poses(positions=target_position+offset)
-            self.materials.hoop_list[idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))  
-        for idx in bending_tube_idx_set:
-            offset=self.materials.in_box_offsets[idx%self.task_manager.boxs.CAPACITY].to(self.cuda_device)
-            self.materials.bending_tube_list[idx].set_world_poses(positions=target_position+offset)
-            self.materials.bending_tube_list[idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))  
-        for idx in product_idx_list:
-            offset=self.materials.in_box_offsets[idx%self.task_manager.boxs.CAPACITY].to(self.cuda_device)
-            self.materials.product_list[idx].set_world_poses(positions=target_position+offset)
-            self.materials.product_list[idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))  
+        for _idx in hoop_idx_list:
+            offset=self.materials.in_box_offsets[_idx%self.task_manager.boxs.CAPACITY].to(self.cuda_device)
+            self.materials.hoop_list[_idx].set_world_poses(positions=target_position+offset)
+            self.materials.hoop_list[_idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))  
+        for _idx in bending_tube_idx_set:
+            offset=self.materials.in_box_offsets[_idx%self.task_manager.boxs.CAPACITY].to(self.cuda_device)
+            self.materials.bending_tube_list[_idx].set_world_poses(positions=target_position+offset)
+            self.materials.bending_tube_list[_idx].set_velocities(torch.zeros((1,6), device=self.cuda_device))  
+        for _idx in product_idx_list:
+            offset=self.materials.in_box_offsets[_idx%self.task_manager.boxs.CAPACITY].to(self.cuda_device)
+            self.materials.product_list[_idx].set_world_poses(positions=target_position+offset)
+            self.materials.product_list[_idx].set_velocities(torch.zeros((1,6), device=self.cuda_device)) 
+        self.task_manager.boxs.update_pose_str(idx) 
         return
 
     def post_conveyor_belt_step(self):
@@ -1929,9 +1932,10 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         for i in range(max_num):
             if i < self.task_manager.characters.acti_num_charc:
                 worker_mask[i] = 1
-                worker_position = self.task_manager.characters.list[i].get_world_poses()
-                wp = world_pose_to_navigation_pose(worker_position)
-                wp_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp, in_dis=1000.)
+                # worker_position = self.task_manager.characters.list[i].get_world_poses()
+                # wp = world_pose_to_navigation_pose(worker_position)
+                # wp_str = self.find_closest_pose(pose_dic=self.task_manager.characters.poses_dic, ego_pose=wp, in_dis=1000.)
+                wp_str = self.task_manager.characters.poses_str[i]
                 wp_num = self.task_manager.characters.poses_dic2num[wp_str]
                 obs_dict['worker_pose'][i] = wp_num
                 obs_dict['worker_state'][i] = self.task_manager.characters.states[i]
@@ -1944,9 +1948,10 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
         for i in range(max_num):
             if i < self.task_manager.agvs.acti_num_agv:
                 agv_mask[i] = 1
-                position = self.task_manager.agvs.list[i].get_world_poses()
-                p = world_pose_to_navigation_pose(position)
-                p_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=p, in_dis=1000.)
+                # position = self.task_manager.agvs.list[i].get_world_poses()
+                # p = world_pose_to_navigation_pose(position)
+                # p_str = self.find_closest_pose(pose_dic=self.task_manager.agvs.poses_dic, ego_pose=p, in_dis=1000.)
+                p_str = self.task_manager.agvs.poses_str[i]
                 p_num = self.task_manager.agvs.poses_dic2num[p_str]
                 obs_dict['agv_pose'][i] = p_num
                 obs_dict['agv_state'][i] = self.task_manager.agvs.states[i]
@@ -1960,8 +1965,9 @@ class FactoryTaskAllocMiC(FactoryTaskAlloc):
             if i < self.task_manager.boxs.acti_num_box:
                 box_mask[i] = 1
                 position = self.task_manager.boxs.list[i].get_world_poses()
-                p = world_pose_to_navigation_pose(position)
-                p_str = self.find_closest_pose(pose_dic=self.task_manager.boxs.poses_dic, ego_pose=p, in_dis=1000.)
+                # p = world_pose_to_navigation_pose(position)
+                # p_str = self.find_closest_pose(pose_dic=self.task_manager.boxs.poses_dic, ego_pose=p, in_dis=1000.)
+                p_str = self.task_manager.boxs.poses_str[i]
                 p_num = self.task_manager.boxs.poses_dic2num[p_str]
                 obs_dict['box_pose'][i] = p_num
                 obs_dict['box_state'][i] = self.task_manager.boxs.states[i]

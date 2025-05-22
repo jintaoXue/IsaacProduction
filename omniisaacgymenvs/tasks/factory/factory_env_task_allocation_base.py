@@ -77,6 +77,21 @@ def random_zero_index(data):
     else:
         return -1
 
+
+def find_closest_pose(pose_dic, ego_pose, in_dis=5):
+    dis = np.inf
+    key = None
+    for _key, val in pose_dic.items():
+        _dis = np.linalg.norm(np.array(val[:2]) - np.array(ego_pose[:2]))
+        if _dis < 0.1:
+            return _key
+        elif _dis < dis:
+            key = _key
+            dis = _dis
+    assert dis < in_dis, 'error when get closest pose, distance is: {}'.format(dis)
+    return key
+
+
 class Materials(object):
 
     def __init__(self, cube_list : list, hoop_list : list, bending_tube_list : list, upper_tube_list: list, product_list : list) -> None:
@@ -243,6 +258,11 @@ class Characters(object):
                         "put_bending_tube_on_table":'bending_tube_preparing', 'hoop_loading_inner':'hoop_loading_inner', 'bending_tube_loading_inner':'bending_tube_loading_inner', 
                         'hoop_loading_outer':'hoop_loading_outer', 'bending_tube_loading_outer': 'bending_tube_loading_outer', 'cutting_cube': 'cutting_cube', 'placing_product':'placing_product'}
         
+        self.high2low_level_task_dic = {'hoop_preparing':'put_hoop_into_box', 'bending_tube_preparing':'put_bending_tube_into_box', 
+                                        'hoop_loading_inner':'hoop_loading_inner', 'bending_tube_loading_inner':'bending_tube_loading_inner', 
+                                        'hoop_loading_outer':'hoop_loading_outer', 'bending_tube_loading_outer':'bending_tube_loading_outer', "cutting_cube":'cutting_cube', 
+                           'placing_product':'placing_product'}
+        
         self.poses_dic = {"put_hoop_into_box": [1.28376, 6.48821, np.deg2rad(0)] , "put_bending_tube_into_box": [1.28376, 13.12021, np.deg2rad(0)], 
                         "put_hoop_on_table": [-12.26318, 4.72131, np.deg2rad(0)], "put_bending_tube_on_table":[-32, 8.0, np.deg2rad(-90)],
                         'hoop_loading_inner':[-16.26241, 6.0, np.deg2rad(180)],'bending_tube_loading_inner':[-29.06123, 6.3725, np.deg2rad(0)],
@@ -283,6 +303,8 @@ class Characters(object):
         self.placing_product_pose = [-40.47391, 12.91755, np.deg2rad(0)]
         self.PUTTING_TIME = 5
         self.LOADING_TIME = 5
+
+        self.poses_str = []
         
         return
     
@@ -292,6 +314,7 @@ class Characters(object):
         self.acti_num_charc = acti_num_charc
         self.states = [0]*acti_num_charc
         self.tasks = [0]*acti_num_charc
+        self.movements = [0]*acti_num_charc
         self.list = self.character_list[:acti_num_charc]
         self.x_paths = [[] for i in range(acti_num_charc)]
         self.y_paths = [[] for i in range(acti_num_charc)]
@@ -310,9 +333,15 @@ class Characters(object):
             self.reset_idx(i)
             self.reset_path(i)
         self.loading_operation_time_steps = [0 for i in range(acti_num_charc)]
-
+        self.poses_str = initial_pose_str
+        
         return initial_pose_str
 
+    def update_pose_str(self, idx):
+        worker_position = self.list[idx].get_world_poses()
+        wp = world_pose_to_navigation_pose(worker_position)
+        wp_str = find_closest_pose(pose_dic=self.poses_dic, ego_pose=wp, in_dis=1000.)
+        self.poses_str[idx] = wp_str
 
     def reset_idx(self, idx):
         if idx < 0 :
@@ -321,16 +350,18 @@ class Characters(object):
         self.tasks[idx] = 0
 
     def assign_task(self, high_level_task, random = False):
+        
         #todo 
         if high_level_task not in self.task_range:
             return -2
         if random:
             idx = random_zero_index(self.tasks)
         else: 
-            idx = self.find_available_charac()
+            idx = self.find_available_charac(high_level_task)
 
         if idx == -1:
             return idx
+
         if high_level_task == 'hoop_preparing':
             # idx = self.find_available_charac()
             self.tasks[idx] = 1 
@@ -367,11 +398,35 @@ class Characters(object):
             self.tasks[idx] = 10
         return idx
     
-    def find_available_charac(self, idx=0):
-        try:
-            return self.tasks.index(idx)
-        except: 
+    def find_available_charac(self, task, idx=0):
+        # try:
+        #     return self.tasks.index(idx)
+        # except: 
+        #     return -1
+        count = self.tasks.count(0)
+        if count == 0:
             return -1
+        elif count == 1:
+            return self.tasks.index(idx)
+        else:
+            task_pose_str = self.high2low_level_task_dic[task]
+            closet_idx = None
+            shortest_path = None
+            for i in range(0, len(self.tasks)):
+                if self.tasks[i] != 0:
+                    continue
+                if self.poses_str[i] == task_pose_str: #the closet idx
+                    return i
+                x,y,yaw = self.routes_dic[self.poses_str[i]][task_pose_str]
+                path_len = len(x)
+                if closet_idx is None:
+                    closet_idx = i
+                    shortest_path = path_len
+                else:
+                    closet_idx = i if path_len < shortest_path else closet_idx
+            return closet_idx
+            
+        
 
     def step_next_pose(self, charac_idx = 0):
         reaching_flag = False
@@ -394,6 +449,7 @@ class Characters(object):
             euler_angles = [0,0, self.yaws[charac_idx][path_idx]]
 
         orientation = quaternion.eulerAnglesToQuaternion(euler_angles)
+        self.movements[charac_idx] +=1
         return position, orientation, reaching_flag
 
     
@@ -408,7 +464,9 @@ class Characters(object):
         if task in self.low2high_level_task_dic.keys():
             return self.low2high_level_task_dic[task]
         else: return -1
-
+    
+    def get_sum_movement(self):
+        return sum(self.movements)
 
 class Agvs(object):
 
@@ -457,6 +515,7 @@ class Agvs(object):
         self.acti_num_agv = acti_num_agv
         self.states = [0]*acti_num_agv
         self.tasks = [0]*acti_num_agv
+        self.movements = [0]*acti_num_agv
         self.list = self.agv_list[:acti_num_agv]
         self.x_paths = [[] for i in range(acti_num_agv)]
         self.y_paths = [[] for i in range(acti_num_agv)]
@@ -474,8 +533,14 @@ class Agvs(object):
             self.list[i].set_velocities(torch.zeros((1,6)))
             self.reset_idx(i)
             self.reset_path(i)
-
+        self.poses_str = initial_pose_str
         return initial_pose_str
+
+    def update_pose_str(self, idx):
+        worker_position = self.list[idx].get_world_poses()
+        wp = world_pose_to_navigation_pose(worker_position)
+        wp_str = find_closest_pose(pose_dic=self.poses_dic, ego_pose=wp, in_dis=1000.)
+        self.poses_str[idx] = wp_str
     
     def reset_idx(self, idx):
         if idx < 0 :
@@ -550,6 +615,7 @@ class Agvs(object):
             euler_angles = [0,0, self.yaws[agv_idx][path_idx]]
 
         orientation = quaternion.eulerAnglesToQuaternion(euler_angles)
+        self.movements[agv_idx] +=1
         return position, orientation, reaching_flag
     
     def reset_path(self, agv_idx):
@@ -564,7 +630,8 @@ class Agvs(object):
             return self.low2high_level_task_dic[task]
         else: return -1
 
-
+    def get_sum_movement(self):
+        return sum(self.movements)
 
 class TransBoxs(object):
 
@@ -573,7 +640,7 @@ class TransBoxs(object):
         self.state_dic = {0:"free", 1:"waiting", 2:"moving"}
         self.sub_task_dic = {0:"free", 1:"waiting_agv", 2:"moving_with_box", 3: "collect_product"}
         self.task_range = {'hoop_preparing', 'bending_tube_preparing', 'collect_product','placing_product'}
-
+        self.high2low_level_task_dic = {'hoop_preparing':'carry_box_to_hoop', 'bending_tube_preparing':'carry_box_to_bending_tube', 'collect_product':'collect_product','placing_product':'placing_product'}
         # self.poses_dic = {'initial_box_pose_0': [-1.6895515, 8.0171, 0.0], 'initial_box_pose_1': [-1.7894887, 11.822739, 0.0]}
         self.poses_dic = {"carry_box_to_hoop": [-0.654, 8.0171, np.deg2rad(0)] , "carry_box_to_bending_tube": [-0.654, 11.62488, np.deg2rad(0)], 
                 "carry_box_to_hoop_table": [-11.69736, 5.71486, np.deg2rad(0)], "carry_box_to_bending_tube_table":[-33.55065, 5.71486, np.deg2rad(-90)] ,
@@ -590,7 +657,7 @@ class TransBoxs(object):
         # self.initial_pose_list = []
         # for obj in self.list:
         #     self.initial_pose_list.append(obj.get_world_poses())
-
+        self.routes_dic = None
         self.CAPACITY = 4
         self.reset()
         return
@@ -620,7 +687,14 @@ class TransBoxs(object):
             self.list[i].set_velocities(torch.zeros((1,6)))
             self.reset_idx(i)
 
+        self.poses_str = initial_pose_str
         return initial_pose_str
+
+    def update_pose_str(self, idx):
+        worker_position = self.list[idx].get_world_poses()
+        wp = world_pose_to_navigation_pose(worker_position)
+        wp_str = find_closest_pose(pose_dic=self.poses_dic, ego_pose=wp, in_dis=1000.)
+        self.poses_str[idx] = wp_str
 
     def reset_idx(self, idx):
         if idx < 0 :
@@ -653,7 +727,7 @@ class TransBoxs(object):
         if random:
             idx = random_zero_index([a*b for a,b in zip(self.states,self.tasks)])
         else: 
-            idx = self.find_available_box()
+            idx = self.find_available_box(high_level_task)
         if idx == -1:
             if high_level_task == 'collect_product':
                 self.product_collecting_idx = -1
@@ -667,12 +741,34 @@ class TransBoxs(object):
                 self.product_collecting_idx = idx
             return idx
 
-    def find_available_box(self):
+    def find_available_box(self, task, idx=0):
         available = [a*b for a,b in zip(self.states,self.tasks)]
-        try:
-            return available.index(0)
-        except: 
+        # try:
+        #     return available.index(0)
+        # except: 
+        #     return -1
+        count = available.count(0)
+        if count == 0:
             return -1
+        elif count == 1:
+            return available.index(idx)
+        else:
+            task_pose_str = self.high2low_level_task_dic[task]
+            closet_idx = None
+            shortest_path = None
+            for i in range(0, len(available)):
+                if available[i] != 0:
+                    continue
+                if self.poses_str[i] == task_pose_str: #the closet idx
+                    return i
+                x,y,yaw = self.routes_dic[self.poses_str[i]][task_pose_str]
+                path_len = len(x)
+                if closet_idx is None:
+                    closet_idx = i
+                    shortest_path = path_len
+                else:
+                    closet_idx = i if path_len < shortest_path else closet_idx
+            return closet_idx
         
     def find_carrying_products_box_idx(self):
         for list, idx in zip(self.product_idx_list, range(len(self.product_idx_list))):
@@ -735,13 +831,13 @@ class TaskManager(object):
 
     def assign_task(self, task):
         
-        charac_idx = self.characters.assign_task(task, random = True)
-        box_idx = self.boxs.assign_task(task, random = True)
+        charac_idx = self.characters.assign_task(task, random = False)
+        box_idx = self.boxs.assign_task(task, random = False)
         if box_idx >= 0:
             box_xyz, _ = self.boxs.list[box_idx].get_world_poses()
         else:
             box_xyz = None
-        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz, random = True)
+        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz, random = False)
         
         lacking_resource = False
         if charac_idx == -1 or agv_idx == -1 or box_idx == -1:
@@ -1298,6 +1394,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
                     self.task_manager.agvs.routes_dic = self.routes_down_sampling(dic, to_cuda=False)
                 else:
                     self.task_manager.agvs.routes_dic = dic
+                self.task_manager.boxs.routes_dic = self.task_manager.agvs.routes_dic
         else:
             self.xyResolution = 5
             self.obstacleX, self.obstacleY = hybridAStar.map_png(self.xyResolution)
