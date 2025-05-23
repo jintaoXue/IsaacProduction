@@ -1402,6 +1402,21 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             self.mapParameters = hybridAStar.calculateMapParameters(self.obstacleX, self.obstacleY, self.xyResolution, np.deg2rad(15.0))
             self.task_manager.characters.routes_dic = self.generate_routes(self.task_manager.characters.poses_dic, os.path.expanduser(self.cfg_env.env.route_character_file_path), have_problem_routes_character)
             self.task_manager.agvs.routes_dic = self.generate_routes(self.task_manager.agvs.poses_dic, os.path.expanduser(self.cfg_env.env.route_agv_file_path), have_problem_routes_agv)
+        
+        draw_one_node_paths = True
+        if draw_one_node_paths:
+            self.xyResolution = 5
+            self.obstacleX, self.obstacleY = hybridAStar.map_png(self.xyResolution)
+            keys = list(self.task_manager.characters.routes_dic.keys())
+            names = [i for i in range(0,len(keys))]
+            for key, tile in zip(keys, names):
+                self.draw_one_node_paths(self.task_manager.characters.routes_dic, 'human', key, tile)
+            
+            keys = list(self.task_manager.agvs.routes_dic.keys())
+            names = [i for i in range(0,len(keys))]
+            for key, tile in zip(keys, names):
+                self.draw_one_node_paths(self.task_manager.agvs.routes_dic, 'robot', key, tile)
+        pass
 
 
     def routes_down_sampling(self, routes_dic, to_cuda): 
@@ -1435,6 +1450,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
         # self.min_x = max(self.max_x, max(x))
         # self.min_y = max(self.max_x, max(x))
         return x,y,yaw
+    
     def generate_routes(self, pose_dic : dict, file_path, have_problem_routes: dict):
         path = os.path.expanduser(file_path)
         routes_dic = {}
@@ -1457,7 +1473,6 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             with open(path, 'wb') as f:
                 pickle.dump(routes_dic, f)
         return
-
 
     def path_planner_multi_poses(self, start, goal, interval_path_list):
         interval_path_list = [start] + interval_path_list + [goal]
@@ -1503,6 +1518,58 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
                 plt.tight_layout()
                 # plt.pause(0.01)
         return x, y, yaw
+
+    def draw_one_node_paths(self, routes_dic : dict, file_prev_name, node_str=None, tile = ''):
+        if node_str is None:
+            node_str = list(routes_dic.keys())[0]
+        paths_dic : dict = routes_dic[node_str]
+        
+        def get_cmap(n, name='hsv'):
+            '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
+            RGB color; the keyword argument name must be a standard mpl colormap name.'''
+            return plt.cm.get_cmap(name, n)
+            # return plt.colormaps.get_cmap(name, n)
+        cmap = get_cmap(12)
+        import math
+        plt.figure(figsize=(20,10),dpi=150)
+        plt.cla()
+        plt.plot(self.obstacleX, self.obstacleY, "sk")
+        plt.xticks([])
+        plt.yticks([])
+        color_num = -1
+        for key, val in paths_dic.items():
+            x, y, yaw= val
+            trans_x = -50
+            trans_y = -30
+            _x = [(value - trans_x)*self.xyResolution for value in x]
+            _y = [(value - trans_y)*self.xyResolution for value in y]
+            color_num+=1
+            for k in range(len(_x)):
+                
+                # plt.xlim(min(self.obstacleX), max(self.obstacleX)) 
+                # plt.ylim(min(self.obstacleY), max(self.obstacleY))        
+                # plt.xlim(x_limit[0], x_limit[1]) 
+                # plt.ylim(y_limit[0], y_limit[1])                
+                plt.xlim(40, 290) 
+                plt.ylim(120, 240)
+                # plt.plot(_x, _y, linewidth=1.5, color='r', zorder=0)
+                plt.plot(_x, _y, linewidth=1.5, color=cmap(color_num), zorder=0)
+                # hybridAStar.drawCar(s[0], s[1], s[2])
+                # hybridAStar.drawCar(g[0], g[1], g[2])
+                hybridAStar.drawCar(_x[k], _y[k], yaw[k])
+                # plt.arrow(_x[k], _y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=.2, color='royalblue')
+                plt.arrow(_x[k], _y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=.2, color=cmap(color_num))
+                # plt.title("Hybrid A*",fontsize=20)
+                # plt.tick_params(axis='both', which='both', labelsize=15)
+                plt.gca().invert_xaxis()
+                plt.gca().invert_yaxis()
+                # plt.title("Path planning results",fontsize=30)
+                plt.title("Path planning results: {}".format(tile),fontsize=30)
+                plt.tick_params(axis='both', which='both', labelsize=20)
+                plt.tight_layout()
+        path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        plt.savefig('{}.pdf'.format(path + '/' + 'draw/low_level_agent/' + '{}_{}_'.format(file_prev_name, tile) +node_str), bbox_inches='tight')
+        return
 
     def scale_pose(self, _pose: list):
         pose = _pose.copy()
