@@ -377,7 +377,7 @@ class Characters(object):
         elif high_level_task == 'bending_tube_loading_outer':
             self.tasks[idx] = 8
         elif high_level_task == 'cutting_cube':
-            if random:
+            if True:
                 self.tasks[idx] = 9
             #TODO warning
             else:
@@ -583,15 +583,26 @@ class Agvs(object):
             except: 
                 return -1
         else:
-            min_dis_idx = -1
-            pre_dis = torch.inf
-            for agv_idx in range(0, len(self.list)):
-                if available[agv_idx] == 0:
-                    agv_xyz, _ = self.list[agv_idx].get_world_poses()
-                    dis = torch.norm(agv_xyz[0] - box_xyz)
-                    if dis.cpu() < pre_dis:
-                        pre_dis = dis
-                        min_dis_idx = agv_idx
+            if False:
+                min_dis_idx = -1
+                pre_dis = torch.inf
+                for agv_idx in range(0, len(self.list)):
+                    if available[agv_idx] == 0:
+                        agv_xyz, _ = self.list[agv_idx].get_world_poses()
+                        dis = torch.norm(agv_xyz[0] - box_xyz)
+                        if dis.cpu() < pre_dis:
+                            pre_dis = dis
+                            min_dis_idx = agv_idx
+            else:
+                min_dis_idx = -1
+                pre_dis = -torch.inf
+                for agv_idx in range(0, len(self.list)):
+                    if available[agv_idx] == 0:
+                        agv_xyz, _ = self.list[agv_idx].get_world_poses()
+                        dis = torch.norm(agv_xyz[0] - box_xyz)
+                        if dis.cpu() > pre_dis:
+                            pre_dis = dis
+                            min_dis_idx = agv_idx
             return min_dis_idx
     
     def step_next_pose(self, agv_idx):
@@ -1403,7 +1414,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             self.task_manager.characters.routes_dic = self.generate_routes(self.task_manager.characters.poses_dic, os.path.expanduser(self.cfg_env.env.route_character_file_path), have_problem_routes_character)
             self.task_manager.agvs.routes_dic = self.generate_routes(self.task_manager.agvs.poses_dic, os.path.expanduser(self.cfg_env.env.route_agv_file_path), have_problem_routes_agv)
         
-        draw_one_node_paths = True
+        draw_one_node_paths = False
         if draw_one_node_paths:
             self.xyResolution = 5
             self.obstacleX, self.obstacleY = hybridAStar.map_png(self.xyResolution)
