@@ -778,7 +778,7 @@ class TransBoxs(object):
                     closet_idx = i
                     shortest_path = path_len
                 else:
-                    closet_idx = i if path_len >  shortest_path else closet_idx
+                    closet_idx = i if path_len > shortest_path else closet_idx
             return closet_idx
         
     def find_carrying_products_box_idx(self):
