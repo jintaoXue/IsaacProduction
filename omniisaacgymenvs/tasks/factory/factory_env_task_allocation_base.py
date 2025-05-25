@@ -1414,7 +1414,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             self.task_manager.characters.routes_dic = self.generate_routes(self.task_manager.characters.poses_dic, os.path.expanduser(self.cfg_env.env.route_character_file_path), have_problem_routes_character)
             self.task_manager.agvs.routes_dic = self.generate_routes(self.task_manager.agvs.poses_dic, os.path.expanduser(self.cfg_env.env.route_agv_file_path), have_problem_routes_agv)
         
-        draw_one_node_paths = True
+        draw_one_node_paths = False
         if draw_one_node_paths:
             self.xyResolution = 5
             self.obstacleX, self.obstacleY = hybridAStar.map_png(self.xyResolution)
@@ -1542,7 +1542,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
             # return plt.colormaps.get_cmap(name, n)
         cmap = get_cmap(12)
         import math
-        plt.figure(figsize=(20,12),dpi=200)
+        plt.figure(figsize=(20,10),dpi=150)
         plt.cla()
         plt.plot(self.obstacleX, self.obstacleY, "sk")
         plt.xticks([])
@@ -1575,7 +1575,7 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
                 plt.gca().invert_xaxis()
                 plt.gca().invert_yaxis()
                 # plt.title("Path planning results",fontsize=30)
-                plt.title("Path planning results: {}".format(tile),fontsize=60)
+                plt.title("Path planning results: {}".format(tile),fontsize=30)
                 plt.tick_params(axis='both', which='both', labelsize=20)
                 plt.tight_layout()
         path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
