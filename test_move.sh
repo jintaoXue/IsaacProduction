@@ -28,4 +28,4 @@ files=$(ls $dir_path)
 #     load_dir="/FactoryTaskAllocationMiC_2025-05-24_13-25-03/nn" load_name=/FactoryTaskAllocationMiC_ep_20500.pth wandb_project=test_move test_times=10 
 
 python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
-    load_dir="/FactoryTaskAllocationMiC_2025-05-25_11-32-15/nn" load_name=/FactoryTaskAllocationMiC_ep_21900.pth wandb_project=test_move test_times=10 
+    load_dir="/FactoryTaskAllocationMiC_2025-05-25_11-32-15/nn" load_name=/FactoryTaskAllocationMiC_ep_21900.pth wandb_project=test_move test_times=100
