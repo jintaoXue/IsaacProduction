@@ -842,13 +842,13 @@ class TaskManager(object):
 
     def assign_task(self, task):
         
-        charac_idx = self.characters.assign_task(task, random = True)
-        box_idx = self.boxs.assign_task(task, random = True)
+        charac_idx = self.characters.assign_task(task, random = False)
+        box_idx = self.boxs.assign_task(task, random = False)
         if box_idx >= 0:
             box_xyz, _ = self.boxs.list[box_idx].get_world_poses()
         else:
             box_xyz = None
-        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz, random = True)
+        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz, random = False)
         
         lacking_resource = False
         if charac_idx == -1 or agv_idx == -1 or box_idx == -1:

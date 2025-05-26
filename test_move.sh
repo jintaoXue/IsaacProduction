@@ -32,11 +32,11 @@ files=$(ls $dir_path)
 #     load_dir="/FactoryTaskAllocationMiC_2025-05-25_11-32-15/nn" load_name=/FactoryTaskAllocationMiC_ep_21900.pth wandb_project=test_move test_times=100
 
 ######random
-python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
-    load_dir="/FactoryTaskAllocationMiC_2024-12-23_18-12-29/nn" load_name=/FactoryTaskAllocationMiC_ep_20100.pth wandb_project=test_move test_times=100
+# python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
+#     load_dir="/FactoryTaskAllocationMiC_2024-12-23_18-12-29/nn" load_name=/FactoryTaskAllocationMiC_ep_20100.pth wandb_project=test_move test_times=100
 
 
 
 #####short
-# python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
-#     load_dir="/FactoryTaskAllocationMiC_2025-05-24_13-25-03/nn" load_name=/FactoryTaskAllocationMiC_ep_21100.pth wandb_project=test_move test_times=100
+python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
+    load_dir="/FactoryTaskAllocationMiC_2025-05-24_13-25-03/nn" load_name=/FactoryTaskAllocationMiC_ep_21100.pth wandb_project=test_move test_times=100
