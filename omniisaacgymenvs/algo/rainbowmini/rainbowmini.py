@@ -765,7 +765,7 @@ class RainbowminiAgent():
                         # fps_total = self.num_steps_per_epoch / epoch_total_time
 
                         if self.use_wandb:
-                            wandb.log({
+                            wandb.log({ 
                                     "Train/step": self.step_num,
                                     "Train/train_epoch": self.epoch_num,
                                     'Train/buffer_size': self.replay_buffer.transitions.index,

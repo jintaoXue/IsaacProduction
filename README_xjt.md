@@ -318,7 +318,7 @@ EDDQN(no dueling):
 
 DQNX(no efficient)
 
-No spatial:  FactoryTaskAllocationMiC_ep_20100.pth
+No spatial:  FactoryTaskAllocationMiC_ep_20100.pth   2024-12-23_18-12-29
 
 zero shot:
 Edqn(greedy): test_edqn_ep_10500.pth_2024-12-11_13-29-49

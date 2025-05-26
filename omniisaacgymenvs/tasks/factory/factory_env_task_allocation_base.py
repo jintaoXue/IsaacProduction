@@ -423,7 +423,7 @@ class Characters(object):
                     closet_idx = i
                     shortest_path = path_len
                 else:
-                    closet_idx = i if path_len > shortest_path else closet_idx
+                    closet_idx = i if path_len < shortest_path else closet_idx
             return closet_idx
             
         
@@ -583,7 +583,7 @@ class Agvs(object):
             except: 
                 return -1
         else:
-            if False:
+            if True:
                 min_dis_idx = -1
                 pre_dis = torch.inf
                 for agv_idx in range(0, len(self.list)):
@@ -778,7 +778,7 @@ class TransBoxs(object):
                     closet_idx = i
                     shortest_path = path_len
                 else:
-                    closet_idx = i if path_len > shortest_path else closet_idx
+                    closet_idx = i if path_len < shortest_path else closet_idx
             return closet_idx
         
     def find_carrying_products_box_idx(self):
@@ -842,13 +842,13 @@ class TaskManager(object):
 
     def assign_task(self, task):
         
-        charac_idx = self.characters.assign_task(task, random = False)
-        box_idx = self.boxs.assign_task(task, random = False)
+        charac_idx = self.characters.assign_task(task, random = True)
+        box_idx = self.boxs.assign_task(task, random = True)
         if box_idx >= 0:
             box_xyz, _ = self.boxs.list[box_idx].get_world_poses()
         else:
             box_xyz = None
-        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz, random = False)
+        agv_idx = self.agvs.assign_task(task, box_idx, box_xyz, random = True)
         
         lacking_resource = False
         if charac_idx == -1 or agv_idx == -1 or box_idx == -1:
@@ -1562,24 +1562,24 @@ class FactoryEnvTaskAlloc(FactoryBase, FactoryABCEnv):
                 # plt.xlim(x_limit[0], x_limit[1]) 
                 # plt.ylim(y_limit[0], y_limit[1])                
                 plt.xlim(40, 290) 
-                plt.ylim(120, 240)
+                plt.ylim(115, 240)
                 # plt.plot(_x, _y, linewidth=1.5, color='r', zorder=0)
                 plt.plot(_x, _y, linewidth=1.5, color=cmap(color_num), zorder=0)
                 # hybridAStar.drawCar(s[0], s[1], s[2])
                 # hybridAStar.drawCar(g[0], g[1], g[2])
                 hybridAStar.drawCar(_x[k], _y[k], yaw[k])
                 # plt.arrow(_x[k], _y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=.2, color='royalblue')
-                plt.arrow(_x[k], _y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=.2, color=cmap(color_num))
+                plt.arrow(_x[k], _y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=.5, color=cmap(color_num))
                 # plt.title("Hybrid A*",fontsize=20)
                 # plt.tick_params(axis='both', which='both', labelsize=15)
                 plt.gca().invert_xaxis()
                 plt.gca().invert_yaxis()
                 # plt.title("Path planning results",fontsize=30)
-                plt.title("Path planning results: {}".format(tile),fontsize=30)
+                # plt.title("Path planning results: {}".format(tile),fontsize=50)
                 plt.tick_params(axis='both', which='both', labelsize=20)
                 plt.tight_layout()
         path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        plt.savefig('{}.pdf'.format(path + '/' + 'draw/low_level_agent/' + '{}_{}_'.format(file_prev_name, tile) +node_str), bbox_inches='tight')
+        plt.savefig('{}.png'.format(path + '/' + 'draw/low_level_agent/' + '{}_{}_'.format(file_prev_name, tile) +node_str), bbox_inches='tight')
         return
 
     def scale_pose(self, _pose: list):
