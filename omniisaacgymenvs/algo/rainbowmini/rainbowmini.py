@@ -254,8 +254,8 @@ class RainbowminiAgent():
         # self.evaluate_table = wandb.Table(columns=["env_length", "action_seq", "progress"])
 
         #test
-        self.test_table = wandb.Table(columns=["worker_initial_pose", "robot_initial_pose", "box_initial_pose", "progress", "env_length"])
-        self.test_table2 = wandb.Table(columns=["num_worker", "num_robot&box", "max", "min", "mean"])
+        self.test_table = wandb.Table(columns=["worker_initial_pose", "robot_initial_pose", "box_initial_pose", "progress", "env_length", "human_move", "robot_move"])
+        self.test_table2 = wandb.Table(columns=["num_worker", "num_robot&box", "max", "min", "mean", "human_mean", "robot_mean"])
         self.test_table3 = wandb.Table(columns=["time_step", "action_list"])
         return
     
@@ -711,7 +711,7 @@ class RainbowminiAgent():
                         #     checkpoint_name = self.config['name'] + '_ep_' + str(self.episode_num)
                         #     self.save(os.path.join(self.nn_dir, checkpoint_name)) 
                     if test:
-                        self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'].cpu())
+                        self.test_table.add_data(infos['worker_initial_pose'] , infos["robot_initial_pose"], infos['box_initial_pose'], infos['progress'], infos['env_length'].cpu(), infos['human_move'], infos['agv_move'])
                         self.test_table3.add_data(' '.join(time_step_list), ' '.join(action_info_list))
                 action_info_list = []
                 next_obs = self.env_reset(num_worker=reset_n_worker, num_robot=reset_n_robot) 
@@ -743,7 +743,9 @@ class RainbowminiAgent():
                         if self.use_wandb:
                             index = w*self.config["max_num_worker"]+r
                             time_span = self.test_table.get_column("env_length")[index*self.config['test_times']: (index+1)*self.config['test_times']]
-                            self.test_table2.add_data(w+1, r+1, np.max(time_span), np.min(time_span), np.mean(time_span))
+                            human_move = self.test_table.get_column("human_move")[index*self.config['test_times']: (index+1)*self.config['test_times']]
+                            robot_move = self.test_table.get_column("robot_move")[index*self.config['test_times']: (index+1)*self.config['test_times']]
+                            self.test_table2.add_data(w+1, r+1, np.max(time_span), np.min(time_span), np.mean(time_span), np.mean(human_move), np.mean(robot_move))
                 if self.use_wandb:
                     wandb.log({"Instances": self.test_table}) 
                     wandb.log({"Instances2": self.test_table2}) 

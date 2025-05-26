@@ -467,3 +467,5 @@ num worker:2, num agv&box:2, env_length:907, max_env_len:2000, task_finished:Tru
 还差什么实验？
 把long和short跑了 在low-level里面统计move 和time
 修改mtheod开头部分
+
+# test 
