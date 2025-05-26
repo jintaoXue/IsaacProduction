@@ -38,5 +38,48 @@ files=$(ls $dir_path)
 
 
 #####short
-python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
-    load_dir="/FactoryTaskAllocationMiC_2025-05-24_13-25-03/nn" load_name=/FactoryTaskAllocationMiC_ep_21100.pth wandb_project=test_move test_times=100
+
+list=(
+    24600
+    23600
+    23400
+    23300
+    23100
+    22900
+    22600
+    22200
+    21800
+    # 21100
+    21000
+    20800
+    20700
+    20600
+    20500
+    20300
+    20000
+    19800
+    19500
+    19300
+    19000
+    18900
+    18800
+    18700
+    18600
+    18500
+    18200
+    17500
+    17400
+    16900
+    16600
+    16200
+    15500
+    15300
+)
+
+for num in "${list[@]}"
+do
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
+        load_dir="/FactoryTaskAllocationMiC_2025-05-24_13-25-03/nn" load_name=/FactoryTaskAllocationMiC_ep_$num.pth wandb_project=test_move test_times=100
+    # echo $num
+#    echo -e >> filename.txt
+done
