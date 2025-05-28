@@ -112,7 +112,7 @@ class DQN(nn.Module):
     self.fc_h_a = NoisyLinear(self.fm.dim_output, config['hidden_size'], std_init=config['noisy_std'])
     self.fc_z_v = NoisyLinear(config['hidden_size'], 1, std_init=config['noisy_std'])
     self.fc_z_a = NoisyLinear(config['hidden_size'], action_space, std_init=config['noisy_std'])
-    self.Vmin = config.get('V_min', -2NoisyLinear0)
+    self.Vmin = config.get('V_min', -20)
     self.Vmax = config.get('V_max', 20)
   def forward(self, x, log=False):
     action_mask = x['action_mask']
