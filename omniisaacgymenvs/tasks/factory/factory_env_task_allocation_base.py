@@ -583,26 +583,32 @@ class Agvs(object):
             except: 
                 return -1
         else:
-            if True:
-                min_dis_idx = -1
-                pre_dis = torch.inf
-                for agv_idx in range(0, len(self.list)):
-                    if available[agv_idx] == 0:
-                        agv_xyz, _ = self.list[agv_idx].get_world_poses()
-                        dis = torch.norm(agv_xyz[0] - box_xyz)
-                        if dis.cpu() < pre_dis:
-                            pre_dis = dis
-                            min_dis_idx = agv_idx
+            count = available.count(0)
+            if count == 0:
+                return -1
+            elif count == 1:
+                return available.index(0)
             else:
-                min_dis_idx = -1
-                pre_dis = -torch.inf
-                for agv_idx in range(0, len(self.list)):
-                    if available[agv_idx] == 0:
-                        agv_xyz, _ = self.list[agv_idx].get_world_poses()
-                        dis = torch.norm(agv_xyz[0] - box_xyz)
-                        if dis.cpu() > pre_dis:
-                            pre_dis = dis
-                            min_dis_idx = agv_idx
+                if True:
+                    min_dis_idx = -1
+                    pre_dis = torch.inf
+                    for agv_idx in range(0, len(self.list)):
+                        if available[agv_idx] == 0:
+                            agv_xyz, _ = self.list[agv_idx].get_world_poses()
+                            dis = torch.norm(agv_xyz[0] - box_xyz)
+                            if dis.cpu() < pre_dis:
+                                pre_dis = dis
+                                min_dis_idx = agv_idx
+                else:
+                    min_dis_idx = -1
+                    pre_dis = -torch.inf
+                    for agv_idx in range(0, len(self.list)):
+                        if available[agv_idx] == 0:
+                            agv_xyz, _ = self.list[agv_idx].get_world_poses()
+                            dis = torch.norm(agv_xyz[0] - box_xyz)
+                            if dis.cpu() > pre_dis:
+                                pre_dis = dis
+                                min_dis_idx = agv_idx
             return min_dis_idx
     
     def step_next_pose(self, agv_idx):
