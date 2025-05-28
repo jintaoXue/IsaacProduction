@@ -483,3 +483,8 @@ num worker:2, num agv&box:2, env_length:907, max_env_len:2000, task_finished:Tru
                 "cwd": "${workspaceFolder}",
                 
             }, 
+
+
+hoop_preparing bending_tube_preparing collect_product cutting_cube hoop_loading_outer hoop_loading_inner bending_tube_loading_outer bending_tube_loading_inner cutting_cube bending_tube_loading_outer cutting_cube hoop_loading_outer placing_product collect_product bending_tube_loading_inner cutting_cube hoop_loading_inner placing_product bending_tube_preparing hoop_preparing cutting_cube collect_product bending_tube_loading_inner placing_product hoop_loading_inner collect_product placing_product
+
+hoop_preparing bending_tube_preparing collect_product cutting_cube hoop_loading_inner bending_tube_loading_inner hoop_loading_outer cutting_cube bending_tube_loading_outer bending_tube_loading_inner hoop_loading_inner placing_product collect_product cutting_cube bending_tube_loading_inner hoop_loading_inner placing_product bending_tube_preparing hoop_preparing cutting_cube collect_product placing_product bending_tube_loading_inner collect_product hoop_loading_inner cutting_cube placing_product collect_product placing_product

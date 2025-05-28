@@ -592,7 +592,7 @@ class Agvs(object):
                 if True:
                     min_dis_idx = -1
                     pre_dis = torch.inf
-                    for agv_idx in range(0, len(self.list)):
+                    for agv_idx in range(0, self.acti_num_agv):
                         if available[agv_idx] == 0:
                             agv_xyz, _ = self.list[agv_idx].get_world_poses()
                             dis = torch.norm(agv_xyz[0] - box_xyz)
@@ -602,7 +602,7 @@ class Agvs(object):
                 else:
                     min_dis_idx = -1
                     pre_dis = -torch.inf
-                    for agv_idx in range(0, len(self.list)):
+                    for agv_idx in range(0, self.acti_num_agv):
                         if available[agv_idx] == 0:
                             agv_xyz, _ = self.list[agv_idx].get_world_poses()
                             dis = torch.norm(agv_xyz[0] - box_xyz)
