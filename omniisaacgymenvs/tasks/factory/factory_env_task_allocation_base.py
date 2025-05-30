@@ -377,7 +377,7 @@ class Characters(object):
         elif high_level_task == 'bending_tube_loading_outer':
             self.tasks[idx] = 8
         elif high_level_task == 'cutting_cube':
-            if True:
+            if False:
                 self.tasks[idx] = 9
             #TODO warning
             else:
@@ -399,10 +399,10 @@ class Characters(object):
         return idx
     
     def find_available_charac(self, task, idx=0):
-        # try:
-        #     return self.tasks.index(idx)
-        # except: 
-        #     return -1
+        try:
+            return self.tasks.index(idx)
+        except: 
+            return -1
         count = self.tasks.count(0)
         if count == 0:
             return -1
@@ -760,10 +760,10 @@ class TransBoxs(object):
 
     def find_available_box(self, task, idx=0):
         available = [a*b for a,b in zip(self.states,self.tasks)]
-        # try:
-        #     return available.index(0)
-        # except: 
-        #     return -1
+        try:
+            return available.index(0)
+        except: 
+            return -1
         count = available.count(0)
         if count == 0:
             return -1
