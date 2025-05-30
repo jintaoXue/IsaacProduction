@@ -37,10 +37,6 @@ files=$(ls $dir_path)
 
 
 
-
-
-
-
 ############### short new
 
 list=(
@@ -59,17 +55,6 @@ do
     # echo $num
 #    echo -e >> filename.txt
 done
-
-
-
-
-
-
-
-
-
-
-
 
 
 
