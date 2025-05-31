@@ -644,7 +644,7 @@ class RainbowminiAgent():
                 # print("reward_extra:{}, env_len:{}".format(reward_extra, _infos['env_length']))
                 if not random_exploration or goal_finished:
                     break
-            reward_extra = 0.
+        reward_extra = 0.
         return temporary_buffer, reward_extra, repeat_times
     
     def evaluate_epoch(self, test=False, reset_n_worker=None, reset_n_robot=None):
