@@ -59,14 +59,14 @@ files=$(ls $dir_path)
 
 ##########PPO discrete test
 
-python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
+python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCPPOdiscrete headless=True wandb_activate=True test=True \
     load_dir="/FactoryTaskAllocationMiC_2025-05-21_16-02-29/nn" load_name=/FactoryTaskAllocationMiC_ep_1200.pth wandb_project=test_HRTA test_times=100
 
 
     # zero shot
 for num in {1..10}
 do
-    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCRainbowmini headless=True wandb_activate=True test=True \
+    python omniisaacgymenvs/scripts/rlgames_train_v1.py task=FactoryTaskAllocationMiC train=FactoryTaskAllocationMiCPPOdiscrete headless=True wandb_activate=True test=True \
     load_dir="/FactoryTaskAllocationMiC_2025-05-21_16-02-29/nn" load_name=/FactoryTaskAllocationMiC_ep_1200.pth wandb_project="test_zero_shot$num" test_times=10 num_product=$num
 #    echo $filename >> filename.txt
 #    echo -e >> filename.txt
