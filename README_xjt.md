@@ -316,7 +316,7 @@ Edqn(greedy):
     
 EDDQN(no dueling):
 
-DQNX(no efficient)
+DQNX(no efficient) 
 
 No spatial:  FactoryTaskAllocationMiC_ep_20100.pth   2024-12-23_18-12-29
 
@@ -487,3 +487,8 @@ num worker:2, num agv&box:2, env_length:907, max_env_len:2000, task_finished:Tru
 
 # 6.2 PPO discrete 和no reward的test zero shot
 
+
+test_ppo_discrete_ep_1200.pth_2025-05-21_16-02-29
+
+
+test_rainbowmini_ep_22700.pth_2025-05-31_12-10-08 (no_reward)

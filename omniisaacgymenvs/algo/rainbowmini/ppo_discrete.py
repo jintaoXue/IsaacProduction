@@ -604,7 +604,8 @@ class PPOAgent():
             #     with torch.no_grad():
             #         action, action_prob = self.act(obs).unsqueeze(0)
             #         # action = self.act_e_greedy(obs).unsqueeze(0)
-            action, action_prob = self.act(obs)
+            with torch.no_grad():
+                action, action_prob = self.act(obs)
             #debug TODO
             # action = None
 
