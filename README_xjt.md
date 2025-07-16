@@ -499,5 +499,5 @@ problem description的公式定义，符号位置（可以统一成下标）， 
 
 图片标题重复
 
-method里面的obj fuction 公式12 中括号的位置不对
+method里面的obj fuction 公式12 中括号的位置不对， 12，13好像不符合DDQN的意义重新写一下
 
