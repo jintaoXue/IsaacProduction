@@ -492,3 +492,12 @@ test_ppo_discrete_ep_1200.pth_2025-05-21_16-02-29
 
 
 test_rainbowmini_ep_22700.pth_2025-05-31_12-10-08 (no_reward)
+
+
+## 论文要改的地方
+problem description的公式定义，符号位置（可以统一成下标）， obj可以加一个大括号变成条件格式
+
+图片标题重复
+
+method里面的obj fuction 公式12 中括号的位置不对
+
