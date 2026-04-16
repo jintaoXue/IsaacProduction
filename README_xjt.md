@@ -499,5 +499,12 @@ problem description的公式定义，符号位置（可以统一成下标）， 
 
 图片标题重复
 
-method里面的obj fuction 公式12 中括号的位置不对， 12，13好像不符合DDQN的意义重新写一下
+method里面的obj fuction 公式12 中括号的位置不对， 12，13好像不符合DDQN的意义重新写一下（公式13的argmax q-target = q（s， argmax（）））
 
+公式13改用y_t作为target value
+
+把markov 决策过程的定义环节 theta 给去掉比较好
+
+$\mathcal{E}$ is the entity set 这句去掉
+
+索引表达式有问题要改
